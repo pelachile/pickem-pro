@@ -50,15 +50,27 @@ export default defineConfig({
   server: {
     port: 5173
   },
-  // Add build optimization
+  // Add build optimization with image handling
   build: {
     rollupOptions: {
       output: {
         manualChunks: {
           vendor: ['react', 'react-dom'],
           router: ['@tanstack/react-router']
+        },
+        // Optimize asset file naming
+        assetFileNames: (assetInfo) => {
+          const name = assetInfo.name || 'asset';
+          const info = name.split('.');
+          const ext = info[info.length - 1];
+          if (/webp|jpg|jpeg|png|gif|svg/.test(ext)) {
+            return `images/[name]-[hash][extname]`;
+          }
+          return `assets/[name]-[hash][extname]`;
         }
       }
-    }
+    },
+    // Image optimization settings
+    assetsInlineLimit: 4096, // Images smaller than 4KB will be inlined as base64
   }
 });

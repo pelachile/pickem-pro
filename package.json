@@ -8,7 +8,8 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "fetch-logos": "node scripts/fetch-team-logos.js"
+    "fetch-logos": "node scripts/fetch-team-logos.js",
+    "optimize-hero": "node scripts/optimize-hero-image.js"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.7",

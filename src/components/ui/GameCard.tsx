@@ -528,21 +528,18 @@ export const GameCard: React.FC<GameCardProps> = ({
         </div>
       </header>
       
-      {/* Enhanced Matchup Button for Default Layout */}
-      {/* Mobile: Always show default button. Desktop: Only for vertical layouts */}
+      {/* Enhanced Matchup Header for Default Layout */}
+      {/* Mobile: Always show matchup info. Desktop: Only for vertical layouts */}
       <div className="md:hidden">
         <div className="flex items-center justify-center mb-4 relative z-10">
-          <Button
-            variant="outline"
-            size="md"
+          <div
             className={cn(
-              'font-semibold text-white/80 border-white/20 bg-white/5 hover:bg-white/10 hover:border-white/30 transition-all duration-200',
-              'px-6 py-3 text-sm rounded-full backdrop-blur-sm shadow-lg'
+              'font-semibold text-white/90 border-white/20 bg-white/5 border transition-all duration-200',
+              'px-6 py-3 text-sm rounded-full backdrop-blur-sm shadow-lg cursor-default'
             )}
-            onClick={() => {}}
           >
             {`${game.awayTeam.abbreviation} @ ${game.homeTeam.abbreviation}`}
-          </Button>
+          </div>
         </div>
       </div>
       
@@ -550,20 +547,17 @@ export const GameCard: React.FC<GameCardProps> = ({
       <div className="hidden md:block">
       {!useHorizontalLayout && (
         <div className="flex items-center justify-center mb-4 relative z-10">
-          <Button
-            variant="outline"
-            size="md"
+          <div
             className={cn(
-              'font-semibold text-white/80 border-white/20 bg-white/5 hover:bg-white/10 hover:border-white/30 transition-all duration-200',
-              'px-6 py-3 text-sm rounded-full backdrop-blur-sm shadow-lg'
+              'font-semibold text-white/90 border-white/20 bg-white/5 border transition-all duration-200',
+              'px-6 py-3 text-sm rounded-full backdrop-blur-sm shadow-lg cursor-default'
             )}
-            onClick={() => {}}
           >
             {(layout === 'default' || compact) 
               ? `${game.awayTeam.abbreviation} @ ${game.homeTeam.abbreviation}`
               : `${game.awayTeam.display_name || game.awayTeam.name} @ ${game.homeTeam.display_name || game.homeTeam.name}`
             }
-          </Button>
+          </div>
         </div>
       )}
       </div>
@@ -618,25 +612,22 @@ export const GameCard: React.FC<GameCardProps> = ({
             'space-y-6',
             layout === 'full' ? 'space-y-8' : 'space-y-6'
           )}>
-            {/* Enhanced Matchup Button for Horizontal Layout */}
+            {/* Enhanced Matchup Header for Horizontal Layout */}
             <div className="flex items-center justify-center">
-              <Button
-                variant="outline"
-                size={layout === 'full' ? 'lg' : 'md'}
+              <div
                 className={cn(
-                  'font-bold text-white border-white/20 bg-white/5 hover:bg-white/10 hover:border-white/30 transition-all duration-200',
-                  'backdrop-blur-sm shadow-lg rounded-full',
+                  'font-bold text-white border-white/20 bg-white/5 border transition-all duration-200',
+                  'backdrop-blur-sm shadow-lg rounded-full cursor-default',
                   layout === 'full' 
                     ? 'px-8 py-4 text-lg' 
                     : 'px-6 py-3 text-base'
                 )}
-                onClick={() => {}}
               >
                 {(layout === 'full' || layout === 'wide')
                   ? `${game.awayTeam.display_name || game.awayTeam.name} @ ${game.homeTeam.display_name || game.homeTeam.name}`
                   : `${game.awayTeam.abbreviation} @ ${game.homeTeam.abbreviation}`
                 }
-              </Button>
+              </div>
             </div>
             
             {/* Teams in horizontal layout */}
