@@ -73,3 +73,15 @@ backup/
 
 # AWS Amplify (removed from project)
 .amplify/
+
+# Supabase local development (Docker containers and generated files)
+supabase/
+
+# Development artifacts and documentation
+supabaseKeys.txt
+*transfer*.md
+htmlToFigma.html
+backup/
+planning/
+setup-storage*.sql
+create-schema.sql
