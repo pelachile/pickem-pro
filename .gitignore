@@ -60,3 +60,13 @@ pids
 
 # Team images (large files - should be served from CDN)
 public/images/teams/
+
+# Test and backup directories
+playwright-report/
+test-results/
+backup/
+
+# Development artifacts
+*.log
+*.tmp
+*.temp
