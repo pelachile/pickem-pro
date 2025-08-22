@@ -85,3 +85,9 @@ backup/
 planning/
 setup-storage*.sql
 create-schema.sql
+
+# Claude Code and MCP servers (development tools)
+.claude/
+.serena/
+.playwright-mcp/
+.tanstack/
