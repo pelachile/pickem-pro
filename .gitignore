@@ -57,3 +57,6 @@ pids
 .npm
 .pnp/
 .pnp.js
+
+# Team images (large files - should be served from CDN)
+public/images/teams/
