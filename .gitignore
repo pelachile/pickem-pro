@@ -70,3 +70,6 @@ backup/
 *.log
 *.tmp
 *.temp
+
+# AWS Amplify (removed from project)
+.amplify/
