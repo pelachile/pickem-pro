@@ -8,49 +8,33 @@ interface PageTransitionProps {
 
 const PageTransition: React.FC<PageTransitionProps> = ({ children, className = '' }) => {
   const location = useLocation();
-  const [isVisible, setIsVisible] = useState(false);
-  const [currentPath, setCurrentPath] = useState(location.pathname);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [displayedChildren, setDisplayedChildren] = useState(children);
 
   useEffect(() => {
-    // Reset visibility when route changes
-    if (location.pathname !== currentPath) {
-      setIsVisible(false);
-      setCurrentPath(location.pathname);
+    // Only transition if the content actually changed
+    if (displayedChildren !== children) {
+      setIsTransitioning(true);
       
-      // Trigger entrance animation after a brief delay
+      // Quick fade transition
       const timer = setTimeout(() => {
-        setIsVisible(true);
-      }, 50);
+        setDisplayedChildren(children);
+        setIsTransitioning(false);
+      }, 150);
 
       return () => clearTimeout(timer);
-    } else {
-      // Initial load
-      setIsVisible(true);
     }
-  }, [location.pathname, currentPath]);
-
-  // Determine animation class based on route
-  const getAnimationClass = () => {
-    const path = location.pathname;
-    
-    if (path === '/login' || path === '/register') {
-      return 'auth-content';
-    } else if (path === '/dashboard') {
-      return 'dashboard-content';
-    } else {
-      return 'page-content';
-    }
-  };
+  }, [children, displayedChildren]);
 
   return (
     <div 
       className={`
         ${className}
-        ${isVisible ? getAnimationClass() : 'opacity-0'}
-        transition-opacity duration-200 ease-out
+        transition-opacity duration-150 ease-out
+        ${isTransitioning ? 'opacity-50' : 'opacity-100'}
       `}
     >
-      {children}
+      {displayedChildren}
     </div>
   );
 };

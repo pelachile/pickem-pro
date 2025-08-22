@@ -214,7 +214,7 @@ const Login: React.FC = () => {
         </AnimatedContent>
 
         {/* Social Login (Optional) with animation */}
-        <AnimatedContent animation="slideUp" delay={300}>
+        <AnimatedContent animation="none">
           <div className="text-center">
             <div className="relative">
             <div className="absolute inset-0 flex items-center">

@@ -194,7 +194,7 @@ function DashboardContent() {
                     </div>
                 </AnimatedContent>
 
-                <AnimatedContent animation="scale" delay={300}>
+                <AnimatedContent animation="fade" delay={75}>
                     <div className="relative bg-navy-900/50 border border-white/10 rounded-xl p-6 hover:bg-navy-900/60 hover:border-white/20 transition-all duration-300 ease-out hover:-translate-y-2 hover:shadow-2xl glass-transition">
                         <div className="flex items-center justify-between">
                             <div>
@@ -296,7 +296,7 @@ function DashboardContent() {
             </div>
 
             {/* Recent Activity - Moved to secondary position */}
-            <AnimatedContent animation="slideUp" delay={300}>
+            <AnimatedContent animation="slideUp" delay={150}>
                 <div className="bg-white/[0.03] backdrop-blur-lg border border-white/10 rounded-xl p-6 mt-8 glass-transition">
                     <h2 className="text-xl font-semibold text-white mb-4">Recent Activity</h2>
                     <div className="space-y-4">

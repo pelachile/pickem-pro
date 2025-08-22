@@ -92,9 +92,9 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
                                             to={item.href}
                                             className={classNames(
                                                 current
-                                                    ? 'bg-sky-400/20 text-sky-400 border-l-2 border-sky-400 scale-105'
-                                                    : 'text-white/80 hover:bg-white/10 hover:text-sky-400 border-l-2 border-transparent hover:border-sky-400/50 hover:scale-105',
-                                                'group flex gap-x-3 rounded-r-md p-3 text-sm font-semibold transition-all duration-300 ease-out transform',
+                                                    ? 'bg-sky-400/20 text-sky-400 border-l-2 border-sky-400'
+                                                    : 'text-white/80 hover:bg-white/10 hover:text-sky-400 border-l-2 border-transparent hover:border-sky-400/50',
+                                                'group flex gap-x-3 rounded-r-md p-3 text-sm font-semibold transition-all duration-200 ease-out',
                                             )}
                                         >
                                             <item.icon
@@ -123,7 +123,7 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
                             <li>
                                 <Link
                                     to="/create-league"
-                                    className="text-white/80 hover:bg-white/10 hover:text-sky-400 group flex gap-x-3 rounded-md p-2 text-sm font-medium transition-all duration-300 ease-out transform hover:scale-105"
+                                    className="text-white/80 hover:bg-white/10 hover:text-sky-400 group flex gap-x-3 rounded-md p-2 text-sm font-medium transition-all duration-200 ease-out"
                                 >
                                     <Plus className="size-5 shrink-0 text-white/60 group-hover:text-sky-400 transition-colors duration-200" />
                                     Create League
@@ -132,7 +132,7 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
                             <li>
                                 <Link
                                     to="/join-league"
-                                    className="text-white/80 hover:bg-white/10 hover:text-sky-400 group flex gap-x-3 rounded-md p-2 text-sm font-medium transition-all duration-300 ease-out transform hover:scale-105"
+                                    className="text-white/80 hover:bg-white/10 hover:text-sky-400 group flex gap-x-3 rounded-md p-2 text-sm font-medium transition-all duration-200 ease-out"
                                 >
                                     <Users className="size-5 shrink-0 text-white/60 group-hover:text-sky-400 transition-colors duration-200" />
                                     Join League
@@ -151,7 +151,7 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
                                 <li key={league.id}>
                                     <Link
                                         to="/dashboard"
-                                        className="text-white/80 hover:bg-white/10 hover:text-sky-400 group flex gap-x-3 rounded-md p-2 text-sm font-medium transition-all duration-300 ease-out transform hover:scale-105"
+                                        className="text-white/80 hover:bg-white/10 hover:text-sky-400 group flex gap-x-3 rounded-md p-2 text-sm font-medium transition-all duration-200 ease-out"
                                     >
                                         <div className="relative">
                                             <span className="border-white/20 text-white/80 bg-white/10 group-hover:border-sky-400/50 group-hover:text-sky-400 group-hover:bg-sky-400/20 flex size-6 shrink-0 items-center justify-center rounded-lg border text-[0.625rem] font-bold transition-all duration-200">

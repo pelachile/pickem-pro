@@ -50,7 +50,7 @@ export const Button: React.FC<ButtonProps> = ({
     'inline-flex items-center justify-center gap-2 rounded-lg border transition-all duration-200 ease-in-out',
     'focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-transparent',
     'disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100',
-    'hover:scale-105 active:scale-95',
+    'hover:scale-[1.02] active:scale-[0.98]',
     
     // Variant and size styles
     variantStyles[variant],
