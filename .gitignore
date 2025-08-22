@@ -1,0 +1,59 @@
+# Dependency directories
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build output
+dist/
+build/
+out/
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Supabase local development
+supabase/.branches
+supabase/.temp
+supabase/docker
+
+# macOS system files
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Logs
+logs
+*.log
+
+# Runtime data
+pids
+*.pid
+*.seed
+
+# Caches
+.cache/
+.vite/
+
+# TypeScript build artifacts
+*.tsbuildinfo
+
+# PWA service worker
+**/service-worker.js
+**/service-worker.js.map
+
+# Miscellaneous
+.npm
+.pnp/
+.pnp.js

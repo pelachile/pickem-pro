@@ -1,0 +1,325 @@
+name: Lambda Functions Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'amplify/backend/function/**'
+      - '.github/workflows/lambda-tests.yml'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'amplify/backend/function/**'
+      - '.github/workflows/lambda-tests.yml'
+  workflow_dispatch:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    name: Lint Code
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: amplify/backend/function/package-lock.json
+
+    - name: Install dependencies
+      run: |
+        cd amplify/backend/function
+        npm ci
+
+    - name: Run ESLint
+      run: |
+        cd amplify/backend/function
+        npm run lint
+
+  unit-tests:
+    runs-on: ubuntu-latest
+    name: Unit Tests
+    needs: lint
+    
+    strategy:
+      matrix:
+        function: [fetchTeamInfo, fetchGameSchedule, fetchLiveScores]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: amplify/backend/function/package-lock.json
+
+    - name: Install dependencies
+      run: |
+        cd amplify/backend/function
+        npm ci
+
+    - name: Run unit tests for ${{ matrix.function }}
+      run: |
+        cd amplify/backend/function
+        npm run test:${{ matrix.function }}
+
+    - name: Upload test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: unit-test-results-${{ matrix.function }}
+        path: amplify/backend/function/coverage/
+
+  integration-tests:
+    runs-on: ubuntu-latest
+    name: Integration Tests
+    needs: unit-tests
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: amplify/backend/function/package-lock.json
+
+    - name: Install dependencies
+      run: |
+        cd amplify/backend/function
+        npm ci
+
+    - name: Run integration tests
+      run: |
+        cd amplify/backend/function
+        npm run test:integration:ci
+
+    - name: Upload integration test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: integration-test-results
+        path: amplify/backend/function/coverage/
+
+  rate-limiting-tests:
+    runs-on: ubuntu-latest
+    name: Rate Limiting Tests
+    needs: unit-tests
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: amplify/backend/function/package-lock.json
+
+    - name: Install dependencies
+      run: |
+        cd amplify/backend/function
+        npm ci
+
+    - name: Run rate limiting tests
+      run: |
+        cd amplify/backend/function
+        npm run test:rate-limiting
+      timeout-minutes: 10
+
+    - name: Upload rate limiting test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: rate-limiting-test-results
+        path: amplify/backend/function/coverage/
+
+  coverage:
+    runs-on: ubuntu-latest
+    name: Test Coverage
+    needs: [unit-tests, integration-tests, rate-limiting-tests]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: amplify/backend/function/package-lock.json
+
+    - name: Install dependencies
+      run: |
+        cd amplify/backend/function
+        npm ci
+
+    - name: Run all tests with coverage
+      run: |
+        cd amplify/backend/function
+        npm run test:ci
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v4
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        directory: amplify/backend/function/coverage
+        flags: lambda-functions
+        name: lambda-functions-coverage
+        fail_ci_if_error: false
+
+    - name: Comment coverage on PR
+      if: github.event_name == 'pull_request'
+      uses: codecov/codecov-action@v4
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        directory: amplify/backend/function/coverage
+        flags: lambda-functions
+
+  build:
+    runs-on: ubuntu-latest
+    name: Build Lambda Functions
+    needs: coverage
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: amplify/backend/function/package-lock.json
+
+    - name: Install dependencies
+      run: |
+        cd amplify/backend/function
+        npm ci
+
+    - name: Build TypeScript
+      run: |
+        cd amplify/backend/function
+        npm run build
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: lambda-build-artifacts
+        path: |
+          amplify/backend/function/dist/
+          amplify/backend/function/package.json
+          amplify/backend/function/package-lock.json
+
+  security-scan:
+    runs-on: ubuntu-latest
+    name: Security Scan
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: amplify/backend/function/package-lock.json
+
+    - name: Install dependencies
+      run: |
+        cd amplify/backend/function
+        npm ci
+
+    - name: Run npm audit
+      run: |
+        cd amplify/backend/function
+        npm audit --audit-level moderate
+
+    - name: Run Snyk security scan
+      uses: snyk/actions/node@master
+      continue-on-error: true
+      env:
+        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      with:
+        args: --file=amplify/backend/function/package.json --severity-threshold=high
+
+  performance-tests:
+    runs-on: ubuntu-latest
+    name: Performance Tests
+    needs: build
+    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: amplify/backend/function/package-lock.json
+
+    - name: Install dependencies
+      run: |
+        cd amplify/backend/function
+        npm ci
+
+    - name: Run performance tests
+      run: |
+        cd amplify/backend/function
+        # Run tests with performance assertions
+        npm test -- --testNamePattern="performance|timeout|duration"
+      timeout-minutes: 15
+
+    - name: Upload performance results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: performance-test-results
+        path: amplify/backend/function/coverage/
+
+  notify:
+    runs-on: ubuntu-latest
+    name: Notify Results
+    needs: [lint, unit-tests, integration-tests, rate-limiting-tests, coverage, build, security-scan]
+    if: always()
+    
+    steps:
+    - name: Notify on success
+      if: ${{ needs.coverage.result == 'success' && needs.build.result == 'success' }}
+      run: |
+        echo "✅ All Lambda function tests passed successfully!"
+        echo "Coverage: Check the uploaded artifacts for detailed coverage reports"
+        echo "Build: Lambda functions built successfully"
+
+    - name: Notify on failure
+      if: ${{ needs.coverage.result == 'failure' || needs.build.result == 'failure' }}
+      run: |
+        echo "❌ Lambda function tests failed!"
+        echo "Check the failed jobs for more details"
+        exit 1
+
+    - name: Create test summary
+      run: |
+        echo "## Test Results Summary" >> $GITHUB_STEP_SUMMARY
+        echo "| Job | Status |" >> $GITHUB_STEP_SUMMARY
+        echo "|-----|--------|" >> $GITHUB_STEP_SUMMARY
+        echo "| Lint | ${{ needs.lint.result }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| Unit Tests | ${{ needs.unit-tests.result }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| Integration Tests | ${{ needs.integration-tests.result }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| Rate Limiting Tests | ${{ needs.rate-limiting-tests.result }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| Coverage | ${{ needs.coverage.result }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| Build | ${{ needs.build.result }} |" >> $GITHUB_STEP_SUMMARY
+        echo "| Security Scan | ${{ needs.security-scan.result }} |" >> $GITHUB_STEP_SUMMARY
