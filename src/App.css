@@ -266,6 +266,51 @@ a:focus-visible {
   }
 }
 
+/* DISABLE ALL ANIMATIONS TO ELIMINATE FLICKER */
+* {
+  animation: none !important;
+  transition: none !important;
+  animation-duration: 0s !important;
+  transition-duration: 0s !important;
+}
+
+/* Only keep essential loading spinner */
+.animate-spin {
+  animation: spin 1s linear infinite !important;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Super subtle page fade in */
+.page-fade-in {
+  animation: subtleFadeIn 0.15s ease-out !important;
+}
+
+@keyframes subtleFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Button hover effects only */
+button, .btn, [role="button"], a {
+  transition: transform 0.3s ease-out !important;
+}
+
+button:hover, .btn:hover, [role="button"]:hover, a:hover {
+  transform: scale(1.015);
+}
+
 /* Enhanced browser compatibility */
 @supports not (backdrop-filter: blur(12px)) {
   .glass-transition {

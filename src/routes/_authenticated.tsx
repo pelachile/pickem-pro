@@ -23,7 +23,7 @@ function AuthenticatedLayoutComponent() {
   if (isLoading || !isInitialized || !hasCheckedAuth) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-navy-900 via-ocean-600 to-sky-400 flex items-center justify-center">
-        <div className="animate-fade-in-quick">
+        <div>
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-sky-400"></div>
         </div>
       </div>

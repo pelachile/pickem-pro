@@ -14,7 +14,6 @@ import {
     Settings,
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
-import PageTransition from './PageTransition';
 
 interface AuthenticatedLayoutProps {
     children: React.ReactNode;
@@ -289,12 +288,10 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
                 </div>
             </div>
 
-            {/* Main content with smooth transitions - only the content transitions */}
+            {/* Main content */}
             <main className="pt-6 pb-10 lg:pl-80">
-                <div className="px-4 sm:px-6 lg:px-8 relative z-10">
-                    <PageTransition>
-                        {children}
-                    </PageTransition>
+                <div className="px-4 sm:px-6 lg:px-8 relative z-10 page-fade-in">
+                    {children}
                 </div>
             </main>
         </div>

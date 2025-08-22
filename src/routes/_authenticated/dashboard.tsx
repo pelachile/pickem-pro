@@ -9,7 +9,6 @@ import {
 import { GameCard } from '../../components/ui/GameCard';
 import type { Status } from '../../components/types';
 import ContentWrapper from '../../components/layout/ContentWrapper';
-import AnimatedContent from '../../components/layout/AnimatedContent';
 import { useSchedule, useTeams } from '../../hooks/useNflData';
 import { CacheClearButton } from '../../components/CacheClearButton';
 
@@ -153,63 +152,55 @@ function DashboardContent() {
                 <CacheClearButton />
             </div>
 
-            {/* Quick Stats Cards with staggered animation */}
+            {/* Quick Stats Cards */}
             <div className="relative isolate grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <AnimatedContent animation="scale" delay={75}>
-                    <div className="relative bg-navy-900/50 border border-white/10 rounded-xl p-6 hover:bg-navy-900/60 hover:border-white/20 transition-all duration-300 ease-out hover:-translate-y-2 hover:shadow-2xl glass-transition">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm text-white/60">This Week</p>
-                                <p className="text-2xl font-bold text-white">12-4</p>
-                                <p className="text-xs text-sky-400">75% accuracy</p>
-                            </div>
-                            <Trophy className="h-8 w-8 text-sunset-500" />
+                <div className="relative bg-navy-900/50 border border-white/10 rounded-xl p-6 hover:bg-navy-900/60 hover:border-white/20 transition-all duration-200 ease-out glass-transition">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="text-sm text-white/60">This Week</p>
+                            <p className="text-2xl font-bold text-white">12-4</p>
+                            <p className="text-xs text-sky-400">75% accuracy</p>
                         </div>
+                        <Trophy className="h-8 w-8 text-sunset-500" />
                     </div>
-                </AnimatedContent>
+                </div>
 
-                <AnimatedContent animation="scale" delay={150}>
-                    <div className="relative bg-navy-900/50 border border-white/10 rounded-xl p-6 hover:bg-navy-900/60 hover:border-white/20 transition-all duration-300 ease-out hover:-translate-y-2 hover:shadow-2xl glass-transition">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm text-white/60">Season Record</p>
-                                <p className="text-2xl font-bold text-white">84-52</p>
-                                <p className="text-xs text-sky-400">61.8% accuracy</p>
-                            </div>
-                            <BarChart className="h-8 w-8 text-sunset-500" />
+                <div className="relative bg-navy-900/50 border border-white/10 rounded-xl p-6 hover:bg-navy-900/60 hover:border-white/20 transition-all duration-200 ease-out glass-transition">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="text-sm text-white/60">Season Record</p>
+                            <p className="text-2xl font-bold text-white">84-52</p>
+                            <p className="text-xs text-sky-400">61.8% accuracy</p>
                         </div>
+                        <BarChart className="h-8 w-8 text-sunset-500" />
                     </div>
-                </AnimatedContent>
+                </div>
 
-                <AnimatedContent animation="fade" delay={75}>
-                    <div className="relative bg-navy-900/50 border border-white/10 rounded-xl p-6 hover:bg-navy-900/60 hover:border-white/20 transition-all duration-300 ease-out hover:-translate-y-2 hover:shadow-2xl glass-transition">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm text-white/60">League Rank</p>
-                                <p className="text-2xl font-bold text-white">#3</p>
-                                <p className="text-xs text-sky-400">of 12 members</p>
-                            </div>
-                            <PieChart className="h-8 w-8 text-sunset-500" />
+                <div className="relative bg-navy-900/50 border border-white/10 rounded-xl p-6 hover:bg-navy-900/60 hover:border-white/20 transition-all duration-200 ease-out glass-transition">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="text-sm text-white/60">League Rank</p>
+                            <p className="text-2xl font-bold text-white">#3</p>
+                            <p className="text-xs text-sky-400">of 12 members</p>
                         </div>
+                        <PieChart className="h-8 w-8 text-sunset-500" />
                     </div>
-                </AnimatedContent>
+                </div>
 
-                <AnimatedContent animation="fade" delay={75}>
-                    <div className="relative bg-navy-900/50 border border-white/10 rounded-xl p-6 hover:bg-navy-900/60 hover:border-white/20 transition-all duration-300 ease-out hover:-translate-y-2 hover:shadow-2xl glass-transition">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm text-white/60">Active Leagues</p>
-                                <p className="text-2xl font-bold text-white">3</p>
-                                <p className="text-xs text-sky-400">2 pending picks</p>
-                            </div>
-                            <List className="h-8 w-8 text-sunset-500" />
+                <div className="relative bg-navy-900/50 border border-white/10 rounded-xl p-6 hover:bg-navy-900/60 hover:border-white/20 transition-all duration-200 ease-out glass-transition">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="text-sm text-white/60">Active Leagues</p>
+                            <p className="text-2xl font-bold text-white">3</p>
+                            <p className="text-xs text-sky-400">2 pending picks</p>
                         </div>
+                        <List className="h-8 w-8 text-sunset-500" />
                     </div>
-                </AnimatedContent>
+                </div>
             </div>
 
-            {/* League Actions with animation */}
-            <AnimatedContent animation="slideUp" delay={150}>
+            {/* League Actions */}
+            <div>
                 <div className="bg-white/[0.03] backdrop-blur-lg border border-white/10 rounded-xl p-6 mb-8 glass-transition">
                     <h2 className="text-xl font-semibold text-white mb-4">League Management</h2>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -235,10 +226,10 @@ function DashboardContent() {
                         </Link>
                     </div>
                 </div>
-            </AnimatedContent>
+            </div>
 
             {/* Header with Make Picks Link */}
-            <AnimatedContent animation="slideUp" delay={75}>
+            <div>
                 <div className="flex items-center justify-between mb-8">
                     <div>
                         <h2 className="text-2xl font-bold text-white mb-1">NFL Schedule</h2>
@@ -246,17 +237,17 @@ function DashboardContent() {
                     </div>
                     <Link 
                         to="/make-picks" 
-                        className="text-sky-400 hover:text-sky-300 text-sm font-medium transition-all duration-300 ease-out flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 hover:scale-105 hover:shadow-lg"
+                        className="text-sky-400 hover:text-sky-300 text-sm font-medium transition-all duration-200 ease-out flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 hover:scale-105 hover:shadow-lg"
                     >
                         Make picks →
                     </Link>
                 </div>
-            </AnimatedContent>
+            </div>
 
-            {/* Games with smart sequential layout logic and staggered animation */}
+            {/* Games with smart sequential layout logic */}
             <div className="space-y-8">
                 {gamesByDate.map(({ date, games: dateGames, gameCount }, index) => (
-                    <AnimatedContent key={date} animation="slideUp" delay={index * 75}>
+                    <div key={date}>
                         <div>
                             {/* Date Header */}
                             <div className="mb-4">
@@ -291,12 +282,11 @@ function DashboardContent() {
                                 ))}
                             </div>
                         </div>
-                    </AnimatedContent>
+                    </div>
                 ))}
             </div>
 
             {/* Recent Activity - Moved to secondary position */}
-            <AnimatedContent animation="slideUp" delay={150}>
                 <div className="bg-white/[0.03] backdrop-blur-lg border border-white/10 rounded-xl p-6 mt-8 glass-transition">
                     <h2 className="text-xl font-semibold text-white mb-4">Recent Activity</h2>
                     <div className="space-y-4">
@@ -329,7 +319,6 @@ function DashboardContent() {
                         </div>
                     </div>
                 </div>
-            </AnimatedContent>
         </ContentWrapper>
     );
 }
