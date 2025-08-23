@@ -31,26 +31,27 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({
   // Determine display text
   const displayText = getStatusText(status, text);
   
-  // Determine size classes
-  const sizeClasses = size === 'sm' ? 'text-xs px-2 py-1' 
-    : size === 'lg' ? 'text-sm px-3 py-1.5' 
-    : 'text-xs px-2.5 py-1';
+  // Determine size classes - ensuring minimum touch targets
+  const sizeClasses = size === 'sm' ? 'text-xs px-3 py-2 min-h-[32px]' 
+    : size === 'lg' ? 'text-sm px-4 py-3 min-h-[44px]' 
+    : 'text-xs px-3 py-2.5 min-h-[36px]';
   
   // Determine animation classes
   const animationClasses = getStatusAnimation(status, animate);
   
-  // Variant styles mapping
+  // Variant styles mapping - improved contrast ratios for WCAG compliance
   const variantStyles = {
-    'sunset-orange': 'bg-sunset-500 text-white',
-    'sky-blue': 'bg-sky-300 text-white',
-    'midnight-navy': 'bg-navy-900 text-white',
-    'sunrise-gold': 'bg-sunrise-400 text-white',
-    'ocean-blue': 'bg-ocean-600 text-white',
+    'sunset-orange': 'bg-sunset-600 text-white border border-sunset-500/30',
+    'sky-blue': 'bg-sky-500 text-white border border-sky-400/30',
+    'midnight-navy': 'bg-navy-800 text-white border border-navy-700/30',
+    'sunrise-gold': 'bg-sunrise-500 text-white border border-sunrise-400/30',
+    'ocean-blue': 'bg-ocean-700 text-white border border-ocean-600/30',
   };
   
   // Combine all classes
   const badgeClasses = cn(
-    'inline-flex items-center font-semibold rounded-md backdrop-blur-sm transition-all duration-300',
+    'inline-flex items-center font-semibold rounded-md backdrop-blur-lg transition-all duration-300 shadow-sm',
+    'focus-within:ring-2 focus-within:ring-white/30',
     sizeClasses,
     variantStyles[badgeVariant as keyof typeof variantStyles] || variantStyles['ocean-blue'],
     animationClasses,

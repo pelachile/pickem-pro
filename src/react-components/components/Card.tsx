@@ -27,10 +27,10 @@ export const Card: React.FC<CardProps> = ({
   padding = 'md',
   ...props
 }) => {
-  // Glass effect styles - optimized for dark theme
+  // Glass effect styles - standardized glass morphism system
   const glassStyles = glass 
-    ? 'backdrop-blur-lg bg-navy-900/60 border border-white/10 shadow-lg' 
-    : 'bg-navy-900/60 border border-white/10 shadow-sm';
+    ? 'backdrop-blur-lg bg-navy-900/40 border border-white/15 shadow-xl shadow-black/20' 
+    : 'bg-navy-900/70 border border-white/10 shadow-md';
 
   // Hover effect styles
   const hoverStyles = hover 

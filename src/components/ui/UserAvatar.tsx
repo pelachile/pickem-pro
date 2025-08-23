@@ -52,13 +52,16 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
       className={cn(
         sizeConfig.container,
         bgClass,
-        'text-white rounded-lg flex items-center justify-center',
+        'text-white rounded-lg flex items-center justify-center backdrop-blur-sm shadow-sm',
+        'focus:outline-none focus:ring-2 focus:ring-sunrise-400 focus:ring-offset-2',
         className
       )}
+      role="img"
+      aria-label={user.name ? `${user.name}'s avatar` : 'User avatar'}
       title={user.name || 'User avatar'}
       {...props}
     >
-      <Icon name={icon} className={sizeConfig.icon} />
+      <Icon name={icon} className={cn(sizeConfig.icon, 'select-none')} aria-hidden="true" />
     </div>
   );
 };

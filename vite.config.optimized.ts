@@ -4,6 +4,11 @@ import tailwindcss from "@tailwindcss/vite";
 import { TanStackRouterVite } from '@tanstack/router-plugin/vite';
 import path from 'path';
 
+// Image optimization configuration for future implementation
+// Uncomment and install packages when ready to implement:
+// npm install -D vite-plugin-imagemin
+// import { ViteImageOptimize } from 'vite-plugin-imagemin';
+
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
@@ -14,7 +19,7 @@ export default defineConfig({
       semicolons: false,
       disableTypes: false,
       addExtensions: false,
-      enableRouteGeneration: true, // Enable to generate routes for league pages
+      enableRouteGeneration: false, // Disable during development to fix refresh issue
       autoCodeSplitting: true,
       indexToken: 'index',
       routeToken: 'route',
@@ -22,6 +27,30 @@ export default defineConfig({
     }),
     react(),
     tailwindcss(),
+    
+    // Image optimization plugin (commented out until packages are installed)
+    // ViteImageOptimize({
+    //   gifsicle: {
+    //     optimizationLevel: 7,
+    //     interlaced: false,
+    //   },
+    //   mozjpeg: {
+    //     quality: 80,
+    //   },
+    //   pngquant: {
+    //     quality: [0.8, 0.9],
+    //     speed: 4,
+    //   },
+    //   svgo: {
+    //     plugins: [
+    //       { name: 'removeViewBox' },
+    //       { name: 'removeEmptyAttrs', active: false }
+    //     ],
+    //   },
+    //   webp: {
+    //     quality: 80,
+    //   }
+    // }),
   ],
   optimizeDeps: {
     exclude: ['@tanstack/react-router'],
@@ -50,7 +79,7 @@ export default defineConfig({
   server: {
     port: 5173
   },
-  // Add build optimization with image handling
+  // Enhanced build optimization with image handling
   build: {
     rollupOptions: {
       output: {
@@ -58,19 +87,21 @@ export default defineConfig({
           vendor: ['react', 'react-dom'],
           router: ['@tanstack/react-router']
         },
-        // Optimize asset file naming
+        // Optimize asset file names
         assetFileNames: (assetInfo) => {
-          const name = assetInfo.name || 'asset';
-          const info = name.split('.');
+          const info = assetInfo.name.split('.');
           const ext = info[info.length - 1];
-          if (/webp|jpg|jpeg|png|gif|svg/.test(ext)) {
-            return `images/[name]-[hash][extname]`;
+          if (/png|jpe?g|svg|gif|tiff|bmp|ico/i.test(ext)) {
+            return `assets/images/[name]-[hash][extname]`;
           }
           return `assets/[name]-[hash][extname]`;
-        }
+        },
       }
     },
-    // Image optimization settings
-    assetsInlineLimit: 4096, // Images smaller than 4KB will be inlined as base64
-  }
+    // Asset handling configuration
+    assetsInlineLimit: 4096, // 4kb - inline small assets as base64
+    chunkSizeWarningLimit: 1000, // Warn for chunks larger than 1MB
+  },
+  // Asset processing options
+  assetsInclude: ['**/*.jpeg', '**/*.jpg', '**/*.png', '**/*.webp', '**/*.svg']
 });

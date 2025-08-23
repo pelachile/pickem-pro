@@ -72,8 +72,9 @@ export const SearchBar: React.FC<SearchBarProps> = ({
   const inputStyles = cn(
     'w-full rounded-xl border border-white/20 pl-10 pr-12 py-3 text-white placeholder-white/60',
     'bg-white/[0.05] backdrop-blur-lg hover:bg-white/[0.08]',
-    'focus:bg-white/[0.10] focus:border-sky-400/50 focus:ring-2 focus:ring-sky-400/30 focus:outline-none',
-    'transition-all duration-300 shadow-lg',
+    'focus:bg-white/[0.10] focus:border-sky-400/50 focus:ring-3 focus:ring-sky-400/40 focus:outline-none',
+    'transition-all duration-200 shadow-lg min-h-[44px]',
+    'focus:ring-offset-2 focus:ring-offset-transparent',
     variant === 'prominent' && 'py-3.5 text-base shadow-xl border-white/30 rounded-2xl'
   );
 

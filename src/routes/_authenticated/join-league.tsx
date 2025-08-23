@@ -1,60 +1,107 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { useState } from 'react';
-import { Search, Users, Lock } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Search, Users, Loader2, AlertCircle, CheckCircle } from 'lucide-react';
 import ContentWrapper from '../../components/layout/ContentWrapper';
+import { usePublicLeagues, useJoinLeague } from '../../hooks/useLeague';
+import { useDebounce } from '../../hooks/useDebounce';
+import type { PublicLeague } from '../../types/league';
 
-// Sample public leagues
-const samplePublicLeagues = [
-    {
-        id: 1,
-        name: 'NFL Fanatics',
-        members: 23,
-        maxMembers: 30,
-        entryFee: 15,
-        isPrivate: false,
-        description: 'Competitive league for serious NFL fans'
-    },
-    {
-        id: 2,
-        name: 'Casual Sunday',
-        members: 8,
-        maxMembers: 12,
-        entryFee: 0,
-        isPrivate: false,
-        description: 'Just for fun, no pressure!'
-    },
-    {
-        id: 3,
-        name: 'High Stakes',
-        members: 15,
-        maxMembers: 20,
-        entryFee: 50,
-        isPrivate: false,
-        description: 'Big money league for experienced players'
-    },
-];
 
 function JoinLeagueContent() {
     const [activeTab, setActiveTab] = useState<'search' | 'code'>('search');
     const [searchQuery, setSearchQuery] = useState('');
     const [joinCode, setJoinCode] = useState('');
     const [password, setPassword] = useState('');
+    const [joinError, setJoinError] = useState<string>('');
+    const [joinSuccess, setJoinSuccess] = useState<string>('');
+    const [joiningLeagueId, setJoiningLeagueId] = useState<string | null>(null);
+    const [needsPassword, setNeedsPassword] = useState(false);
 
-    const handleJoinLeague = (leagueId: number) => {
-        console.log('Joining league:', leagueId);
-        // Future: Submit to API
+    // Debounce search query to reduce API calls
+    const debouncedSearchQuery = useDebounce(searchQuery, 300);
+
+    // Fetch public leagues with search
+    const {
+        data: publicLeaguesData,
+        isLoading: isLoadingPublicLeagues,
+        error: publicLeaguesError,
+        refetch: refetchPublicLeagues
+    } = usePublicLeagues({
+        search: debouncedSearchQuery || undefined,
+        limit: 20,
+        offset: 0
+    });
+
+    // Join league mutation
+    const joinLeagueMutation = useJoinLeague();
+
+    // Clear errors when switching tabs
+    useEffect(() => {
+        setJoinError('');
+        setJoinSuccess('');
+        setNeedsPassword(false);
+    }, [activeTab]);
+
+    // Clear join state when search query changes
+    useEffect(() => {
+        setJoinError('');
+        setJoinSuccess('');
+    }, [debouncedSearchQuery]);
+
+    const handleJoinPublicLeague = async (league: PublicLeague) => {
+        if (league.is_full) return;
+        
+        setJoiningLeagueId(league.id);
+        setJoinError('');
+        setJoinSuccess('');
+
+        try {
+            await joinLeagueMutation.mutateAsync({
+                inviteCode: league.id, // For public leagues, use the league ID as invite code
+            });
+            
+            setJoinSuccess(`Successfully joined "${league.name}"!`);
+            setJoiningLeagueId(null);
+            
+            // Refetch to update member count
+            refetchPublicLeagues();
+        } catch (error) {
+            setJoinError(error instanceof Error ? error.message : 'Failed to join league');
+            setJoiningLeagueId(null);
+        }
     };
 
-    const handleJoinByCode = (e: React.FormEvent) => {
+    const handleJoinByCode = async (e: React.FormEvent) => {
         e.preventDefault();
-        console.log('Joining by code:', { joinCode, password });
-        // Future: Submit to API
+        if (!joinCode.trim()) return;
+
+        setJoinError('');
+        setJoinSuccess('');
+
+        try {
+            await joinLeagueMutation.mutateAsync({
+                inviteCode: joinCode.trim(),
+                password: password || undefined,
+            });
+            
+            setJoinSuccess(`Successfully joined league!`);
+            setJoinCode('');
+            setPassword('');
+            setNeedsPassword(false);
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'Failed to join league';
+            
+            // Check if error indicates password is needed
+            if (errorMessage.toLowerCase().includes('password') && errorMessage.toLowerCase().includes('required')) {
+                setNeedsPassword(true);
+                setJoinError('This league requires a password. Please enter the password and try again.');
+            } else {
+                setJoinError(errorMessage);
+            }
+        }
     };
 
-    const filteredLeagues = samplePublicLeagues.filter(league =>
-        league.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        league.description.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    const publicLeagues = publicLeaguesData?.leagues || [];
 
     return (
         <ContentWrapper 
@@ -101,60 +148,133 @@ function JoinLeagueContent() {
                             />
                         </div>
 
-                        {/* Public Leagues */}
-                        <div className="space-y-4">
-                            {filteredLeagues.map((league) => (
-                                <div key={league.id} className="bg-white/[0.03] backdrop-blur-lg border border-white/10 rounded-xl p-6 hover:bg-white/[0.05] hover:border-white/20 transition-all duration-300">
-                                    <div className="flex items-start justify-between mb-4">
-                                        <div className="flex items-center space-x-3">
-                                            <div className="w-12 h-12 bg-gradient-to-br from-sky-400 to-sunset-500 rounded-lg flex items-center justify-center">
-                                                <Users className="h-6 w-6 text-white" />
-                                            </div>
-                                            <div>
-                                                <h3 className="text-xl font-semibold text-white flex items-center gap-2">
-                                                    {league.name}
-                                                    {league.isPrivate && <Lock className="h-4 w-4 text-white/60" />}
-                                                </h3>
-                                                <p className="text-white/60">{league.description}</p>
-                                            </div>
-                                        </div>
-                                        <button
-                                            onClick={() => handleJoinLeague(league.id)}
-                                            disabled={league.members >= league.maxMembers}
-                                            className="px-4 py-2 bg-sky-400 hover:bg-sky-500 disabled:bg-gray-600 disabled:cursor-not-allowed text-white rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"
-                                        >
-                                            {league.members >= league.maxMembers ? 'Full' : 'Join'}
-                                        </button>
-                                    </div>
+                        {/* Loading state */}
+                        {isLoadingPublicLeagues && (
+                            <div className="flex items-center justify-center py-12">
+                                <Loader2 className="h-8 w-8 text-sky-400 animate-spin" />
+                                <span className="ml-3 text-white/60">Loading leagues...</span>
+                            </div>
+                        )}
 
-                                    <div className="grid grid-cols-3 gap-4">
-                                        <div className="bg-white/[0.02] rounded-lg p-3 text-center">
-                                            <div className="text-lg font-semibold text-white">
-                                                {league.members}/{league.maxMembers}
-                                            </div>
-                                            <div className="text-xs text-white/60">Members</div>
-                                        </div>
-                                        <div className="bg-white/[0.02] rounded-lg p-3 text-center">
-                                            <div className="text-lg font-semibold text-white">
-                                                ${league.entryFee}
-                                            </div>
-                                            <div className="text-xs text-white/60">Entry Fee</div>
-                                        </div>
-                                        <div className="bg-white/[0.02] rounded-lg p-3 text-center">
-                                            <div className="text-lg font-semibold text-white">
-                                                ${league.entryFee * league.maxMembers}
-                                            </div>
-                                            <div className="text-xs text-white/60">Prize Pool</div>
-                                        </div>
-                                    </div>
+                        {/* Error state */}
+                        {publicLeaguesError && (
+                            <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4">
+                                <div className="flex items-center">
+                                    <AlertCircle className="h-5 w-5 text-red-400 mr-2" />
+                                    <span className="text-red-400">Error loading leagues: {publicLeaguesError.message}</span>
                                 </div>
-                            ))}
-                        </div>
+                                <button
+                                    onClick={() => refetchPublicLeagues()}
+                                    className="mt-2 px-3 py-1 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded text-sm transition-colors"
+                                >
+                                    Try Again
+                                </button>
+                            </div>
+                        )}
 
-                        {filteredLeagues.length === 0 && (
+                        {/* Success message */}
+                        {joinSuccess && (
+                            <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-4">
+                                <div className="flex items-center">
+                                    <CheckCircle className="h-5 w-5 text-green-400 mr-2" />
+                                    <span className="text-green-400">{joinSuccess}</span>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Error message */}
+                        {joinError && (
+                            <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4">
+                                <div className="flex items-center">
+                                    <AlertCircle className="h-5 w-5 text-red-400 mr-2" />
+                                    <span className="text-red-400">{joinError}</span>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Public Leagues */}
+                        {!isLoadingPublicLeagues && !publicLeaguesError && (
+                            <div className="space-y-4">
+                                {publicLeagues.map((league) => (
+                                    <div key={league.id} className="bg-white/[0.03] backdrop-blur-lg border border-white/10 rounded-xl p-6 hover:bg-white/[0.05] hover:border-white/20 transition-all duration-300">
+                                        <div className="flex items-start justify-between mb-4">
+                                            <div className="flex items-center space-x-3">
+                                                <div className="w-12 h-12 bg-gradient-to-br from-sky-400 to-sunset-500 rounded-lg flex items-center justify-center">
+                                                    <Users className="h-6 w-6 text-white" />
+                                                </div>
+                                                <div>
+                                                    <h3 className="text-xl font-semibold text-white flex items-center gap-2">
+                                                        {league.name}
+                                                        <span className="text-xs bg-green-500/20 text-green-400 px-2 py-1 rounded-full">
+                                                            Public
+                                                        </span>
+                                                    </h3>
+                                                    {league.description && (
+                                                        <p className="text-white/60">{league.description}</p>
+                                                    )}
+                                                </div>
+                                            </div>
+                                            <button
+                                                onClick={() => handleJoinPublicLeague(league)}
+                                                disabled={league.is_full || joiningLeagueId === league.id}
+                                                className="px-4 py-2 bg-sky-400 hover:bg-sky-500 disabled:bg-gray-600 disabled:cursor-not-allowed text-white rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl flex items-center gap-2"
+                                            >
+                                                {joiningLeagueId === league.id ? (
+                                                    <>
+                                                        <Loader2 className="h-4 w-4 animate-spin" />
+                                                        Joining...
+                                                    </>
+                                                ) : league.is_full ? (
+                                                    'Full'
+                                                ) : (
+                                                    'Join'
+                                                )}
+                                            </button>
+                                        </div>
+
+                                        <div className="grid grid-cols-3 gap-4">
+                                            <div className="bg-white/[0.02] rounded-lg p-3 text-center">
+                                                <div className="text-lg font-semibold text-white">
+                                                    {league.current_members}/{league.max_members}
+                                                </div>
+                                                <div className="text-xs text-white/60">Members</div>
+                                            </div>
+                                            <div className="bg-white/[0.02] rounded-lg p-3 text-center">
+                                                <div className="text-lg font-semibold text-white">
+                                                    ${league.entry_fee}
+                                                </div>
+                                                <div className="text-xs text-white/60">Entry Fee</div>
+                                            </div>
+                                            <div className="bg-white/[0.02] rounded-lg p-3 text-center">
+                                                <div className="text-lg font-semibold text-white">
+                                                    ${league.prize_pool}
+                                                </div>
+                                                <div className="text-xs text-white/60">Prize Pool</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+
+                        {/* Empty state */}
+                        {!isLoadingPublicLeagues && !publicLeaguesError && publicLeagues.length === 0 && (
                             <div className="text-center py-12">
                                 <Users className="h-12 w-12 text-white/40 mx-auto mb-4" />
-                                <p className="text-white/60">No leagues found matching your search.</p>
+                                <p className="text-white/60">
+                                    {debouncedSearchQuery 
+                                        ? `No leagues found matching "${debouncedSearchQuery}".`
+                                        : 'No public leagues available at the moment.'
+                                    }
+                                </p>
+                                {debouncedSearchQuery && (
+                                    <button
+                                        onClick={() => setSearchQuery('')}
+                                        className="mt-3 text-sky-400 hover:text-sky-300 text-sm transition-colors"
+                                    >
+                                        Clear search
+                                    </button>
+                                )}
                             </div>
                         )}
                     </div>
@@ -162,6 +282,26 @@ function JoinLeagueContent() {
                     <div className="max-w-md mx-auto">
                         <div className="bg-white/[0.03] backdrop-blur-lg border border-white/10 rounded-xl p-6">
                             <h3 className="text-lg font-semibold text-white mb-4">Join with League Code</h3>
+                            
+                            {/* Success message */}
+                            {joinSuccess && (
+                                <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-4 mb-4">
+                                    <div className="flex items-center">
+                                        <CheckCircle className="h-5 w-5 text-green-400 mr-2" />
+                                        <span className="text-green-400">{joinSuccess}</span>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Error message */}
+                            {joinError && (
+                                <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4 mb-4">
+                                    <div className="flex items-center">
+                                        <AlertCircle className="h-5 w-5 text-red-400 mr-2" />
+                                        <span className="text-red-400">{joinError}</span>
+                                    </div>
+                                </div>
+                            )}
                             
                             <form onSubmit={handleJoinByCode} className="space-y-4">
                                 <div>
@@ -174,38 +314,52 @@ function JoinLeagueContent() {
                                         value={joinCode}
                                         onChange={(e) => setJoinCode(e.target.value)}
                                         className="w-full px-4 py-3 bg-white/[0.05] border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-sky-400 focus:bg-white/[0.08] transition-all duration-200"
-                                        placeholder="Enter league code"
+                                        placeholder="Enter league code (e.g., ABC123)"
                                         required
+                                        disabled={joinLeagueMutation.isPending}
                                     />
                                 </div>
 
                                 <div>
                                     <label htmlFor="password" className="block text-sm font-medium text-white/80 mb-2">
-                                        Password (if required)
+                                        Password {needsPassword ? '(required)' : '(if required)'}
                                     </label>
                                     <input
                                         type="password"
                                         id="password"
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
-                                        className="w-full px-4 py-3 bg-white/[0.05] border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-sky-400 focus:bg-white/[0.08] transition-all duration-200"
+                                        className={`w-full px-4 py-3 bg-white/[0.05] border rounded-lg text-white placeholder-white/40 focus:outline-none focus:bg-white/[0.08] transition-all duration-200 ${
+                                            needsPassword 
+                                                ? 'border-orange-400 focus:border-orange-400' 
+                                                : 'border-white/20 focus:border-sky-400'
+                                        }`}
                                         placeholder="Enter password"
+                                        disabled={joinLeagueMutation.isPending}
+                                        required={needsPassword}
                                     />
                                 </div>
 
                                 <button
                                     type="submit"
-                                    disabled={!joinCode}
-                                    className="w-full px-6 py-3 bg-gradient-to-r from-sunset-500 to-sunrise-500 text-white rounded-lg hover:from-sunset-600 hover:to-sunrise-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl"
+                                    disabled={!joinCode || joinLeagueMutation.isPending}
+                                    className="w-full px-6 py-3 bg-gradient-to-r from-sunset-500 to-sunrise-500 text-white rounded-lg hover:from-sunset-600 hover:to-sunrise-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
                                 >
-                                    Join League
+                                    {joinLeagueMutation.isPending ? (
+                                        <>
+                                            <Loader2 className="h-4 w-4 animate-spin" />
+                                            Joining League...
+                                        </>
+                                    ) : (
+                                        'Join League'
+                                    )}
                                 </button>
                             </form>
                         </div>
 
                         <div className="mt-6 text-center">
                             <p className="text-white/60 text-sm">
-                                Don't have a league code? Ask the league creator to share it with you.
+                                Don't have a league code? Ask the league creator to share it with you, or browse public leagues above.
                             </p>
                         </div>
                     </div>

@@ -1,13 +1,36 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from 'jsr:@supabase/supabase-js@2';
-import { corsHeaders } from '../_shared/cors.ts';
-import { hashPassword } from '../_shared/crypto.ts';
-import { validateCreateLeagueRequest } from '../_shared/validation.ts';
-import type { 
-  CreateLeagueRequest, 
-  CreateLeagueResponse,
-  ValidationErrorResponse 
-} from '../_shared/types.ts';
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods': 'POST, GET, OPTIONS, PUT, DELETE',
+};
+
+interface CreateLeagueRequest {
+  name: string;
+  description?: string;
+  entryFee: number;
+  maxMembers: number;
+  isPrivate: boolean;
+  password?: string;
+}
+
+interface CreateLeagueResponse {
+  success: boolean;
+  data?: {
+    id: string;
+    name: string;
+    description?: string;
+    entryFee: number;
+    maxMembers: number;
+    isPrivate: boolean;
+    inviteCode: string;
+    status: string;
+    createdAt: string;
+  };
+  error?: string;
+}
 
 Deno.serve(async (req: Request): Promise<Response> => {
   // Handle CORS preflight requests
@@ -22,8 +45,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
       return new Response(
         JSON.stringify({ 
           success: false, 
-          error: 'Authorization header required',
-          code: 'MISSING_AUTH_HEADER'
+          error: 'Authorization header required'
         }),
         { 
           status: 401, 
@@ -49,8 +71,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
       return new Response(
         JSON.stringify({ 
           success: false, 
-          error: 'Unauthorized - Invalid or expired token',
-          code: 'INVALID_TOKEN'
+          error: 'Unauthorized - Invalid or expired token'
         }),
         { 
           status: 401, 
@@ -64,8 +85,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
       return new Response(
         JSON.stringify({ 
           success: false, 
-          error: `Method ${req.method} not allowed`,
-          code: 'METHOD_NOT_ALLOWED'
+          error: `Method ${req.method} not allowed`
         }),
         { 
           status: 405, 
@@ -82,8 +102,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
       return new Response(
         JSON.stringify({ 
           success: false, 
-          error: 'Invalid JSON in request body',
-          code: 'INVALID_JSON'
+          error: 'Invalid JSON in request body'
         }),
         { 
           status: 400, 
@@ -92,17 +111,10 @@ Deno.serve(async (req: Request): Promise<Response> => {
       );
     }
 
-    // Validate the request data
-    const validationErrors = validateCreateLeagueRequest(requestBody);
-    if (validationErrors.length > 0) {
-      const response: ValidationErrorResponse = {
-        success: false,
-        error: 'Validation failed',
-        code: 'VALIDATION_ERROR',
-        validationErrors: validationErrors
-      };
+    // Basic validation
+    if (!requestBody.name || requestBody.name.trim().length === 0) {
       return new Response(
-        JSON.stringify(response),
+        JSON.stringify({ success: false, error: 'League name is required' }),
         { 
           status: 400, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
@@ -110,32 +122,44 @@ Deno.serve(async (req: Request): Promise<Response> => {
       );
     }
 
-    // Hash password if provided
+    if (requestBody.maxMembers < 2 || requestBody.maxMembers > 50) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Max members must be between 2 and 50' }),
+        { 
+          status: 400, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
+    }
+
+    if (requestBody.entryFee < 0) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Entry fee cannot be negative' }),
+        { 
+          status: 400, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
+    }
+
+    if (requestBody.isPrivate && (!requestBody.password || requestBody.password.trim().length === 0)) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Password is required for private leagues' }),
+        { 
+          status: 400, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
+    }
+
+    // Hash password if provided (simple hash for now)
     let passwordHash = null;
     if (requestBody.isPrivate && requestBody.password) {
-      passwordHash = await hashPassword(requestBody.password);
-    }
-
-    // Check if league name already exists for this user
-    const { data: existingLeague } = await supabase
-      .from('leagues')
-      .select('id')
-      .eq('created_by', user.id)
-      .eq('name', requestBody.name.trim())
-      .single();
-
-    if (existingLeague) {
-      return new Response(
-        JSON.stringify({ 
-          success: false, 
-          error: 'A league with this name already exists in your account',
-          code: 'DUPLICATE_LEAGUE_NAME'
-        }),
-        { 
-          status: 409, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      );
+      const encoder = new TextEncoder();
+      const data = encoder.encode(requestBody.password);
+      const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      passwordHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
     }
 
     // Create the league
@@ -159,8 +183,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
       return new Response(
         JSON.stringify({ 
           success: false, 
-          error: 'Failed to create league - please try again',
-          code: 'CREATE_LEAGUE_FAILED'
+          error: 'Failed to create league - please try again'
         }),
         { 
           status: 500, 
@@ -185,8 +208,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
       return new Response(
         JSON.stringify({ 
           success: false, 
-          error: 'Failed to create league membership - please try again',
-          code: 'CREATE_MEMBERSHIP_FAILED'
+          error: 'Failed to create league membership - please try again'
         }),
         { 
           status: 500, 
@@ -224,8 +246,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
     return new Response(
       JSON.stringify({ 
         success: false, 
-        error: 'Internal server error - please try again later',
-        code: 'INTERNAL_ERROR'
+        error: 'Internal server error - please try again later'
       }),
       { 
         status: 500, 

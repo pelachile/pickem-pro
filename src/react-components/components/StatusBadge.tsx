@@ -39,13 +39,13 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({
   // Determine animation classes
   const animationClasses = getStatusAnimation(status, animate);
   
-  // Variant styles mapping
+  // Variant styles mapping - improved contrast for WCAG AA compliance
   const variantStyles = {
-    'sunset-orange': 'bg-sunset-500 text-white',
-    'sky-blue': 'bg-sky-300 text-white',
-    'midnight-navy': 'bg-navy-900 text-white',
-    'sunrise-gold': 'bg-sunrise-400 text-white',
-    'ocean-blue': 'bg-ocean-600 text-white',
+    'sunset-orange': 'bg-sunset-500/95 text-white border border-sunset-400/30 shadow-lg backdrop-blur-sm',
+    'sky-blue': 'bg-sky-400/95 text-white border border-sky-300/30 shadow-lg backdrop-blur-sm',
+    'midnight-navy': 'bg-navy-900/95 text-white border border-navy-700/30 shadow-lg backdrop-blur-sm',
+    'sunrise-gold': 'bg-sunrise-500/95 text-white border border-sunrise-400/30 shadow-lg backdrop-blur-sm',
+    'ocean-blue': 'bg-ocean-600/95 text-white border border-ocean-500/30 shadow-lg backdrop-blur-sm',
   };
   
   // Combine all classes

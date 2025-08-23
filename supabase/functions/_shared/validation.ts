@@ -1,205 +1,122 @@
 /**
  * Validation utilities for Supabase Edge Functions
- * 
- * Provides reusable validation functions for common input types
- * and request validation patterns.
  */
 
-import { ValidationError, CreateLeagueRequest, JoinLeagueRequest } from './types.ts';
+import { ValidationResult, GetPublicLeaguesParams } from './types.ts';
 
-/**
- * Validate a league creation request
- * 
- * @param data - The request data to validate
- * @returns ValidationError[] - Array of validation errors (empty if valid)
- */
-export function validateCreateLeagueRequest(data: any): ValidationError[] {
-  const errors: ValidationError[] = [];
-
-  // Type validation
-  if (typeof data.name !== 'string') {
-    errors.push({ field: 'name', message: 'Name must be a string', code: 'INVALID_TYPE' });
-  }
-  
-  if (data.description !== undefined && typeof data.description !== 'string') {
-    errors.push({ field: 'description', message: 'Description must be a string', code: 'INVALID_TYPE' });
-  }
-  
-  if (typeof data.entryFee !== 'number') {
-    errors.push({ field: 'entryFee', message: 'Entry fee must be a number', code: 'INVALID_TYPE' });
-  }
-  
-  if (typeof data.maxMembers !== 'number') {
-    errors.push({ field: 'maxMembers', message: 'Max members must be a number', code: 'INVALID_TYPE' });
-  }
-  
-  if (typeof data.isPrivate !== 'boolean') {
-    errors.push({ field: 'isPrivate', message: 'IsPrivate must be a boolean', code: 'INVALID_TYPE' });
-  }
-  
-  if (data.password !== undefined && typeof data.password !== 'string') {
-    errors.push({ field: 'password', message: 'Password must be a string', code: 'INVALID_TYPE' });
-  }
-
-  // Content validation (only if types are correct)
-  if (typeof data.name === 'string') {
-    if (!data.name || data.name.trim().length === 0) {
-      errors.push({ field: 'name', message: 'League name is required', code: 'REQUIRED' });
-    } else if (data.name.trim().length > 100) {
-      errors.push({ field: 'name', message: 'League name must be 100 characters or less', code: 'TOO_LONG' });
+export function validateNumber(
+  value: string | null | undefined, 
+  min?: number, 
+  max?: number, 
+  defaultValue?: number
+): ValidationResult {
+  if (!value) {
+    if (defaultValue !== undefined) {
+      return { isValid: true, value: defaultValue };
     }
+    return { isValid: false, error: 'Value is required' };
   }
 
-  if (typeof data.description === 'string' && data.description.trim().length > 500) {
-    errors.push({ field: 'description', message: 'Description must be 500 characters or less', code: 'TOO_LONG' });
+  const numValue = parseInt(value);
+  
+  if (isNaN(numValue)) {
+    return { isValid: false, error: 'Value must be a valid number' };
   }
 
-  if (typeof data.entryFee === 'number') {
-    if (data.entryFee < 0) {
-      errors.push({ field: 'entryFee', message: 'Entry fee cannot be negative', code: 'INVALID_VALUE' });
+  if (min !== undefined && numValue < min) {
+    return { isValid: false, error: `Value must be at least ${min}` };
+  }
+
+  if (max !== undefined && numValue > max) {
+    return { isValid: false, error: `Value must be at most ${max}` };
+  }
+
+  return { isValid: true, value: numValue };
+}
+
+export function validateString(
+  value: string | null | undefined,
+  allowedValues?: string[],
+  defaultValue?: string
+): ValidationResult {
+  if (!value) {
+    if (defaultValue !== undefined) {
+      return { isValid: true, value: defaultValue };
     }
+    return { isValid: false, error: 'Value is required' };
+  }
+
+  if (allowedValues && !allowedValues.includes(value)) {
+    return { isValid: false, error: `Value must be one of: ${allowedValues.join(', ')}` };
+  }
+
+  return { isValid: true, value };
+}
+
+export function sanitizeSearchTerm(search: string | null | undefined): string | null {
+  if (!search) return null;
+  
+  // Remove potentially harmful characters and trim
+  const sanitized = search
+    .trim()
+    .replace(/[%_\\]/g, '') // Remove SQL wildcards and escape characters
+    .replace(/[<>\"']/g, '') // Remove potential XSS characters
+    .slice(0, 100); // Limit length
     
-    // Check for at most 2 decimal places
-    if (!Number.isInteger(data.entryFee * 100)) {
-      errors.push({ field: 'entryFee', message: 'Entry fee must have at most 2 decimal places', code: 'INVALID_PRECISION' });
-    }
-  }
-
-  if (typeof data.maxMembers === 'number') {
-    if (!Number.isInteger(data.maxMembers)) {
-      errors.push({ field: 'maxMembers', message: 'Max members must be an integer', code: 'INVALID_TYPE' });
-    } else if (data.maxMembers < 2 || data.maxMembers > 50) {
-      errors.push({ field: 'maxMembers', message: 'Max members must be between 2 and 50', code: 'OUT_OF_RANGE' });
-    }
-  }
-
-  if (typeof data.isPrivate === 'boolean' && data.isPrivate) {
-    if (!data.password || typeof data.password !== 'string' || data.password.trim().length === 0) {
-      errors.push({ field: 'password', message: 'Password is required for private leagues', code: 'REQUIRED' });
-    } else if (data.password.length < 4) {
-      errors.push({ field: 'password', message: 'Password must be at least 4 characters long', code: 'TOO_SHORT' });
-    }
-  }
-
-  return errors;
+  return sanitized.length > 0 ? sanitized : null;
 }
 
-/**
- * Sanitize string input by trimming whitespace and normalizing
- * 
- * @param input - The string to sanitize
- * @param maxLength - Maximum allowed length (optional)
- * @returns string - Sanitized string
- */
-export function sanitizeString(input: string, maxLength?: number): string {
-  let sanitized = input.trim();
+export function validateGetPublicLeaguesParams(url: URL): ValidationResult {
+  const params: GetPublicLeaguesParams = {};
   
-  if (maxLength && sanitized.length > maxLength) {
-    sanitized = sanitized.substring(0, maxLength);
+  // Validate limit
+  const limitResult = validateNumber(
+    url.searchParams.get('limit'),
+    1,
+    50,
+    20
+  );
+  if (!limitResult.isValid) {
+    return { isValid: false, error: `Invalid limit: ${limitResult.error}` };
   }
-  
-  return sanitized;
-}
+  params.limit = limitResult.value;
 
-/**
- * Check if a value is a valid email address
- * 
- * @param email - The email string to validate
- * @returns boolean - True if valid email format
- */
-export function isValidEmail(email: string): boolean {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email);
-}
-
-/**
- * Check if a password meets security requirements
- * 
- * @param password - The password to validate
- * @param minLength - Minimum password length (default: 8)
- * @returns ValidationError[] - Array of validation errors
- */
-export function validatePassword(password: string, minLength: number = 8): ValidationError[] {
-  const errors: ValidationError[] = [];
-
-  if (password.length < minLength) {
-    errors.push({ 
-      field: 'password', 
-      message: `Password must be at least ${minLength} characters long`, 
-      code: 'TOO_SHORT' 
-    });
+  // Validate offset
+  const offsetResult = validateNumber(
+    url.searchParams.get('offset'),
+    0,
+    undefined,
+    0
+  );
+  if (!offsetResult.isValid) {
+    return { isValid: false, error: `Invalid offset: ${offsetResult.error}` };
   }
+  params.offset = offsetResult.value;
 
-  // Check for at least one letter and one number for stronger passwords
-  if (minLength >= 8) {
-    if (!/[a-zA-Z]/.test(password)) {
-      errors.push({ 
-        field: 'password', 
-        message: 'Password must contain at least one letter', 
-        code: 'MISSING_LETTER' 
-      });
-    }
-    
-    if (!/\d/.test(password)) {
-      errors.push({ 
-        field: 'password', 
-        message: 'Password must contain at least one number', 
-        code: 'MISSING_NUMBER' 
-      });
-    }
+  // Validate sortBy
+  const sortByResult = validateString(
+    url.searchParams.get('sortBy'),
+    ['created_at', 'name', 'members'],
+    'created_at'
+  );
+  if (!sortByResult.isValid) {
+    return { isValid: false, error: `Invalid sortBy: ${sortByResult.error}` };
   }
+  params.sortBy = sortByResult.value;
 
-  return errors;
-}
-
-/**
- * Validate a join league request
- * 
- * @param data - The request data to validate
- * @returns ValidationError[] - Array of validation errors (empty if valid)
- */
-export function validateJoinLeagueRequest(data: any): ValidationError[] {
-  const errors: ValidationError[] = [];
-
-  // Type validation
-  if (typeof data.inviteCode !== 'string') {
-    errors.push({ field: 'inviteCode', message: 'Invite code must be a string', code: 'INVALID_TYPE' });
+  // Validate sortOrder
+  const sortOrderResult = validateString(
+    url.searchParams.get('sortOrder'),
+    ['asc', 'desc'],
+    'desc'
+  );
+  if (!sortOrderResult.isValid) {
+    return { isValid: false, error: `Invalid sortOrder: ${sortOrderResult.error}` };
   }
-  
-  if (data.password !== undefined && typeof data.password !== 'string') {
-    errors.push({ field: 'password', message: 'Password must be a string', code: 'INVALID_TYPE' });
-  }
+  params.sortOrder = sortOrderResult.value;
 
-  // Content validation (only if types are correct)
-  if (typeof data.inviteCode === 'string') {
-    const trimmedCode = data.inviteCode.trim();
-    if (!trimmedCode || trimmedCode.length === 0) {
-      errors.push({ field: 'inviteCode', message: 'Invite code is required', code: 'REQUIRED' });
-    } else if (trimmedCode.length < 4 || trimmedCode.length > 20) {
-      errors.push({ field: 'inviteCode', message: 'Invite code must be between 4 and 20 characters', code: 'INVALID_LENGTH' });
-    } else if (!/^[A-Z0-9]+$/i.test(trimmedCode)) {
-      errors.push({ field: 'inviteCode', message: 'Invite code must contain only letters and numbers', code: 'INVALID_FORMAT' });
-    }
-  }
+  // Sanitize search term
+  params.search = sanitizeSearchTerm(url.searchParams.get('search'));
 
-  if (typeof data.password === 'string' && data.password.trim().length === 0) {
-    errors.push({ field: 'password', message: 'Password cannot be empty', code: 'EMPTY_PASSWORD' });
-  }
-
-  return errors;
-}
-
-/**
- * Parse and validate JSON request body
- * 
- * @param request - The Request object
- * @returns Promise<any> - Parsed JSON object
- * @throws Error if JSON is invalid
- */
-export async function parseJsonBody(request: Request): Promise<any> {
-  try {
-    return await request.json();
-  } catch (error) {
-    throw new Error('Invalid JSON in request body');
-  }
+  return { isValid: true, value: params };
 }

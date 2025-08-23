@@ -1,15 +1,29 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from 'jsr:@supabase/supabase-js@2';
-import { corsHeaders } from '../_shared/cors.ts';
-import { verifyPassword } from '../_shared/crypto.ts';
-import { validateJoinLeagueRequest } from '../_shared/validation.ts';
-import type { 
-  JoinLeagueRequest, 
-  JoinLeagueResponse,
-  ValidationErrorResponse,
-  League,
-  LeagueMember
-} from '../_shared/types.ts';
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods': 'POST, GET, OPTIONS, PUT, DELETE',
+};
+
+interface JoinLeagueRequest {
+  inviteCode: string;
+  password?: string;
+}
+
+interface JoinLeagueResponse {
+  success: boolean;
+  data?: {
+    leagueId: string;
+    leagueName: string;
+    role: 'member';
+    joinedAt: string;
+    currentMembers: number;
+    maxMembers: number;
+  };
+  error?: string;
+}
 
 Deno.serve(async (req: Request): Promise<Response> => {
   // Handle CORS preflight requests
@@ -24,8 +38,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
       return new Response(
         JSON.stringify({ 
           success: false, 
-          error: 'Authorization header required',
-          code: 'MISSING_AUTH_HEADER'
+          error: 'Authorization header required'
         }),
         { 
           status: 401, 
@@ -51,8 +64,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
       return new Response(
         JSON.stringify({ 
           success: false, 
-          error: 'Unauthorized - Invalid or expired token',
-          code: 'INVALID_TOKEN'
+          error: 'Unauthorized - Invalid or expired token'
         }),
         { 
           status: 401, 
@@ -66,8 +78,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
       return new Response(
         JSON.stringify({ 
           success: false, 
-          error: `Method ${req.method} not allowed`,
-          code: 'METHOD_NOT_ALLOWED'
+          error: `Method ${req.method} not allowed`
         }),
         { 
           status: 405, 
@@ -76,7 +87,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
       );
     }
 
-    // Parse and validate the request body
+    // Parse the request body
     let requestBody: JoinLeagueRequest;
     try {
       requestBody = await req.json();
@@ -84,8 +95,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
       return new Response(
         JSON.stringify({ 
           success: false, 
-          error: 'Invalid JSON in request body',
-          code: 'INVALID_JSON'
+          error: 'Invalid JSON in request body'
         }),
         { 
           status: 400, 
@@ -94,17 +104,10 @@ Deno.serve(async (req: Request): Promise<Response> => {
       );
     }
 
-    // Validate the request data
-    const validationErrors = validateJoinLeagueRequest(requestBody);
-    if (validationErrors.length > 0) {
-      const response: ValidationErrorResponse = {
-        success: false,
-        error: 'Validation failed',
-        code: 'VALIDATION_ERROR',
-        validationErrors: validationErrors
-      };
+    // Validate invite code
+    if (!requestBody.inviteCode || requestBody.inviteCode.trim().length === 0) {
       return new Response(
-        JSON.stringify(response),
+        JSON.stringify({ success: false, error: 'Invite code is required' }),
         { 
           status: 400, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
@@ -112,12 +115,11 @@ Deno.serve(async (req: Request): Promise<Response> => {
       );
     }
 
-    // Find the league by invite code
-    const inviteCode = requestBody.inviteCode.trim().toUpperCase();
+    // Find league by invite code
     const { data: league, error: leagueError } = await supabase
       .from('leagues')
       .select('*')
-      .eq('invite_code', inviteCode)
+      .eq('invite_code', requestBody.inviteCode.trim().toUpperCase())
       .eq('status', 'active')
       .single();
 
@@ -125,8 +127,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
       return new Response(
         JSON.stringify({ 
           success: false, 
-          error: 'Invalid or expired invite code',
-          code: 'INVALID_INVITE_CODE'
+          error: 'Invalid invite code or league not found'
         }),
         { 
           status: 404, 
@@ -135,10 +136,10 @@ Deno.serve(async (req: Request): Promise<Response> => {
       );
     }
 
-    // Check if user is already a member of this league
+    // Check if user is already a member
     const { data: existingMember } = await supabase
       .from('league_members')
-      .select('id, role')
+      .select('id')
       .eq('league_id', league.id)
       .eq('user_id', user.id)
       .single();
@@ -147,8 +148,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
       return new Response(
         JSON.stringify({ 
           success: false, 
-          error: 'You are already a member of this league',
-          code: 'ALREADY_MEMBER'
+          error: 'You are already a member of this league'
         }),
         { 
           status: 409, 
@@ -157,34 +157,17 @@ Deno.serve(async (req: Request): Promise<Response> => {
       );
     }
 
-    // Check current member count
-    const { count: currentMembers, error: countError } = await supabase
+    // Check if league is full
+    const { count: currentMembers } = await supabase
       .from('league_members')
-      .select('*', { count: 'exact', head: true })
+      .select('id', { count: 'exact' })
       .eq('league_id', league.id);
 
-    if (countError) {
-      console.error('Error counting league members:', countError);
+    if (currentMembers && currentMembers >= league.max_members) {
       return new Response(
         JSON.stringify({ 
           success: false, 
-          error: 'Failed to check league capacity',
-          code: 'COUNT_MEMBERS_FAILED'
-        }),
-        { 
-          status: 500, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      );
-    }
-
-    // Check if league is full
-    if (currentMembers !== null && currentMembers >= league.max_members) {
-      return new Response(
-        JSON.stringify({ 
-          success: false, 
-          error: 'This league is full',
-          code: 'LEAGUE_FULL'
+          error: 'League is full'
         }),
         { 
           status: 409, 
@@ -194,13 +177,12 @@ Deno.serve(async (req: Request): Promise<Response> => {
     }
 
     // For private leagues, verify password
-    if (league.is_private && league.password_hash) {
+    if (league.is_private) {
       if (!requestBody.password) {
         return new Response(
           JSON.stringify({ 
             success: false, 
-            error: 'Password required for private league',
-            code: 'PASSWORD_REQUIRED'
+            error: 'Password is required for private leagues'
           }),
           { 
             status: 400, 
@@ -209,13 +191,18 @@ Deno.serve(async (req: Request): Promise<Response> => {
         );
       }
 
-      const passwordValid = await verifyPassword(requestBody.password, league.password_hash);
-      if (!passwordValid) {
+      // Hash the provided password and compare
+      const encoder = new TextEncoder();
+      const data = encoder.encode(requestBody.password);
+      const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      const providedHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+      if (providedHash !== league.password_hash) {
         return new Response(
           JSON.stringify({ 
             success: false, 
-            error: 'Incorrect password',
-            code: 'INVALID_PASSWORD'
+            error: 'Incorrect password'
           }),
           { 
             status: 401, 
@@ -225,8 +212,8 @@ Deno.serve(async (req: Request): Promise<Response> => {
       }
     }
 
-    // Add user as a member to the league
-    const { data: newMember, error: memberError } = await supabase
+    // Add user to league
+    const { data: membership, error: memberError } = await supabase
       .from('league_members')
       .insert({
         league_id: league.id,
@@ -237,28 +224,11 @@ Deno.serve(async (req: Request): Promise<Response> => {
       .single();
 
     if (memberError) {
-      console.error('Error adding league member:', memberError);
-      
-      // Check if it's a duplicate key error (race condition)
-      if (memberError.code === '23505') {
-        return new Response(
-          JSON.stringify({ 
-            success: false, 
-            error: 'You are already a member of this league',
-            code: 'ALREADY_MEMBER'
-          }),
-          { 
-            status: 409, 
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-          }
-        );
-      }
-
+      console.error('Error adding member:', memberError);
       return new Response(
         JSON.stringify({ 
           success: false, 
-          error: 'Failed to join league - please try again',
-          code: 'JOIN_LEAGUE_FAILED'
+          error: 'Failed to join league - please try again'
         }),
         { 
           status: 500, 
@@ -267,9 +237,6 @@ Deno.serve(async (req: Request): Promise<Response> => {
       );
     }
 
-    // Get updated member count (including the new member)
-    const finalMemberCount = (currentMembers ?? 0) + 1;
-
     // Prepare the successful response
     const response: JoinLeagueResponse = {
       success: true,
@@ -277,8 +244,8 @@ Deno.serve(async (req: Request): Promise<Response> => {
         leagueId: league.id,
         leagueName: league.name,
         role: 'member',
-        joinedAt: newMember.joined_at,
-        currentMembers: finalMemberCount,
+        joinedAt: membership.joined_at,
+        currentMembers: (currentMembers || 0) + 1,
         maxMembers: league.max_members
       }
     };
@@ -296,8 +263,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
     return new Response(
       JSON.stringify({ 
         success: false, 
-        error: 'Internal server error - please try again later',
-        code: 'INTERNAL_ERROR'
+        error: 'Internal server error - please try again later'
       }),
       { 
         status: 500, 

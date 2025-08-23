@@ -318,12 +318,13 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
                 <Sidebar />
             </div>
 
-            {/* Mobile header */}
-            <div className="sticky top-0 z-30 flex items-center gap-x-4 bg-navy-900/95 backdrop-blur-xl border-b border-sky-400/20 px-4 py-3 lg:hidden shadow-lg">
+            {/* Enhanced Mobile header with better touch targets */}
+            <div className="sticky top-0 z-30 flex items-center gap-x-4 bg-navy-900/95 backdrop-blur-xl border-b border-sky-400/20 px-4 py-3 lg:hidden shadow-lg min-h-[60px]">
                 <button
                     type="button"
                     onClick={() => setSidebarOpen(true)}
-                    className="-m-2.5 p-2.5 text-white/80 hover:text-sky-400 hover:bg-white/10 rounded-lg transition-all duration-200"
+                    className="-m-2.5 p-2.5 text-white/80 hover:text-sky-400 hover:bg-white/10 rounded-lg transition-all duration-200 touch-target focus-ring"
+                    aria-label="Open navigation menu"
                 >
                     <span className="sr-only">Open sidebar</span>
                     <Menu aria-hidden="true" className="size-6" />
@@ -337,11 +338,14 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
                     </div>
                 </div>
                 
-                {/* Mobile Profile Avatar */}
+                {/* Enhanced Mobile Profile Avatar with accessibility */}
                 <div className="flex items-center gap-2 shrink-0">
-                    <div className="w-8 h-8 bg-gradient-to-br from-sky-400 to-sunset-500 rounded-full flex items-center justify-center text-white font-bold text-xs">
+                    <button 
+                        className="w-10 h-10 bg-gradient-to-br from-sky-400 to-sunset-500 rounded-full flex items-center justify-center text-white font-bold text-sm border-2 border-white/20 hover:border-white/40 transition-all duration-200 focus-ring touch-target"
+                        aria-label={`Profile menu for ${user?.displayName || user?.firstName || user?.email || 'user'}`}
+                    >
                         {(user?.displayName || user?.firstName || user?.email || 'U').charAt(0).toUpperCase()}
-                    </div>
+                    </button>
                 </div>
             </div>
 
