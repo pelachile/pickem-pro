@@ -1,6 +1,7 @@
 // Custom hooks for league-related operations using TanStack Query
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useCallback, useEffect } from 'react';
 import { leagueApi } from '../lib/api';
 import type {
   GetPublicLeaguesParams,
@@ -10,6 +11,19 @@ import type {
   UpdateLeagueResponse,
   DeleteLeagueResponse,
 } from '../types/league';
+
+// Real-time event types
+interface LeagueUpdateEvent {
+  eventType: 'UPDATE' | 'DELETE';
+  new?: any;
+  old?: any;
+}
+
+interface MemberUpdateEvent {
+  eventType: 'INSERT' | 'UPDATE' | 'DELETE';
+  new?: any;
+  old?: any;
+}
 
 // Query keys for caching
 export const leagueQueryKeys = {
@@ -117,4 +131,108 @@ export function useDeleteLeague() {
       console.error('Failed to delete league:', error);
     },
   });
+}
+
+// =====================================
+// New hooks for Phase 3 features
+// =====================================
+
+// Hook to create a league (new for direct database operations)
+export function useCreateLeague() {
+  const queryClient = useQueryClient();
+
+  return useMutation<any, Error, any>({
+    mutationFn: leagueApi.createLeague,
+    onSuccess: () => {
+      // Invalidate user leagues first - this will update the sidebar immediately
+      queryClient.invalidateQueries({ queryKey: leagueQueryKeys.user() });
+      
+      // Invalidate all league queries to refresh data
+      queryClient.invalidateQueries({ queryKey: leagueQueryKeys.all });
+      
+      // Update public leagues if the new league is public
+      queryClient.invalidateQueries({ queryKey: [...leagueQueryKeys.all, 'public'] });
+      
+      console.log('✅ Cache invalidated after league creation');
+    },
+    onError: (error) => {
+      console.error('Failed to create league:', error);
+    },
+  });
+}
+
+// Hook for league detail with real-time updates
+export function useLeagueDetail(leagueId: string | null) {
+  const queryClient = useQueryClient();
+
+  // Real-time subscription for this specific league
+  const handleLeagueUpdate = useCallback((event: LeagueUpdateEvent) => {
+    console.log('League detail real-time update:', event);
+    
+    // Invalidate league detail cache
+    if (leagueId) {
+      queryClient.invalidateQueries({ queryKey: leagueQueryKeys.detail(leagueId) });
+    }
+  }, [queryClient, leagueId]);
+
+  const handleMemberUpdate = useCallback((event: MemberUpdateEvent) => {
+    console.log('League members real-time update:', event);
+    
+    // Invalidate league detail cache when members change
+    if (leagueId) {
+      queryClient.invalidateQueries({ queryKey: leagueQueryKeys.detail(leagueId) });
+      queryClient.invalidateQueries({ queryKey: leagueQueryKeys.user() });
+    }
+  }, [queryClient, leagueId]);
+
+  // Real-time subscriptions would be implemented here
+  // const leagueRealtime = useLeagueRealtime(leagueId, handleLeagueUpdate);
+  // const membersRealtime = useLeagueMembersRealtime(leagueId, handleMemberUpdate);
+
+  // Set up real-time subscriptions
+  useEffect(() => {
+    // TODO: Implement real-time subscriptions when ready
+    // if (!leagueId || !leagueRealtime.isEnabled) return;
+
+    // const unsubscribeLeague = leagueRealtime.subscribe();
+    // const unsubscribeMembers = membersRealtime.subscribe();
+
+    // return () => {
+    //   unsubscribeLeague();
+    //   unsubscribeMembers();
+    // };
+  }, [leagueId]);
+
+  return {
+    realtimeEnabled: false, // TODO: Enable when real-time is implemented
+    // Note: This would need a separate API endpoint for league details
+    // For now, it falls back to finding the league in the user's leagues
+  };
+}
+
+// Performance monitoring hook
+export function useLeaguePerformanceMetrics() {
+  const queryClient = useQueryClient();
+
+  return {
+    getCacheStats: () => {
+      const cache = queryClient.getQueryCache();
+      const queries = cache.getAll();
+      const leagueQueries = queries.filter(q => 
+        q.queryKey[0] === 'leagues'
+      );
+      
+      return {
+        totalQueries: queries.length,
+        leagueQueries: leagueQueries.length,
+        activeSubscriptions: 0, // realtimeManager.getActiveSubscriptionCount(),
+        cacheSize: queries.reduce((size, q) => size + JSON.stringify(q.state.data || {}).length, 0),
+      };
+    },
+    clearLeagueCache: () => {
+      queryClient.removeQueries({ queryKey: leagueQueryKeys.all });
+    },
+    isUsingDirectDB: true, // isFeatureEnabled('use_direct_league_queries'),
+    isRealtimeEnabled: false, // isFeatureEnabled('use_realtime_subscriptions'),
+  };
 }

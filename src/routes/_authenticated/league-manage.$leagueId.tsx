@@ -261,7 +261,7 @@ function LeagueManagementContent() {
     error, 
     refetch 
   } = useQuery({
-    queryKey: ['user-leagues'],
+    queryKey: ['leagues', 'user'],
     queryFn: leagueApi.getUserLeagues,
     staleTime: 1000 * 60 * 5,
     retry: 2
@@ -271,7 +271,7 @@ function LeagueManagementContent() {
   const updateMutation = useMutation({
     mutationFn: (data: UpdateLeagueRequest) => leagueApi.updateLeague(leagueId, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['user-leagues'] });
+      queryClient.invalidateQueries({ queryKey: ['leagues', 'user'] });
       navigate({ to: '/league/$leagueId', params: { leagueId } });
     },
   });
@@ -280,7 +280,7 @@ function LeagueManagementContent() {
   const deleteMutation = useMutation({
     mutationFn: () => leagueApi.deleteLeague(leagueId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['user-leagues'] });
+      queryClient.invalidateQueries({ queryKey: ['leagues', 'user'] });
       navigate({ to: '/leagues' });
     },
   });

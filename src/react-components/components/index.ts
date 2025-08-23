@@ -43,7 +43,6 @@ export type {
   PageLoadingProps,
   InlineLoadingProps,
   ErrorStateProps,
-  EmptyStateProps,
-  AvatarGroupProps
+  EmptyStateProps
 } from './LoadingStates';
-export type { InputProps } from './Input';
+export type { AvatarGroupProps } from './UserAvatar';

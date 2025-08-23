@@ -3,14 +3,13 @@ import { useState, useMemo } from 'react';
 import { GameCard } from '../../components/ui/GameCard';
 import type { Status } from '../../components/types';
 import ContentWrapper from '../../components/layout/ContentWrapper';
-import { useSchedule, useTeams } from '../../hooks/useNflData';
+import { useSchedule } from '../../hooks/useNflData';
 
 function MakePicksContent() {
     const [userPicks, setUserPicks] = useState<Record<number, number>>({});
 
     // Get live data from TanStack Query
     const { allGames, isLoading: scheduleLoading, error: scheduleError } = useSchedule();
-    const { data: teams, isLoading: teamsLoading } = useTeams();
 
     // Team win-loss records (dummy data for display)
     const teamRecords: Record<string, string> = {
@@ -27,10 +26,10 @@ function MakePicksContent() {
         if (!allGames) return [];
         
         return allGames.map((scheduleGame) => ({
-            id: scheduleGame.id,
+            id: typeof scheduleGame.id === 'string' ? parseInt(scheduleGame.id, 10) : scheduleGame.id,
             status: (scheduleGame.status === 'final' ? 'final' : scheduleGame.status === 'live' ? 'live' : 'scheduled') as Status,
             homeTeam: {
-                id: scheduleGame.home_team.id,
+                id: typeof scheduleGame.home_team.id === 'string' ? parseInt(scheduleGame.home_team.id, 10) : scheduleGame.home_team.id,
                 name: scheduleGame.home_team.display_name,
                 abbreviation: scheduleGame.home_team.abbreviation,
                 color: scheduleGame.home_team.color,
@@ -38,7 +37,7 @@ function MakePicksContent() {
                 record: teamRecords[scheduleGame.home_team.abbreviation] || '6-5',
             },
             awayTeam: {
-                id: scheduleGame.away_team.id,
+                id: typeof scheduleGame.away_team.id === 'string' ? parseInt(scheduleGame.away_team.id, 10) : scheduleGame.away_team.id,
                 name: scheduleGame.away_team.display_name,
                 abbreviation: scheduleGame.away_team.abbreviation,
                 color: scheduleGame.away_team.color,
@@ -104,7 +103,7 @@ function MakePicksContent() {
     };
 
     // Show loading state
-    if (scheduleLoading || teamsLoading) {
+    if (scheduleLoading) {
         return (
             <ContentWrapper 
                 title="Make Your Picks" 

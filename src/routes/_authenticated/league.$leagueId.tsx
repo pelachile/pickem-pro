@@ -125,7 +125,7 @@ function LeagueDetailContent() {
     error, 
     refetch 
   } = useQuery({
-    queryKey: ['user-leagues'],
+    queryKey: ['leagues', 'user'],
     queryFn: leagueApi.getUserLeagues,
     staleTime: 1000 * 60 * 5, // 5 minutes
     retry: 2,

@@ -1,6 +1,6 @@
 // Supabase client and types
 export { supabase } from './supabase';
-export type { User } from './supabase';
+export type { User } from '@supabase/supabase-js';
 
 // Authentication context and hooks
 export { AuthProvider, AuthContext } from '../contexts/AuthContext';

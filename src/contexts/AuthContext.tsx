@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
+import type { AuthError } from '@supabase/supabase-js';
 
 // User interface for our application
 interface User {
@@ -22,6 +23,14 @@ interface UserMetadata {
   firstName?: string;
   lastName?: string;
   displayName?: string;
+}
+
+// Sign up response interface
+interface SignUpResponse {
+  isSignUpComplete: boolean;
+  nextStep?: {
+    signUpStep: string;
+  };
 }
 
 // Authentication context interface

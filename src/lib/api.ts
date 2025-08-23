@@ -93,7 +93,9 @@ import type {
   DeleteLeagueResponse,
   ApiError
 } from '../types/league';
-import { supabase } from './supabase';
+import { supabase, isFeatureEnabled, migrationTracker } from './supabase';
+import * as directDB from './database';
+import type { PaginatedResponse } from '../types/database';
 
 // Helper function to get authorization headers
 const getAuthHeaders = async (): Promise<Record<string, string>> => {
@@ -235,10 +237,59 @@ export const nflApi = {
   }
 }
 
+// =====================================
+// Migration Helper Functions
+// =====================================
+
+/**
+ * Wrapper to choose between direct DB calls and edge functions
+ */
+function shouldUseDirectDB(operation: string): boolean {
+  const flags = {
+    'getPublicLeagues': 'use_direct_league_queries',
+    'joinLeague': 'use_direct_league_queries', 
+    'getUserLeagues': 'use_direct_league_queries',
+    'updateLeague': 'use_direct_league_queries',
+    'deleteLeague': 'use_direct_league_queries',
+    'createLeague': 'use_direct_league_queries',
+  };
+  
+  const flag = flags[operation as keyof typeof flags];
+  return flag ? isFeatureEnabled(flag) : false;
+}
+
 // League API functions
 export const leagueApi = {
   // Fetch public leagues with optional search and pagination
   async getPublicLeagues(params: GetPublicLeaguesParams = {}): Promise<GetPublicLeaguesResponse> {
+    // Feature flag: Use direct database queries or edge functions
+    if (shouldUseDirectDB('getPublicLeagues')) {
+      migrationTracker.logDirectQuery('leagues', 'getPublicLeagues');
+      
+      // Convert parameters to match direct DB function
+      const dbParams = {
+        search: params.search,
+        limit: params.limit || 20,
+        offset: params.offset || 0,
+      };
+      
+      const result = await directDB.getPublicLeagues(dbParams);
+      
+      // Convert response format to match existing API
+      if (result.success && result.data) {
+        return {
+          leagues: result.data,
+          total_count: result.pagination?.total || 0,
+          has_more: result.pagination?.hasMore || false,
+        };
+      } else {
+        throw new Error(result.error || 'Failed to get public leagues');
+      }
+    }
+    
+    // Legacy edge function approach
+    migrationTracker.logEdgeFunction('get-public-leagues');
+    
     const { search, limit = 20, offset = 0 } = params;
     const headers = await getAuthHeaders();
     
@@ -265,6 +316,31 @@ export const leagueApi = {
 
   // Join a league using invite code and optional password
   async joinLeague(request: JoinLeagueRequest): Promise<JoinLeagueResponse> {
+    // Feature flag: Use direct database queries or edge functions
+    if (shouldUseDirectDB('joinLeague')) {
+      migrationTracker.logDirectQuery('leagues', 'joinLeague');
+      
+      const result = await directDB.joinLeague(request);
+      
+      // Convert response format to match existing API
+      if (result.success && result.data) {
+        return {
+          success: true,
+          message: 'Successfully joined league',
+          league: result.data as any, // Type conversion for compatibility
+        };
+      } else {
+        return {
+          success: false,
+          message: result.error || 'Failed to join league',
+          error: result.error,
+        };
+      }
+    }
+    
+    // Legacy edge function approach
+    migrationTracker.logEdgeFunction('join-league');
+    
     const headers = await getAuthHeaders();
     
     const response = await fetch(`${FUNCTIONS_BASE_URL}/join-league`, {
@@ -282,6 +358,39 @@ export const leagueApi = {
 
   // Get user's leagues
   async getUserLeagues(): Promise<GetUserLeaguesResponse> {
+    // Feature flag: Use direct database queries or edge functions
+    if (shouldUseDirectDB('getUserLeagues')) {
+      migrationTracker.logDirectQuery('leagues', 'getUserLeagues');
+      
+      const result = await directDB.getUserLeagues();
+      
+      // Convert response format to match existing API
+      if (result.success && result.data) {
+        // Transform database format to existing API format
+        const userLeagues = result.data.map(league => ({
+          ...league,
+          userRole: league.user_role,
+          joinedAt: league.joined_at,
+          // Add computed fields that might be expected by the UI
+          season_year: new Date().getFullYear(),
+          has_password: !!league.password_hash,
+        }));
+        
+        return {
+          success: true,
+          data: userLeagues as any[], // Type conversion for compatibility
+        };
+      } else {
+        return {
+          success: false,
+          error: result.error || 'Failed to get user leagues',
+        };
+      }
+    }
+    
+    // Legacy edge function approach
+    migrationTracker.logEdgeFunction('get-user-leagues');
+    
     const headers = await getAuthHeaders();
     
     const response = await fetch(`${FUNCTIONS_BASE_URL}/get-user-leagues`, {
@@ -298,6 +407,39 @@ export const leagueApi = {
 
   // Update a league
   async updateLeague(leagueId: string, request: UpdateLeagueRequest): Promise<UpdateLeagueResponse> {
+    // Feature flag: Use direct database queries or edge functions
+    if (shouldUseDirectDB('updateLeague')) {
+      migrationTracker.logDirectQuery('leagues', 'updateLeague');
+      
+      const result = await directDB.updateLeague(leagueId, request);
+      
+      // Convert response format to match existing API
+      if (result.success && result.data) {
+        return {
+          success: true,
+          data: {
+            id: result.data.id,
+            name: result.data.name,
+            description: result.data.description || undefined,
+            entryFee: result.data.entry_fee || 0,
+            maxMembers: result.data.max_members || 10,
+            isPrivate: result.data.is_private || false,
+            inviteCode: result.data.invite_code || '',
+            status: result.data.status || 'active',
+            updatedAt: result.data.updated_at || '',
+          },
+        };
+      } else {
+        return {
+          success: false,
+          error: result.error || 'Failed to update league',
+        };
+      }
+    }
+    
+    // Legacy edge function approach
+    migrationTracker.logEdgeFunction('update-league');
+    
     const headers = await getAuthHeaders();
     
     const response = await fetch(`${FUNCTIONS_BASE_URL}/update-league/${leagueId}`, {
@@ -315,11 +457,76 @@ export const leagueApi = {
 
   // Delete a league
   async deleteLeague(leagueId: string): Promise<DeleteLeagueResponse> {
+    // Feature flag: Use direct database queries or edge functions
+    if (shouldUseDirectDB('deleteLeague')) {
+      migrationTracker.logDirectQuery('leagues', 'deleteLeague');
+      
+      const result = await directDB.deleteLeague(leagueId);
+      
+      // Convert response format to match existing API
+      if (result.success) {
+        return {
+          success: true,
+          message: 'League deleted successfully',
+        };
+      } else {
+        return {
+          success: false,
+          message: result.error || 'Failed to delete league',
+          error: result.error,
+        };
+      }
+    }
+    
+    // Legacy edge function approach
+    migrationTracker.logEdgeFunction('delete-league');
+    
     const headers = await getAuthHeaders();
     
     const response = await fetch(`${FUNCTIONS_BASE_URL}/delete-league/${leagueId}`, {
       method: 'DELETE',
       headers,
+    });
+    
+    if (!response.ok) {
+      await handleApiError(response);
+    }
+    
+    return response.json();
+  },
+  
+  // Create a new league (new function for direct DB operations)
+  async createLeague(request: { name: string; description?: string; entryFee: number; maxMembers: number; isPrivate: boolean; password?: string }): Promise<any> {
+    // Feature flag: Use direct database queries or edge functions
+    if (shouldUseDirectDB('createLeague')) {
+      migrationTracker.logDirectQuery('leagues', 'createLeague');
+      
+      const result = await directDB.createLeague(request);
+      
+      // Convert response format to match existing API pattern
+      if (result.success && result.data) {
+        return {
+          success: true,
+          data: result.data,
+          message: 'League created successfully',
+        };
+      } else {
+        return {
+          success: false,
+          error: result.error || 'Failed to create league',
+        };
+      }
+    }
+    
+    // Legacy edge function approach (would need to be implemented)
+    migrationTracker.logEdgeFunction('create-league');
+    
+    const headers = await getAuthHeaders();
+    
+    const response = await fetch(`${FUNCTIONS_BASE_URL}/create-league`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(request),
     });
     
     if (!response.ok) {

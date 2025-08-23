@@ -1,56 +1,24 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Loader2, CheckCircle, XCircle, Copy } from 'lucide-react';
 import ContentWrapper from '../../components/layout/ContentWrapper';
-// Remove useAuth import since we'll get session directly from Supabase
-import { supabase } from '../../lib/supabase';
-
-// API response interface
-interface CreateLeagueResponse {
-    success: boolean;
-    data?: {
-        id: string;
-        name: string;
-        inviteCode: string;
-        description?: string;
-        entryFee: number;
-        maxMembers: number;
-        isPrivate: boolean;
-    };
-    error?: string;
+import { useCreateLeague } from '../../hooks/useLeague';
+import { validateCreateLeague, formatValidationErrors } from '../../lib/validation';
+// Define CreateLeagueRequest interface locally
+interface CreateLeagueRequest {
+  name: string;
+  description?: string;
+  entryFee: number;
+  maxMembers: number;
+  isPrivate: boolean;
+  password?: string;
 }
 
-// API function to create league
-const createLeague = async (formData: any, token: string): Promise<CreateLeagueResponse> => {
-    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'http://127.0.0.1:54321';
-    const response = await fetch(`${supabaseUrl}/functions/v1/create-league`, {
-        method: 'POST',
-        headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            name: formData.name,
-            description: formData.description || null,
-            entryFee: formData.entryFee,
-            maxMembers: formData.maxMembers,
-            isPrivate: formData.isPrivate,
-            password: formData.isPrivate ? formData.password : null,
-        }),
-    });
-
-    if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
-    }
-
-    return response.json();
-};
 
 function CreateLeagueContent() {
     const navigate = useNavigate();
-    const queryClient = useQueryClient();
+    const createLeagueMutation = useCreateLeague();
+    
     const [formData, setFormData] = useState({
         name: '',
         description: '',
@@ -59,58 +27,59 @@ function CreateLeagueContent() {
         isPrivate: false,
         password: '',
     });
-    const [successData, setSuccessData] = useState<CreateLeagueResponse['data'] | null>(null);
-    const [apiError, setApiError] = useState<string>('');
+    const [successData, setSuccessData] = useState<any>(null);
+    const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
     const [inviteCodeCopied, setInviteCodeCopied] = useState(false);
 
-    // TanStack Query mutation for creating league
-    const createLeagueMutation = useMutation({
-        mutationFn: async () => {
-            // Clear any previous errors
-            setApiError('');
-            
-            // Get fresh session token
-            const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-            if (sessionError || !session?.access_token) {
-                throw new Error('Authentication required. Please sign in again.');
-            }
 
-            return createLeague(formData, session.access_token);
-        },
-        onSuccess: (data) => {
-            if (data.success && data.data) {
-                setSuccessData(data.data);
-                // Invalidate and refetch user leagues to show new league immediately
-                queryClient.invalidateQueries({ queryKey: ['user-leagues'] });
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        
+        // Clear previous validation errors
+        setValidationErrors({});
+        
+        const request: CreateLeagueRequest = {
+            name: formData.name.trim(),
+            description: formData.description.trim() || undefined,
+            entryFee: formData.entryFee,
+            maxMembers: formData.maxMembers,
+            isPrivate: formData.isPrivate,
+            password: formData.isPrivate && formData.password ? formData.password : undefined,
+        };
+        
+        // Validate using the new validation system
+        const validation = validateCreateLeague(request);
+        if (!validation.isValid) {
+            const errors: Record<string, string> = {};
+            validation.errors.forEach(error => {
+                errors[error.field.toLowerCase().replace(/\s+/g, '')] = error.message;
+            });
+            setValidationErrors(errors);
+            return;
+        }
+        
+        try {
+            const result = await createLeagueMutation.mutateAsync(request);
+            
+            if (result.success && result.data) {
+                setSuccessData({
+                    id: result.data.id,
+                    name: result.data.name,
+                    inviteCode: result.data.invite_code,
+                    description: result.data.description,
+                    entryFee: result.data.entry_fee,
+                    maxMembers: result.data.max_members,
+                    isPrivate: result.data.is_private,
+                });
+                
                 // Navigate to leagues page after showing success message
                 setTimeout(() => {
                     navigate({ to: '/leagues' });
-                }, 5000); // Show success message for 5 seconds
-            } else {
-                setApiError(data.error || 'Failed to create league');
+                }, 5000);
             }
-        },
-        onError: (error: Error) => {
+        } catch (error) {
             console.error('League creation error:', error);
-            setApiError(error.message || 'An unexpected error occurred');
-        },
-    });
-
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        
-        // Basic validation
-        if (!formData.name.trim()) {
-            setApiError('League name is required');
-            return;
         }
-        
-        if (formData.isPrivate && !formData.password.trim()) {
-            setApiError('Password is required for private leagues');
-            return;
-        }
-        
-        createLeagueMutation.mutate();
     };
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -146,10 +115,17 @@ function CreateLeagueContent() {
                                     value={formData.name}
                                     onChange={handleInputChange}
                                     disabled={createLeagueMutation.isPending || !!successData}
-                                    className="w-full px-4 py-3 bg-white/[0.05] border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-sky-400 focus:bg-white/[0.08] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                                    className={`w-full px-4 py-3 bg-white/[0.05] border rounded-lg text-white placeholder-white/40 focus:outline-none focus:bg-white/[0.08] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 ${
+                                        validationErrors.leaguename || validationErrors.name
+                                            ? 'border-red-500/60 focus:border-red-500'
+                                            : 'border-white/20 focus:border-sky-400'
+                                    }`}
                                     placeholder="Enter league name"
                                     required
                                 />
+                                {(validationErrors.leaguename || validationErrors.name) && (
+                                    <p className="text-sm text-red-400 mt-1">{validationErrors.leaguename || validationErrors.name}</p>
+                                )}
                             </div>
 
                             <div>
@@ -187,9 +163,17 @@ function CreateLeagueContent() {
                                     onChange={handleInputChange}
                                     disabled={createLeagueMutation.isPending || !!successData}
                                     min="0"
-                                    className="w-full px-4 py-3 bg-white/[0.05] border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-sky-400 focus:bg-white/[0.08] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                                    max="1000"
+                                    className={`w-full px-4 py-3 bg-white/[0.05] border rounded-lg text-white placeholder-white/40 focus:outline-none focus:bg-white/[0.08] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 ${
+                                        validationErrors.entryfee
+                                            ? 'border-red-500/60 focus:border-red-500'
+                                            : 'border-white/20 focus:border-sky-400'
+                                    }`}
                                     placeholder="0"
                                 />
+                                {validationErrors.entryfee && (
+                                    <p className="text-sm text-red-400 mt-1">{validationErrors.entryfee}</p>
+                                )}
                             </div>
 
                             <div>
@@ -205,8 +189,15 @@ function CreateLeagueContent() {
                                     disabled={createLeagueMutation.isPending || !!successData}
                                     min="2"
                                     max="50"
-                                    className="w-full px-4 py-3 bg-white/[0.05] border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-sky-400 focus:bg-white/[0.08] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                                    className={`w-full px-4 py-3 bg-white/[0.05] border rounded-lg text-white placeholder-white/40 focus:outline-none focus:bg-white/[0.08] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 ${
+                                        validationErrors.maxmembers || validationErrors.maximummembers
+                                            ? 'border-red-500/60 focus:border-red-500'
+                                            : 'border-white/20 focus:border-sky-400'
+                                    }`}
                                 />
+                                {(validationErrors.maxmembers || validationErrors.maximummembers) && (
+                                    <p className="text-sm text-red-400 mt-1">{validationErrors.maxmembers || validationErrors.maximummembers}</p>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -243,10 +234,17 @@ function CreateLeagueContent() {
                                         value={formData.password}
                                         onChange={handleInputChange}
                                         disabled={createLeagueMutation.isPending || !!successData}
-                                        className="w-full px-4 py-3 bg-white/[0.05] border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-sky-400 focus:bg-white/[0.08] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                                        className={`w-full px-4 py-3 bg-white/[0.05] border rounded-lg text-white placeholder-white/40 focus:outline-none focus:bg-white/[0.08] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 ${
+                                            validationErrors.password
+                                                ? 'border-red-500/60 focus:border-red-500'
+                                                : 'border-white/20 focus:border-sky-400'
+                                        }`}
                                         placeholder="Enter password"
                                         required={formData.isPrivate}
                                     />
+                                    {validationErrors.password && (
+                                        <p className="text-sm text-red-400 mt-1">{validationErrors.password}</p>
+                                    )}
                                 </div>
                             )}
                         </div>
@@ -306,12 +304,12 @@ function CreateLeagueContent() {
                     </div>
 
                     {/* Error Message */}
-                    {apiError && (
+                    {createLeagueMutation.error && (
                         <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4 flex items-start gap-3">
                             <XCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
                             <div>
                                 <h4 className="text-red-400 font-medium mb-1">Error Creating League</h4>
-                                <p className="text-red-300 text-sm">{apiError}</p>
+                                <p className="text-red-300 text-sm">{createLeagueMutation.error.message}</p>
                             </div>
                         </div>
                     )}
@@ -416,16 +414,16 @@ function CreateLeagueContent() {
                 )}
 
                 {/* Error overlay */}
-                {apiError && !createLeagueMutation.isPending && !successData && (
+                {createLeagueMutation.error && !createLeagueMutation.isPending && !successData && (
                     <div className="absolute inset-0 bg-black/40 backdrop-blur-sm rounded-xl flex items-center justify-center">
                         <div className="bg-red-500/10 backdrop-blur-lg border border-red-500/20 rounded-xl p-8 text-center max-w-md">
                             <XCircle className="w-16 h-16 text-red-400 mx-auto mb-4" />
                             <h3 className="text-2xl font-semibold text-white mb-2">Oops! Something went wrong</h3>
                             <p className="text-red-200 mb-6">
-                                {apiError}
+                                {createLeagueMutation.error.message}
                             </p>
                             <button
-                                onClick={() => setApiError('')}
+                                onClick={() => createLeagueMutation.reset()}
                                 className="px-6 py-3 bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 text-red-100 rounded-lg transition-colors"
                             >
                                 Try Again
