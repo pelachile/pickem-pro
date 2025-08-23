@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useRouter, useLocation } from '@tanstack/react-router';
 import { Dialog, DialogBackdrop, DialogPanel, TransitionChild } from '@headlessui/react';
+import { useQuery } from '@tanstack/react-query';
 import {
     Menu,
     Home,
@@ -12,23 +13,20 @@ import {
     Plus,
     Users,
     Settings,
+    Loader2,
+    AlertCircle,
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
+import { leagueApi } from '../../lib/api';
 
 interface AuthenticatedLayoutProps {
     children: React.ReactNode;
 }
 
-interface League {
-    id: number;
-    name: string;
-    members: number;
-    position: number;
-    initial: string;
-    isActive: boolean;
-}
-
-type LeagueData = League;
+// Helper function to generate league initial from name
+const getLeagueInitial = (name: string): string => {
+    return name.charAt(0).toUpperCase();
+};
 
 // Main navigation items
 const navigation = [
@@ -38,12 +36,6 @@ const navigation = [
     { name: 'Stats', href: '/stats', icon: PieChart },
 ];
 
-// Sample leagues - will be replaced with real data from API
-const myLeagues: LeagueData[] = [
-    { id: 1, name: 'Office League', members: 12, position: 3, initial: 'O', isActive: true },
-    { id: 2, name: 'Family Picks', members: 8, position: 1, initial: 'F', isActive: true },
-    { id: 3, name: 'College Friends', members: 15, position: 7, initial: 'C', isActive: false },
-];
 
 function classNames(...classes: string[]) {
     return classes.filter(Boolean).join(' ');
@@ -54,6 +46,21 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
     const { user, signOut } = useAuth();
     const router = useRouter();
     const location = useLocation();
+
+    // Fetch user's leagues
+    const { 
+        data: leaguesData, 
+        isLoading: leaguesLoading, 
+        error: leaguesError 
+    } = useQuery({
+        queryKey: ['user-leagues'],
+        queryFn: leagueApi.getUserLeagues,
+        staleTime: 1000 * 60 * 5, // 5 minutes
+        retry: 2,
+    });
+
+    const userLeagues = leaguesData?.data || [];
+    const hasLeaguesError = leaguesError || (leaguesData && !leaguesData.success);
 
     const handleSignOut = async () => {
         try {
@@ -142,34 +149,84 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
 
                     {/* My Leagues Section */}
                     <li>
-                        <div className="text-xs font-semibold text-white/60 uppercase tracking-wider mb-3">
-                            My Leagues
+                        <div className="flex items-center justify-between mb-3">
+                            <div className="text-xs font-semibold text-white/60 uppercase tracking-wider">
+                                My Leagues
+                            </div>
+                            {leaguesLoading && (
+                                <Loader2 className="h-3 w-3 text-white/40 animate-spin" />
+                            )}
                         </div>
                         <ul role="list" className="-mx-2 space-y-1">
-                            {myLeagues.map((league) => (
+                            {/* Loading State */}
+                            {leaguesLoading && (
+                                <>
+                                    {[1, 2, 3].map((i) => (
+                                        <li key={`skeleton-${i}`} className="animate-pulse">
+                                            <div className="flex gap-x-3 rounded-md p-2">
+                                                <div className="size-6 bg-white/10 rounded-lg"></div>
+                                                <div className="flex flex-col min-w-0 flex-1 space-y-1">
+                                                    <div className="h-3 bg-white/10 rounded w-20"></div>
+                                                    <div className="h-2 bg-white/10 rounded w-16"></div>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    ))}
+                                </>
+                            )}
+
+                            {/* Error State */}
+                            {hasLeaguesError && !leaguesLoading && (
+                                <li>
+                                    <div className="flex items-center gap-x-3 rounded-md p-2 text-red-400">
+                                        <AlertCircle className="h-4 w-4 shrink-0" />
+                                        <span className="text-xs">Failed to load leagues</span>
+                                    </div>
+                                </li>
+                            )}
+
+                            {/* Empty State */}
+                            {!leaguesLoading && !hasLeaguesError && userLeagues.length === 0 && (
+                                <li>
+                                    <div className="text-center py-4">
+                                        <Trophy className="h-8 w-8 text-white/20 mx-auto mb-2" />
+                                        <p className="text-xs text-white/50 mb-3">No leagues yet</p>
+                                        <Link
+                                            to="/join-league"
+                                            className="text-sky-400 hover:text-sky-300 text-xs font-medium transition-colors duration-200"
+                                        >
+                                            Join a league
+                                        </Link>
+                                    </div>
+                                </li>
+                            )}
+
+                            {/* Leagues List */}
+                            {!leaguesLoading && !hasLeaguesError && userLeagues.map((league) => (
                                 <li key={league.id}>
                                     <Link
-                                        to="/dashboard"
+                                        to="/league/$leagueId"
+                                        params={{ leagueId: league.id }}
                                         className="text-white/80 hover:bg-white/10 hover:text-sky-400 group flex gap-x-3 rounded-md p-2 text-sm font-medium transition-all duration-200 ease-out"
                                     >
                                         <div className="relative">
                                             <span className="border-white/20 text-white/80 bg-white/10 group-hover:border-sky-400/50 group-hover:text-sky-400 group-hover:bg-sky-400/20 flex size-6 shrink-0 items-center justify-center rounded-lg border text-[0.625rem] font-bold transition-all duration-200">
-                                                {league.initial}
+                                                {getLeagueInitial(league.name)}
                                             </span>
-                                            {league.isActive && (
+                                            {league.status === 'active' && (
                                                 <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 border border-navy-900 rounded-full"></div>
                                             )}
                                         </div>
                                         <div className="flex flex-col min-w-0 flex-1">
                                             <div className="flex items-center gap-2">
                                                 <span className="truncate">{league.name}</span>
-                                                {league.position <= 3 && (
+                                                {league.position && league.position <= 3 && (
                                                     <Trophy className="h-3 w-3 text-sunrise-500" />
                                                 )}
                                             </div>
                                             <span className="text-xs text-white/50">
-                                                #{league.position} of {league.members}
-                                                {league.isActive && <span className="text-green-400 ml-1">• Active</span>}
+                                                {league.position ? `#${league.position} of ${league.current_members}` : `${league.current_members} members`}
+                                                {league.status === 'active' && <span className="text-green-400 ml-1">• Active</span>}
                                             </span>
                                         </div>
                                     </Link>

@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as HomeSimpleRouteImport } from './routes/home-simple'
 import { Route as HomeRouteImport } from './routes/home'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
@@ -20,6 +21,8 @@ import { Route as AuthenticatedLeaguesRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedJoinLeagueRouteImport } from './routes/_authenticated/join-league'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedCreateLeagueRouteImport } from './routes/_authenticated/create-league'
+import { Route as AuthenticatedLeagueLeagueIdRouteImport } from './routes/_authenticated/league.$leagueId'
+import { Route as AuthenticatedLeagueManageLeagueIdRouteImport } from './routes/_authenticated/league-manage.$leagueId'
 
 const RegisterRoute = RegisterRouteImport.update({
   id: '/register',
@@ -29,6 +32,11 @@ const RegisterRoute = RegisterRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HomeSimpleRoute = HomeSimpleRouteImport.update({
+  id: '/home-simple',
+  path: '/home-simple',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HomeRoute = HomeRouteImport.update({
@@ -76,10 +84,23 @@ const AuthenticatedCreateLeagueRoute =
     path: '/create-league',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedLeagueLeagueIdRoute =
+  AuthenticatedLeagueLeagueIdRouteImport.update({
+    id: '/league/$leagueId',
+    path: '/league/$leagueId',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedLeagueManageLeagueIdRoute =
+  AuthenticatedLeagueManageLeagueIdRouteImport.update({
+    id: '/league-manage/$leagueId',
+    path: '/league-manage/$leagueId',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/home': typeof HomeRoute
+  '/home-simple': typeof HomeSimpleRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/create-league': typeof AuthenticatedCreateLeagueRoute
@@ -88,10 +109,13 @@ export interface FileRoutesByFullPath {
   '/leagues': typeof AuthenticatedLeaguesRoute
   '/make-picks': typeof AuthenticatedMakePicksRoute
   '/stats': typeof AuthenticatedStatsRoute
+  '/league-manage/$leagueId': typeof AuthenticatedLeagueManageLeagueIdRoute
+  '/league/$leagueId': typeof AuthenticatedLeagueLeagueIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/home': typeof HomeRoute
+  '/home-simple': typeof HomeSimpleRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/create-league': typeof AuthenticatedCreateLeagueRoute
@@ -100,12 +124,15 @@ export interface FileRoutesByTo {
   '/leagues': typeof AuthenticatedLeaguesRoute
   '/make-picks': typeof AuthenticatedMakePicksRoute
   '/stats': typeof AuthenticatedStatsRoute
+  '/league-manage/$leagueId': typeof AuthenticatedLeagueManageLeagueIdRoute
+  '/league/$leagueId': typeof AuthenticatedLeagueLeagueIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/home': typeof HomeRoute
+  '/home-simple': typeof HomeSimpleRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/_authenticated/create-league': typeof AuthenticatedCreateLeagueRoute
@@ -114,12 +141,15 @@ export interface FileRoutesById {
   '/_authenticated/leagues': typeof AuthenticatedLeaguesRoute
   '/_authenticated/make-picks': typeof AuthenticatedMakePicksRoute
   '/_authenticated/stats': typeof AuthenticatedStatsRoute
+  '/_authenticated/league-manage/$leagueId': typeof AuthenticatedLeagueManageLeagueIdRoute
+  '/_authenticated/league/$leagueId': typeof AuthenticatedLeagueLeagueIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/home'
+    | '/home-simple'
     | '/login'
     | '/register'
     | '/create-league'
@@ -128,10 +158,13 @@ export interface FileRouteTypes {
     | '/leagues'
     | '/make-picks'
     | '/stats'
+    | '/league-manage/$leagueId'
+    | '/league/$leagueId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/home'
+    | '/home-simple'
     | '/login'
     | '/register'
     | '/create-league'
@@ -140,11 +173,14 @@ export interface FileRouteTypes {
     | '/leagues'
     | '/make-picks'
     | '/stats'
+    | '/league-manage/$leagueId'
+    | '/league/$leagueId'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/home'
+    | '/home-simple'
     | '/login'
     | '/register'
     | '/_authenticated/create-league'
@@ -153,12 +189,15 @@ export interface FileRouteTypes {
     | '/_authenticated/leagues'
     | '/_authenticated/make-picks'
     | '/_authenticated/stats'
+    | '/_authenticated/league-manage/$leagueId'
+    | '/_authenticated/league/$leagueId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   HomeRoute: typeof HomeRoute
+  HomeSimpleRoute: typeof HomeSimpleRoute
   LoginRoute: typeof LoginRoute
   RegisterRoute: typeof RegisterRoute
 }
@@ -177,6 +216,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/home-simple': {
+      id: '/home-simple'
+      path: '/home-simple'
+      fullPath: '/home-simple'
+      preLoaderRoute: typeof HomeSimpleRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/home': {
@@ -242,6 +288,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCreateLeagueRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/league/$leagueId': {
+      id: '/_authenticated/league/$leagueId'
+      path: '/league/$leagueId'
+      fullPath: '/league/$leagueId'
+      preLoaderRoute: typeof AuthenticatedLeagueLeagueIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/league-manage/$leagueId': {
+      id: '/_authenticated/league-manage/$leagueId'
+      path: '/league-manage/$leagueId'
+      fullPath: '/league-manage/$leagueId'
+      preLoaderRoute: typeof AuthenticatedLeagueManageLeagueIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
   }
 }
 
@@ -252,6 +312,8 @@ interface AuthenticatedRouteChildren {
   AuthenticatedLeaguesRoute: typeof AuthenticatedLeaguesRoute
   AuthenticatedMakePicksRoute: typeof AuthenticatedMakePicksRoute
   AuthenticatedStatsRoute: typeof AuthenticatedStatsRoute
+  AuthenticatedLeagueManageLeagueIdRoute: typeof AuthenticatedLeagueManageLeagueIdRoute
+  AuthenticatedLeagueLeagueIdRoute: typeof AuthenticatedLeagueLeagueIdRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
@@ -261,6 +323,9 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedLeaguesRoute: AuthenticatedLeaguesRoute,
   AuthenticatedMakePicksRoute: AuthenticatedMakePicksRoute,
   AuthenticatedStatsRoute: AuthenticatedStatsRoute,
+  AuthenticatedLeagueManageLeagueIdRoute:
+    AuthenticatedLeagueManageLeagueIdRoute,
+  AuthenticatedLeagueLeagueIdRoute: AuthenticatedLeagueLeagueIdRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
@@ -271,6 +336,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   HomeRoute: HomeRoute,
+  HomeSimpleRoute: HomeSimpleRoute,
   LoginRoute: LoginRoute,
   RegisterRoute: RegisterRoute,
 }

@@ -4,7 +4,104 @@ This directory contains Supabase Edge Functions for the NFL Pick'em application.
 
 ## Functions Overview
 
-### 1. sync-nfl-data
+### 1. create-league
+**Purpose**: Create new Pick'em leagues with authentication and validation
+**Authentication**: Required - Bearer token
+**Endpoint**: `/functions/v1/create-league`
+
+**Request Format**:
+```typescript
+{
+  name: string;           // Required, 1-100 characters
+  description?: string;   // Optional, max 500 characters
+  entryFee: number;      // Required, >= 0, max 2 decimal places
+  maxMembers: number;    // Required, 2-50
+  isPrivate: boolean;    // Required
+  password?: string;     // Required if isPrivate=true, min 4 chars
+}
+```
+
+**Response Format**:
+```typescript
+{
+  success: boolean;
+  data?: {
+    id: string;
+    name: string;
+    description?: string;
+    entryFee: number;
+    maxMembers: number;
+    isPrivate: boolean;
+    inviteCode: string;    // Auto-generated 8-char code
+    status: string;
+    createdAt: string;
+  };
+  error?: string;
+}
+```
+
+**Usage**:
+```bash
+# Create public league
+curl -X POST "http://127.0.0.1:54321/functions/v1/create-league" \
+  -H "Authorization: Bearer USER_JWT_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Friends League",
+    "description": "Weekly picks with friends",
+    "entryFee": 10.00,
+    "maxMembers": 12,
+    "isPrivate": false
+  }'
+
+# Create private league
+curl -X POST "http://127.0.0.1:54321/functions/v1/create-league" \
+  -H "Authorization: Bearer USER_JWT_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Private League",
+    "entryFee": 25.00,
+    "maxMembers": 8,
+    "isPrivate": true,
+    "password": "secret123"
+  }'
+```
+
+### 2. join-league
+**Purpose**: Join an existing league using an invite code
+**Authentication**: Required - Bearer token
+**Endpoint**: `/functions/v1/join-league`
+
+**Usage**:
+```bash
+# Join public league
+curl -X POST "http://127.0.0.1:54321/functions/v1/join-league" \
+  -H "Authorization: Bearer USER_JWT_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"inviteCode": "ABC12345"}'
+
+# Join private league
+curl -X POST "http://127.0.0.1:54321/functions/v1/join-league" \
+  -H "Authorization: Bearer USER_JWT_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"inviteCode": "XYZ98765", "password": "secret123"}'
+```
+
+### 3. get-user-leagues
+**Purpose**: Retrieve all leagues that the authenticated user belongs to
+**Authentication**: Required - Bearer token
+**Endpoint**: `/functions/v1/get-user-leagues`
+
+**Usage**:
+```bash
+curl -X GET "http://127.0.0.1:54321/functions/v1/get-user-leagues" \
+  -H "Authorization: Bearer USER_JWT_TOKEN" \
+  -H "Content-Type: application/json"
+```
+
+**Response**: Returns array of leagues with member count, user role, and invite codes (for admins)
+
+### 4. sync-nfl-data
 **Purpose**: Sync NFL teams and game data from ESPN API to the database
 **Schedule**: Every 6 hours during season, daily off-season
 **Endpoint**: `/functions/v1/sync-nfl-data`
@@ -30,7 +127,7 @@ curl -X POST "http://127.0.0.1:54321/functions/v1/sync-nfl-data" \
   -d '{"syncType": "games", "week": 1, "seasonYear": 2025}'
 ```
 
-### 2. generate-cache
+### 5. generate-cache
 **Purpose**: Generate cached JSON files for frontend consumption
 **Schedule**: Every 15 minutes during games, hourly otherwise
 **Endpoint**: `/functions/v1/generate-cache`
@@ -43,7 +140,7 @@ curl -X POST "http://127.0.0.1:54321/functions/v1/generate-cache" \
   -d '{"trigger": "manual"}'
 ```
 
-### 3. process-game-results
+### 6. process-game-results
 **Purpose**: Process completed games and update pick results
 **Trigger**: When games change status to 'final'
 **Endpoint**: `/functions/v1/process-game-results`
@@ -84,6 +181,9 @@ curl -X POST "http://127.0.0.1:54321/functions/v1/process-game-results" \
 
 3. Deploy functions locally:
    ```bash
+   supabase functions deploy create-league
+   supabase functions deploy join-league
+   supabase functions deploy get-user-leagues
    supabase functions deploy sync-nfl-data
    supabase functions deploy generate-cache
    supabase functions deploy process-game-results
@@ -91,19 +191,46 @@ curl -X POST "http://127.0.0.1:54321/functions/v1/process-game-results" \
 
 ### Testing Functions
 
-1. **Test sync-nfl-data**:
+1. **Test create-league**:
+   ```bash
+   # Test with Supabase CLI (requires user JWT token)
+   supabase functions invoke create-league --method POST \
+     --headers='{"Authorization":"Bearer YOUR_USER_JWT"}' \
+     --body='{
+       "name": "Test League",
+       "description": "Testing league creation",
+       "entryFee": 5.00,
+       "maxMembers": 10,
+       "isPrivate": false
+     }'
+   ```
+
+2. **Test join-league**:
+   ```bash
+   supabase functions invoke join-league --method POST \
+     --headers='{"Authorization":"Bearer YOUR_USER_JWT"}' \
+     --body='{"inviteCode": "ABC12345"}'
+   ```
+
+3. **Test get-user-leagues**:
+   ```bash
+   supabase functions invoke get-user-leagues --method GET \
+     --headers='{"Authorization":"Bearer YOUR_USER_JWT"}'
+   ```
+
+4. **Test sync-nfl-data**:
    ```bash
    supabase functions invoke sync-nfl-data --method POST \
      --body '{"syncType": "teams"}'
    ```
 
-2. **Test generate-cache**:
+5. **Test generate-cache**:
    ```bash
    supabase functions invoke generate-cache --method POST \
      --body '{"trigger": "test"}'
    ```
 
-3. **Test process-game-results**:
+6. **Test process-game-results**:
    ```bash
    supabase functions invoke process-game-results --method POST
    ```
