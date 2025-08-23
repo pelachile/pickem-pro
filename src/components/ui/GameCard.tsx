@@ -462,6 +462,7 @@ export const GameCard: React.FC<GameCardProps> = ({
   showStats = false,
   enableRefresh = false,
   className,
+  deadlineWarning,
   onPickTeam,
   onRefresh,
   ...props
@@ -520,6 +521,15 @@ export const GameCard: React.FC<GameCardProps> = ({
               showIndicator={true}
               size={layout === 'full' ? 'default' : 'sm'}
             />
+          )}
+          
+          {deadlineWarning && (
+            <div className={cn(
+              'text-yellow-400 font-medium px-2 py-1 bg-yellow-400/10 rounded-md border border-yellow-400/20',
+              layout === 'full' ? 'text-sm px-3 py-1.5' : 'text-xs px-2 py-1'
+            )}>
+              ⚠️ {deadlineWarning}
+            </div>
           )}
         </div>
         

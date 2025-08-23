@@ -164,6 +164,7 @@ export interface GameCardProps {
   showStats?: boolean;
   enableRefresh?: boolean;
   className?: string;
+  deadlineWarning?: string; // Warning message for approaching deadlines
   onPickTeam?: (teamId: number) => void;
   onRefresh?: () => void;
 }
