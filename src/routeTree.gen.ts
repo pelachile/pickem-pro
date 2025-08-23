@@ -16,9 +16,12 @@ import { Route as HomeRouteImport } from './routes/home'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedStatsRouteImport } from './routes/_authenticated/stats'
+import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
+import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as AuthenticatedMakePicksRouteImport } from './routes/_authenticated/make-picks'
 import { Route as AuthenticatedLeaguesRouteImport } from './routes/_authenticated/leagues'
 import { Route as AuthenticatedJoinLeagueRouteImport } from './routes/_authenticated/join-league'
+import { Route as AuthenticatedDevPicksTestRouteImport } from './routes/_authenticated/dev-picks-test'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedCreateLeagueRouteImport } from './routes/_authenticated/create-league'
 import { Route as AuthenticatedLeagueLeagueIdRouteImport } from './routes/_authenticated/league.$leagueId'
@@ -58,6 +61,16 @@ const AuthenticatedStatsRoute = AuthenticatedStatsRouteImport.update({
   path: '/stats',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedMakePicksRoute = AuthenticatedMakePicksRouteImport.update({
   id: '/make-picks',
   path: '/make-picks',
@@ -73,6 +86,12 @@ const AuthenticatedJoinLeagueRoute = AuthenticatedJoinLeagueRouteImport.update({
   path: '/join-league',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedDevPicksTestRoute =
+  AuthenticatedDevPicksTestRouteImport.update({
+    id: '/dev-picks-test',
+    path: '/dev-picks-test',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -105,9 +124,12 @@ export interface FileRoutesByFullPath {
   '/register': typeof RegisterRoute
   '/create-league': typeof AuthenticatedCreateLeagueRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/dev-picks-test': typeof AuthenticatedDevPicksTestRoute
   '/join-league': typeof AuthenticatedJoinLeagueRoute
   '/leagues': typeof AuthenticatedLeaguesRoute
   '/make-picks': typeof AuthenticatedMakePicksRoute
+  '/profile': typeof AuthenticatedProfileRoute
+  '/settings': typeof AuthenticatedSettingsRoute
   '/stats': typeof AuthenticatedStatsRoute
   '/league-manage/$leagueId': typeof AuthenticatedLeagueManageLeagueIdRoute
   '/league/$leagueId': typeof AuthenticatedLeagueLeagueIdRoute
@@ -120,9 +142,12 @@ export interface FileRoutesByTo {
   '/register': typeof RegisterRoute
   '/create-league': typeof AuthenticatedCreateLeagueRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/dev-picks-test': typeof AuthenticatedDevPicksTestRoute
   '/join-league': typeof AuthenticatedJoinLeagueRoute
   '/leagues': typeof AuthenticatedLeaguesRoute
   '/make-picks': typeof AuthenticatedMakePicksRoute
+  '/profile': typeof AuthenticatedProfileRoute
+  '/settings': typeof AuthenticatedSettingsRoute
   '/stats': typeof AuthenticatedStatsRoute
   '/league-manage/$leagueId': typeof AuthenticatedLeagueManageLeagueIdRoute
   '/league/$leagueId': typeof AuthenticatedLeagueLeagueIdRoute
@@ -137,9 +162,12 @@ export interface FileRoutesById {
   '/register': typeof RegisterRoute
   '/_authenticated/create-league': typeof AuthenticatedCreateLeagueRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/dev-picks-test': typeof AuthenticatedDevPicksTestRoute
   '/_authenticated/join-league': typeof AuthenticatedJoinLeagueRoute
   '/_authenticated/leagues': typeof AuthenticatedLeaguesRoute
   '/_authenticated/make-picks': typeof AuthenticatedMakePicksRoute
+  '/_authenticated/profile': typeof AuthenticatedProfileRoute
+  '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/stats': typeof AuthenticatedStatsRoute
   '/_authenticated/league-manage/$leagueId': typeof AuthenticatedLeagueManageLeagueIdRoute
   '/_authenticated/league/$leagueId': typeof AuthenticatedLeagueLeagueIdRoute
@@ -154,9 +182,12 @@ export interface FileRouteTypes {
     | '/register'
     | '/create-league'
     | '/dashboard'
+    | '/dev-picks-test'
     | '/join-league'
     | '/leagues'
     | '/make-picks'
+    | '/profile'
+    | '/settings'
     | '/stats'
     | '/league-manage/$leagueId'
     | '/league/$leagueId'
@@ -169,9 +200,12 @@ export interface FileRouteTypes {
     | '/register'
     | '/create-league'
     | '/dashboard'
+    | '/dev-picks-test'
     | '/join-league'
     | '/leagues'
     | '/make-picks'
+    | '/profile'
+    | '/settings'
     | '/stats'
     | '/league-manage/$leagueId'
     | '/league/$leagueId'
@@ -185,9 +219,12 @@ export interface FileRouteTypes {
     | '/register'
     | '/_authenticated/create-league'
     | '/_authenticated/dashboard'
+    | '/_authenticated/dev-picks-test'
     | '/_authenticated/join-league'
     | '/_authenticated/leagues'
     | '/_authenticated/make-picks'
+    | '/_authenticated/profile'
+    | '/_authenticated/settings'
     | '/_authenticated/stats'
     | '/_authenticated/league-manage/$leagueId'
     | '/_authenticated/league/$leagueId'
@@ -253,6 +290,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStatsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/settings': {
+      id: '/_authenticated/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AuthenticatedSettingsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/profile': {
+      id: '/_authenticated/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof AuthenticatedProfileRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/make-picks': {
       id: '/_authenticated/make-picks'
       path: '/make-picks'
@@ -272,6 +323,13 @@ declare module '@tanstack/react-router' {
       path: '/join-league'
       fullPath: '/join-league'
       preLoaderRoute: typeof AuthenticatedJoinLeagueRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/dev-picks-test': {
+      id: '/_authenticated/dev-picks-test'
+      path: '/dev-picks-test'
+      fullPath: '/dev-picks-test'
+      preLoaderRoute: typeof AuthenticatedDevPicksTestRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/dashboard': {
@@ -308,9 +366,12 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedRouteChildren {
   AuthenticatedCreateLeagueRoute: typeof AuthenticatedCreateLeagueRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedDevPicksTestRoute: typeof AuthenticatedDevPicksTestRoute
   AuthenticatedJoinLeagueRoute: typeof AuthenticatedJoinLeagueRoute
   AuthenticatedLeaguesRoute: typeof AuthenticatedLeaguesRoute
   AuthenticatedMakePicksRoute: typeof AuthenticatedMakePicksRoute
+  AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
+  AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedStatsRoute: typeof AuthenticatedStatsRoute
   AuthenticatedLeagueManageLeagueIdRoute: typeof AuthenticatedLeagueManageLeagueIdRoute
   AuthenticatedLeagueLeagueIdRoute: typeof AuthenticatedLeagueLeagueIdRoute
@@ -319,9 +380,12 @@ interface AuthenticatedRouteChildren {
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedCreateLeagueRoute: AuthenticatedCreateLeagueRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedDevPicksTestRoute: AuthenticatedDevPicksTestRoute,
   AuthenticatedJoinLeagueRoute: AuthenticatedJoinLeagueRoute,
   AuthenticatedLeaguesRoute: AuthenticatedLeaguesRoute,
   AuthenticatedMakePicksRoute: AuthenticatedMakePicksRoute,
+  AuthenticatedProfileRoute: AuthenticatedProfileRoute,
+  AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedStatsRoute: AuthenticatedStatsRoute,
   AuthenticatedLeagueManageLeagueIdRoute:
     AuthenticatedLeagueManageLeagueIdRoute,

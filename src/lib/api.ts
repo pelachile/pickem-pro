@@ -93,7 +93,23 @@ import type {
   DeleteLeagueResponse,
   ApiError
 } from '../types/league';
+
+// Import picks types
+import type {
+  SubmitPicksRequest,
+  SubmitPicksResponse,
+  GetUserPicksRequest,
+  GetUserPicksResponse,
+  UpdatePickRequest,
+  UpdatePickResponse,
+  GetLeagueStandingsRequest,
+  GetLeagueStandingsResponse,
+  ApiResponse
+} from '../types/picks';
+
 import { supabase } from './supabase';
+import { picksDatabase } from './picks-database';
+import { profileDatabase } from './profile-database';
 
 // Helper function to get authorization headers
 const getAuthHeaders = async (): Promise<Record<string, string>> => {
@@ -236,6 +252,7 @@ export const nflApi = {
 }
 
 // League API functions
+// League API functions
 export const leagueApi = {
   // Fetch public leagues with optional search and pagination
   async getPublicLeagues(params: GetPublicLeaguesParams = {}): Promise<GetPublicLeaguesResponse> {
@@ -328,4 +345,78 @@ export const leagueApi = {
     
     return response.json();
   },
+};
+
+// Picks API functions
+export const picksApi = {
+  // Submit user picks
+  async submitPicks(request: SubmitPicksRequest): Promise<SubmitPicksResponse> {
+    return picksDatabase.submitUserPicks(request);
+  },
+
+  // Get user picks for a league
+  async getUserPicks(request: GetUserPicksRequest): Promise<GetUserPicksResponse> {
+    return picksDatabase.getUserPicks(request);
+  },
+
+  // Update a single pick
+  async updatePick(pickId: string, request: UpdatePickRequest): Promise<UpdatePickResponse> {
+    return picksDatabase.updateUserPick(pickId, request);
+  },
+
+  // Get league standings
+  async getLeagueStandings(request: GetLeagueStandingsRequest): Promise<GetLeagueStandingsResponse> {
+    return picksDatabase.getLeagueStandings(request);
+  },
+
+  // Get upcoming games for picks
+  async getUpcomingGames(leagueId: string, week?: number): Promise<ApiResponse<any[]>> {
+    return picksDatabase.getUpcomingGames(leagueId, week);
+  },
+
+  // Get user pick history
+  async getUserPickHistory(leagueId: string): Promise<ApiResponse<any>> {
+    return picksDatabase.getUserPickHistory(leagueId);
+  },
+
+  // Check multiple game deadlines
+  async checkGameDeadlines(gameIds: string[]): Promise<ApiResponse<any[]>> {
+    return picksDatabase.checkMultipleGameDeadlines(gameIds);
+  },
+};
+
+// Profile API functions
+export const profileApi = {
+  // Get user profile
+  async getUserProfile(userId?: string) {
+    return profileDatabase.getUserProfile(userId);
+  },
+
+  // Create user profile
+  async createProfile(data: any) {
+    return profileDatabase.createUserProfile(data);
+  },
+
+  // Update user profile
+  async updateProfile(data: any) {
+    return profileDatabase.updateUserProfile(data);
+  },
+
+  // Check username availability
+  async checkUsername(username: string) {
+    return profileDatabase.checkUsernameAvailability(username);
+  },
+
+  // Get profile statistics
+  async getProfileStats() {
+    return profileDatabase.getProfileStats();
+  },
+};
+
+// Export all API functions for easy access
+export const api = {
+  nfl: nflApi,
+  league: leagueApi,
+  picks: picksApi,
+  profile: profileApi,
 };
