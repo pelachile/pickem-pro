@@ -3,15 +3,43 @@ import { supabase, isFeatureEnabled, migrationTracker } from './supabase';
 import * as directDB from './database';
 
 // Import league types
-import {
+import type {
   GetPublicLeaguesParams,
   GetPublicLeaguesResponse,
   GetUserLeaguesResponse,
   UpdateLeagueRequest,
   UpdateLeagueResponse,
   DeleteLeagueResponse,
-  ApiError
+  ApiError,
+  JoinLeagueRequest,
+  JoinLeagueResponse
 } from '../types/league';
+
+// API Base URLs
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'http://127.0.0.1:54321';
+const FUNCTIONS_BASE_URL = `${supabaseUrl}/functions/v1`;
+
+// Helper function to handle API errors
+async function handleApiError(response: Response): Promise<void> {
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({ error: response.statusText }));
+    throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
+  }
+}
+
+// Helper function to get authorization headers
+async function getAuthHeaders(): Promise<Record<string, string>> {
+  const { data: { session } } = await supabase.auth.getSession();
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  };
+  
+  if (session?.access_token) {
+    headers['Authorization'] = `Bearer ${session.access_token}`;
+  }
+  
+  return headers;
+}
 
 // Import picks types
 import type {
@@ -32,19 +60,45 @@ import { profileDatabase } from './profile-database';
 
 import type { PaginatedResponse } from '../types/database';
 
-// Helper function to get authorization headers
-const getAuthHeaders = async (): Promise<Record<string, string>> => {
-  const { data: { session } } = await supabase.auth.getSession();
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
+// NFL API types
+export interface CacheData {
+  teams: {
+    all: Team[];
+    by_conference: {
+      AFC: { North: Team[]; South: Team[]; East: Team[]; West: Team[] };
+      NFC: { North: Team[]; South: Team[]; East: Team[]; West: Team[] };
+    };
   };
-  
-  if (session?.access_token) {
-    headers['Authorization'] = `Bearer ${session.access_token}`;
-  }
-  
-  return headers;
-};
+  schedule: {
+    all_games: Game[];
+    by_week: { [week: number]: Game[] };
+  };
+  meta: {
+    weeks_available: number[];
+    cache_version: string;
+    last_updated: string;
+  };
+}
+
+export interface Team {
+  id: number;
+  name: string;
+  abbreviation: string;
+  conference: 'AFC' | 'NFC';
+  division: 'North' | 'South' | 'East' | 'West';
+  logo_url?: string;
+}
+
+export interface Game {
+  id: number;
+  week: number;
+  home_team_id: number;
+  away_team_id: number;
+  date: string;
+  status: 'scheduled' | 'upcoming' | 'in_progress' | 'final';
+  home_score?: number;
+  away_score?: number;
+}
 
 // Feature flag helper
 function shouldUseDirectDB(operation: string): boolean {
@@ -157,6 +211,189 @@ export const leagueApi = {
     
     return response.json();
   },
+
+  // Join a league using invite code and password
+  async joinLeague(request: JoinLeagueRequest): Promise<JoinLeagueResponse> {
+    // Feature flag: Use direct database queries or edge functions
+    if (shouldUseDirectDB('joinLeague')) {
+      migrationTracker.logDirectQuery('leagues', 'joinLeague');
+      
+      const result = await directDB.joinLeague(request);
+      
+      if (result.success && result.data) {
+        // Transform database League to API League format
+        const apiLeague = {
+          ...result.data,
+          current_members: 0, // Will be populated by the UI
+          has_password: !!result.data.password_hash,
+          season_year: new Date().getFullYear(), // Default to current year
+        };
+        
+        return {
+          success: true,
+          message: 'Successfully joined league',
+          league: apiLeague,
+        };
+      } else {
+        return {
+          success: false,
+          message: result.error || 'Failed to join league',
+        };
+      }
+    }
+    
+    // Legacy edge function approach
+    migrationTracker.logEdgeFunction('join-league');
+    
+    const headers = await getAuthHeaders();
+    
+    const response = await fetch(`${FUNCTIONS_BASE_URL}/join-league`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(request),
+    });
+    
+    if (!response.ok) {
+      await handleApiError(response);
+    }
+    
+    return response.json();
+  },
+
+  // Get user's leagues
+  async getUserLeagues(): Promise<GetUserLeaguesResponse> {
+    // Feature flag: Use direct database queries or edge functions
+    if (shouldUseDirectDB('getUserLeagues')) {
+      migrationTracker.logDirectQuery('leagues', 'getUserLeagues');
+      
+      const result = await directDB.getUserLeagues();
+      
+      if (result.success && result.data) {
+        // Transform LeagueWithMembership to UserLeague format
+        const userLeagues = result.data.map((league: any) => ({
+          ...league,
+          userRole: league.user_role,
+          joinedAt: league.joined_at,
+          has_password: !!league.password_hash,
+          season_year: new Date().getFullYear(), // Default to current year
+        }));
+        
+        return {
+          success: true,
+          data: userLeagues,
+        };
+      } else {
+        return {
+          success: false,
+          error: result.error || 'Failed to get user leagues',
+        };
+      }
+    }
+    
+    // Legacy edge function approach
+    migrationTracker.logEdgeFunction('get-user-leagues');
+    
+    const headers = await getAuthHeaders();
+    
+    const response = await fetch(`${FUNCTIONS_BASE_URL}/get-user-leagues`, {
+      method: 'GET',
+      headers,
+    });
+    
+    if (!response.ok) {
+      await handleApiError(response);
+    }
+    
+    return response.json();
+  },
+
+  // Update league settings
+  async updateLeague(leagueId: string, request: UpdateLeagueRequest): Promise<UpdateLeagueResponse> {
+    // Feature flag: Use direct database queries or edge functions
+    if (shouldUseDirectDB('updateLeague')) {
+      migrationTracker.logDirectQuery('leagues', 'updateLeague');
+      
+      const result = await directDB.updateLeague(leagueId, request);
+      
+      if (result.success && result.data) {
+        return {
+          success: true,
+          data: {
+            id: result.data.id,
+            name: result.data.name,
+            description: result.data.description || undefined,
+            entryFee: result.data.entry_fee || 0,
+            maxMembers: result.data.max_members || 10,
+            isPrivate: result.data.is_private || false,
+            inviteCode: result.data.invite_code || '',
+            status: result.data.status || 'draft',
+            updatedAt: result.data.updated_at || '',
+          },
+        };
+      } else {
+        return {
+          success: false,
+          error: result.error || 'Failed to update league',
+        };
+      }
+    }
+    
+    // Legacy edge function approach
+    migrationTracker.logEdgeFunction('update-league');
+    
+    const headers = await getAuthHeaders();
+    
+    const response = await fetch(`${FUNCTIONS_BASE_URL}/update-league`, {
+      method: 'PATCH',
+      headers,
+      body: JSON.stringify({ leagueId, ...request }),
+    });
+    
+    if (!response.ok) {
+      await handleApiError(response);
+    }
+    
+    return response.json();
+  },
+
+  // Delete league
+  async deleteLeague(leagueId: string): Promise<DeleteLeagueResponse> {
+    // Feature flag: Use direct database queries or edge functions
+    if (shouldUseDirectDB('deleteLeague')) {
+      migrationTracker.logDirectQuery('leagues', 'deleteLeague');
+      
+      const result = await directDB.deleteLeague(leagueId);
+      
+      if (result.success) {
+        return {
+          success: true,
+          message: 'League deleted successfully',
+        };
+      } else {
+        return {
+          success: false,
+          message: result.error || 'Failed to delete league',
+        };
+      }
+    }
+    
+    // Legacy edge function approach
+    migrationTracker.logEdgeFunction('delete-league');
+    
+    const headers = await getAuthHeaders();
+    
+    const response = await fetch(`${FUNCTIONS_BASE_URL}/delete-league`, {
+      method: 'DELETE',
+      headers,
+      body: JSON.stringify({ leagueId }),
+    });
+    
+    if (!response.ok) {
+      await handleApiError(response);
+    }
+    
+    return response.json();
+  },
 };
 
 // Picks API functions
@@ -222,6 +459,71 @@ export const profileApi = {
   // Get profile statistics
   async getProfileStats() {
     return profileDatabase.getProfileStats();
+  },
+};
+
+// NFL API functions (reads from cached JSON file maintained by edge functions)
+export const nflApi = {
+  // Fetch teams and schedule data from cached JSON file
+  async fetchTeamsAndSchedule(): Promise<CacheData> {
+    // Read from the cached JSON file that gets updated by the edge function
+    const response = await fetch('/data/teams-and-schedule.json');
+    
+    if (!response.ok) {
+      throw new Error(`Failed to fetch NFL data: ${response.statusText}`);
+    }
+    
+    const data = await response.json();
+    
+    // Transform games to match Game interface (game_date -> date)
+    const transformGame = (game: any) => ({
+      ...game,
+      date: game.game_date || game.date,
+      status: game.status === 'STATUS_SCHEDULED' ? 'scheduled' : 
+              game.status === 'STATUS_IN_PROGRESS' ? 'in_progress' :
+              game.status === 'STATUS_FINAL' ? 'final' : 'scheduled',
+    });
+
+    const transformGamesInWeeks = (weekData: any) => {
+      const transformed = {};
+      for (const [week, games] of Object.entries(weekData)) {
+        transformed[week] = games.map(transformGame);
+      }
+      return transformed;
+    };
+
+    // Transform to match CacheData interface
+    return {
+      teams: {
+        all: data.teams.all,
+        by_conference: data.teams.by_conference,
+      },
+      schedule: {
+        all_games: data.schedule.all_games ? data.schedule.all_games.map(transformGame) : [],
+        by_week: data.schedule.by_week ? transformGamesInWeeks(data.schedule.by_week) : {},
+      },
+      meta: {
+        weeks_available: data.meta.weeks_available || [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18],
+        cache_version: data.meta.cache_version || '1.0.0',
+        last_updated: data.meta.last_updated || new Date().toISOString(),
+      },
+    };
+  },
+
+  // Check cache version from the JSON metadata
+  async checkCacheVersion(): Promise<{ version: string; last_updated: string }> {
+    const response = await fetch('/data/teams-and-schedule.json');
+    
+    if (!response.ok) {
+      throw new Error(`Failed to fetch cache version: ${response.statusText}`);
+    }
+    
+    const data = await response.json();
+    
+    return {
+      version: data.meta.cache_version || '1.0.0',
+      last_updated: data.meta.last_updated || new Date().toISOString(),
+    };
   },
 };
 

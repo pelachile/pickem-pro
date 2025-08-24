@@ -56,7 +56,7 @@ const checkPickDeadline = async (gameId: string): Promise<PickDeadline> => {
   try {
     const { data: game, error } = await supabase
       .from('games')
-      .select('id, date, status')
+      .select('id, game_date as date, status')
       .eq('id', gameId)
       .single();
 
@@ -196,7 +196,7 @@ export const submitUserPicks = async (request: SubmitPicksRequest): Promise<Subm
         .select(`
           *,
           games (
-            id, espn_id, week, season_year, season_type, date, status, status_detail,
+            id, espn_id, week, season_year, season_type, game_date as date, status, game_status_detail as status_detail,
             home_team_id, away_team_id, home_score, away_score
           )
         `)
@@ -244,7 +244,7 @@ export const getUserPicks = async (request: GetUserPicksRequest): Promise<GetUse
       .select(`
         *,
         games (
-          id, espn_id, week, season_year, season_type, date, status, status_detail,
+          id, espn_id, week, season_year, season_type, game_date as date, status, game_status_detail as status_detail,
           home_team_id, away_team_id, home_score, away_score,
           home_team:teams!games_home_team_id_fkey (
             id, name, location, display_name, abbreviation, color, alternate_color, logo_url
@@ -358,7 +358,7 @@ export const updateUserPick = async (pickId: string, request: UpdatePickRequest)
       .select(`
         *,
         games (
-          id, espn_id, week, season_year, season_type, date, status, status_detail,
+          id, espn_id, week, season_year, season_type, game_date as date, status, game_status_detail as status_detail,
           home_team_id, away_team_id, home_score, away_score
         )
       `)
@@ -633,7 +633,7 @@ export const getUpcomingGames = async (leagueId: string, week?: number): Promise
     let query = supabase
       .from('games')
       .select(`
-        id, espn_id, week, season_year, season_type, date, status, status_detail,
+        id, espn_id, week, season_year, season_type, game_date as date, status, game_status_detail as status_detail,
         home_team_id, away_team_id, home_score, away_score,
         home_team:teams!games_home_team_id_fkey (
           id, name, location, display_name, abbreviation, color, alternate_color, logo_url
@@ -765,7 +765,7 @@ export const checkMultipleGameDeadlines = async (gameIds: string[]): Promise<Api
 
     const { data: games, error } = await supabase
       .from('games')
-      .select('id, date, status')
+      .select('id, game_date as date, status')
       .in('id', gameIds);
 
     if (error) {
