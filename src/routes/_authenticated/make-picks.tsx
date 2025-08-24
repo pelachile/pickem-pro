@@ -12,8 +12,8 @@ function MakePicksContent() {
     const [showSuccessMessage, setShowSuccessMessage] = useState(false);
     const [submitError, setSubmitError] = useState<string | null>(null);
     
-    // For now, we'll use a mock league ID - in a real app this would come from route params or context
-    const leagueId = 'mock-league-id'; // TODO: Get from actual league context
+    // For now, we'll use a real league ID - in a real app this would come from route params or context
+    const leagueId = '0208f571-d6b7-4f33-90f9-608c3dbcef72'; // TODO: Get from actual league context (using BFG league)
     const currentWeek = 1; // TODO: Get from current NFL week
 
     // Get live data from TanStack Query
