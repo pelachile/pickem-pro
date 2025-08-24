@@ -197,7 +197,7 @@ export function isFeatureEnabled(flag: string): boolean {
   const defaultFlags: Record<string, boolean> = {
     use_direct_league_queries: true,  // Phase 3: Enable direct league queries
     use_direct_member_queries: false, // Phase 3: Enable direct member queries
-    use_direct_pick_queries: false,   // Phase 3: Enable direct pick queries
+    use_direct_pick_queries: true,    // Phase 3: Enable direct pick queries ✅
     use_realtime_subscriptions: false, // Phase 3: Enable real-time features
     enable_optimistic_updates: false,  // Phase 4: Enable optimistic updates
   };
