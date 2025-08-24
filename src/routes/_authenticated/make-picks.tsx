@@ -46,28 +46,40 @@ function MakePicksContent() {
     const games = useMemo(() => {
         if (!allGames) return [];
         
-        return allGames.map((scheduleGame) => ({
-            id: typeof scheduleGame.id === 'string' ? parseInt(scheduleGame.id, 10) : scheduleGame.id,
-            status: (scheduleGame.status === 'final' ? 'final' : scheduleGame.status === 'live' ? 'live' : 'scheduled') as Status,
-            homeTeam: {
-                id: typeof scheduleGame.home_team.id === 'string' ? parseInt(scheduleGame.home_team.id, 10) : scheduleGame.home_team.id,
-                name: scheduleGame.home_team.display_name,
-                abbreviation: scheduleGame.home_team.abbreviation,
-                color: scheduleGame.home_team.color,
-                logo_url: scheduleGame.home_team.logo_url,
-                record: teamRecords[scheduleGame.home_team.abbreviation] || '6-5',
-            },
-            awayTeam: {
-                id: typeof scheduleGame.away_team.id === 'string' ? parseInt(scheduleGame.away_team.id, 10) : scheduleGame.away_team.id,
-                name: scheduleGame.away_team.display_name,
-                abbreviation: scheduleGame.away_team.abbreviation,
-                color: scheduleGame.away_team.color,
-                logo_url: scheduleGame.away_team.logo_url,
-                record: teamRecords[scheduleGame.away_team.abbreviation] || '6-5',
-            },
-            gameTime: scheduleGame.date,
-            venue: 'TBD', // Venue info not in current API structure
-        }));
+        return allGames.map((scheduleGame) => {
+            // Map various status formats to our Status type
+            let gameStatus: Status = 'scheduled';
+            if (scheduleGame.status === 'final' || scheduleGame.status === 'STATUS_FINAL' || scheduleGame.status === 'completed') {
+                gameStatus = 'final';
+            } else if (scheduleGame.status === 'in_progress' || scheduleGame.status === 'STATUS_IN_PROGRESS' || scheduleGame.status === 'live') {
+                gameStatus = 'live';
+            }
+            
+            return {
+                id: typeof scheduleGame.id === 'string' ? parseInt(scheduleGame.id, 10) : scheduleGame.id,
+                status: gameStatus,
+                homeTeam: {
+                    id: typeof scheduleGame.home_team?.id === 'string' ? parseInt(scheduleGame.home_team.id, 10) : scheduleGame.home_team?.id || scheduleGame.home_team_id,
+                    name: scheduleGame.home_team?.display_name || scheduleGame.home_team?.name || 'Home Team',
+                    abbreviation: scheduleGame.home_team?.abbreviation || 'HOM',
+                    color: scheduleGame.home_team?.color || '#000000',
+                    logo_url: scheduleGame.home_team?.logo_url || '',
+                    record: teamRecords[scheduleGame.home_team?.abbreviation] || '6-5',
+                },
+                awayTeam: {
+                    id: typeof scheduleGame.away_team?.id === 'string' ? parseInt(scheduleGame.away_team.id, 10) : scheduleGame.away_team?.id || scheduleGame.away_team_id,
+                    name: scheduleGame.away_team?.display_name || scheduleGame.away_team?.name || 'Away Team',
+                    abbreviation: scheduleGame.away_team?.abbreviation || 'AWY',
+                    color: scheduleGame.away_team?.color || '#000000',
+                    logo_url: scheduleGame.away_team?.logo_url || '',
+                    record: teamRecords[scheduleGame.away_team?.abbreviation] || '6-5',
+                },
+                homeScore: scheduleGame.home_score,
+                awayScore: scheduleGame.away_score,
+                gameTime: scheduleGame.date,
+                venue: scheduleGame.venue_name || 'TBD',
+            };
+        });
     }, [allGames, teamRecords]);
 
     // Initialize user picks with existing picks
@@ -290,6 +302,11 @@ function MakePicksContent() {
                                 const isExpired = expiredGameIds.includes(gameId);
                                 const deadline = deadlines.find(d => d.game_id === gameId);
                                 
+                                // Check if game is completed (final or in progress)
+                                const isGameCompleted = game.status === 'final' || game.status === 'live';
+                                const shouldShowPicks = !isExpired && !isGameCompleted;
+                                const shouldShowStats = isGameCompleted;
+                                
                                 return (
                                     <GameCard
                                         key={game.id}
@@ -302,9 +319,10 @@ function MakePicksContent() {
                                                 ? 'wide' // Two games: wide layout
                                                 : 'default' // 3+ games: default vertical layout
                                         }
-                                        showPicks={!isExpired}
+                                        showPicks={shouldShowPicks}
+                                        showStats={shouldShowStats}
                                         onPickTeam={(teamId) => handlePickTeam(gameId, teamId)}
-                                        className={`h-full w-full ${isExpired ? 'opacity-60' : ''}`}
+                                        className={`h-full w-full ${isExpired || isGameCompleted ? 'opacity-80' : ''}`}
                                         // Add deadline warning if less than 30 minutes
                                         deadlineWarning={deadline && !deadline.deadline_passed && deadline.minutes_until_deadline && deadline.minutes_until_deadline < 30 ? 
                                             `${deadline.minutes_until_deadline} minutes left` : undefined
