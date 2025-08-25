@@ -226,12 +226,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         handleAuthError(error);
       }
       
-      // Check if email confirmation is required
-      const isSignUpComplete = !!data.user && !!data.session;
+      // For email confirmation (link-based), user is created but not confirmed
+      const isSignUpComplete = !!data.user && data.user.email_confirmed_at;
       
       return {
         isSignUpComplete,
-        nextStep: isSignUpComplete ? undefined : { signUpStep: 'CONFIRM_SIGN_UP' },
+        nextStep: isSignUpComplete ? undefined : { signUpStep: 'CHECK_EMAIL' },
       } as SignUpResponse;
     } catch (error) {
       setIsLoading(false);
