@@ -1,5 +1,4 @@
 @import "tailwindcss";
-@import "./react-components/styles/design-tokens.css";
 
 /* Ocean-to-Sunset Theme for Tailwind CSS v4 */
 @theme {
