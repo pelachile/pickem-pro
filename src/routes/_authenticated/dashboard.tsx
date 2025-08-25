@@ -52,8 +52,10 @@ function DashboardContent() {
                 logo_url: scheduleGame.away_team.logo_url,
                 record: teamRecords[scheduleGame.away_team.abbreviation] || '6-5',
             },
+            homeScore: scheduleGame.home_score,
+            awayScore: scheduleGame.away_score,
             gameTime: scheduleGame.date,
-            venue: 'TBD', // Venue info not in current API structure
+            venue: scheduleGame.venue_name || 'TBD',
         }));
     }, [allGames, teamRecords]);
 
