@@ -1,12 +1,62 @@
 /**
- * ESPN API integration for NFL scores using working Deno.serve pattern
+ * ESPN API integration for NFL scores with cache update mechanism
+ * Downloads existing cache file, updates with live ESPN data, and re-uploads to Supabase Storage
  */
+
+import { createClient } from 'npm:@supabase/supabase-js@2'
 
 // NFL Calendar utilities for determining current week, season type, and year
 interface NFLWeekInfo {
   week: number;
   seasonType: 'preseason' | 'regular' | 'postseason';
   seasonYear: number;
+}
+
+// Types for cache data structure (matching generate-cache function)
+interface GameTeam {
+  id: number
+  espn_id: string
+  name: string
+  location: string
+  display_name: string
+  abbreviation: string
+  color: string
+  alternate_color: string
+  logo_url: string
+}
+
+interface Game {
+  id: string
+  espn_id: string
+  week: number
+  season_year: number
+  season_type: string
+  date: string
+  home_team: GameTeam
+  away_team: GameTeam
+  home_score?: number
+  away_score?: number
+  status: string
+  status_detail?: string
+}
+
+interface CacheData {
+  meta: {
+    export_date: string
+    total_teams: number
+    total_games: number
+    current_season: number
+    weeks_available: number[]
+    cache_version: string
+  }
+  teams: {
+    all: any[]
+    by_conference: any
+  }
+  schedule: {
+    by_week: Record<number, Game[]>
+    all_games: Game[]
+  }
 }
 
 function getCurrentNFLWeek(): NFLWeekInfo {
@@ -79,8 +129,130 @@ function getESPNWeekNumber(week: number, seasonType: string): number {
   return week;
 }
 
-Deno.serve(async (req) => {
+// Download cache file from Supabase Storage
+async function downloadCacheFile(supabase: any, fileName: string): Promise<CacheData | null> {
   try {
+    
+    const { data, error } = await supabase.storage
+      .from('cache')
+      .download(fileName)
+    
+    if (error) {
+      if (error.message.includes('not found')) {
+        return null
+      }
+      throw new Error(`Failed to download cache file: ${error.message}`)
+    }
+    
+    const text = await data.text()
+    const cacheData = JSON.parse(text)
+    
+    return cacheData
+    
+  } catch (error) {
+    return null
+  }
+}
+
+// Upload updated cache file to Supabase Storage
+async function uploadUpdatedCache(supabase: any, fileName: string, cacheData: CacheData): Promise<boolean> {
+  try {
+    const jsonData = JSON.stringify(cacheData, null, 2)
+    
+    
+    const { error } = await supabase.storage
+      .from('cache')
+      .upload(fileName, new Blob([jsonData], { type: 'application/json' }), {
+        upsert: true,
+        contentType: 'application/json'
+      })
+    
+    if (error) {
+      throw new Error(`Storage upload failed: ${error.message}`)
+    }
+    
+    return true
+    
+  } catch (error) {
+    return false
+  }
+}
+
+// Update game in cache data with fresh ESPN data
+function updateGameInCache(cacheGame: Game, espnGameData: any): Game {
+  const competition = espnGameData.competitions?.[0]
+  const homeCompetitor = competition?.competitors?.find((c: any) => c.homeAway === 'home')
+  const awayCompetitor = competition?.competitors?.find((c: any) => c.homeAway === 'away')
+  
+  // Update scores and status while preserving existing team data
+  return {
+    ...cacheGame,
+    home_score: homeCompetitor?.score ? parseInt(homeCompetitor.score) : undefined,
+    away_score: awayCompetitor?.score ? parseInt(awayCompetitor.score) : undefined,
+    status: espnGameData.status?.type?.name || cacheGame.status,
+    status_detail: espnGameData.status?.type?.detail || cacheGame.status_detail
+  }
+}
+
+// Update cache data with fresh ESPN games data
+function updateCacheWithESPNData(cacheData: CacheData, espnGames: any[]): CacheData {
+  
+  // Create a map of ESPN game IDs to ESPN data for quick lookup
+  const espnGameMap = new Map()
+  espnGames.forEach(game => {
+    espnGameMap.set(game.id, game)
+  })
+  
+  let updatedCount = 0
+  
+  // Update games in all_games array
+  const updatedAllGames = cacheData.schedule.all_games.map(cacheGame => {
+    const espnGame = espnGameMap.get(cacheGame.espn_id)
+    if (espnGame) {
+      updatedCount++
+      return updateGameInCache(cacheGame, espnGame)
+    }
+    return cacheGame
+  })
+  
+  // Update games in by_week structure
+  const updatedByWeek: Record<number, Game[]> = {}
+  for (const [week, games] of Object.entries(cacheData.schedule.by_week)) {
+    updatedByWeek[parseInt(week)] = games.map(cacheGame => {
+      const espnGame = espnGameMap.get(cacheGame.espn_id)
+      if (espnGame) {
+        return updateGameInCache(cacheGame, espnGame)
+      }
+      return cacheGame
+    })
+  }
+  
+  
+  // Return updated cache data with new timestamp
+  return {
+    ...cacheData,
+    meta: {
+      ...cacheData.meta,
+      export_date: new Date().toISOString()
+    },
+    schedule: {
+      by_week: updatedByWeek,
+      all_games: updatedAllGames
+    }
+  }
+}
+}
+
+Deno.serve(async (req) => {
+  let supabase: any
+  
+  try {
+    // Initialize Supabase client for storage operations
+    supabase = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    )
+    
     // Handle CORS
     if (req.method === 'OPTIONS') {
       return new Response('ok', {
@@ -92,11 +264,9 @@ Deno.serve(async (req) => {
       })
     }
     
-    console.log('Starting ESPN API integration...')
     
     // Get current NFL week info
     const currentNFLWeek = getCurrentNFLWeek()
-    console.log(`Current NFL week: ${currentNFLWeek.seasonType} week ${currentNFLWeek.week}, ${currentNFLWeek.seasonYear} season`)
     
     // Parse request for week/year parameters (allow override for testing)
     const url = new URL(req.url)
@@ -106,11 +276,19 @@ Deno.serve(async (req) => {
     const year = url.searchParams.get('year') || currentNFLWeek.seasonYear.toString()
     const seasontype = url.searchParams.get('seasontype') || getESPNSeasonType(currentNFLWeek.seasonType)
     
-    console.log(`NFL Week ${currentNFLWeek.week} maps to ESPN Week ${espnWeek}`)
+    
+    // Determine cache file name
+    const cacheFileName = `games-cache-week-${currentNFLWeek.week}-${currentNFLWeek.seasonYear}.json`
+    
+    // Download existing cache file
+    const existingCache = await downloadCacheFile(supabase, cacheFileName)
+    
+    if (!existingCache) {
+      // If no cache exists, we'll still fetch ESPN data but won't update cache
+    }
     
     const espnUrl = `https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?week=${week}&seasontype=${seasontype}&year=${year}`
     
-    console.log('Calling ESPN API:', espnUrl)
     
     // Call ESPN API with timeout
     const controller = new AbortController()
@@ -126,14 +304,20 @@ Deno.serve(async (req) => {
     })
     
     clearTimeout(timeoutId)
-    console.log('ESPN API responded:', response.status)
     
     if (!response.ok) {
       throw new Error(`ESPN API failed: ${response.status} ${response.statusText}`)
     }
     
     const data = await response.json()
-    console.log('ESPN data received, events:', data.events?.length || 0)
+    
+    // If we have existing cache, update it with fresh ESPN data
+    if (existingCache && data.events?.length > 0) {
+      const updatedCache = updateCacheWithESPNData(existingCache, data.events)
+      
+      // Upload updated cache file
+      const uploadSuccess = await uploadUpdatedCache(supabase, cacheFileName, updatedCache)
+    }
     
     // Transform ESPN data to our format
     const games = data.events?.map((event: any) => {
@@ -167,16 +351,19 @@ Deno.serve(async (req) => {
       }
     }) || []
     
-    console.log('Processed games:', games.length)
     
     return new Response(
       JSON.stringify({
         success: true,
-        message: 'ESPN API integration successful',
+        message: existingCache 
+          ? 'Cache updated successfully with live ESPN data' 
+          : 'ESPN API integration successful (no cache to update)',
         week: parseInt(week),
         year: parseInt(year),
         seasontype: parseInt(seasontype),
         total_games: games.length,
+        cache_updated: !!existingCache,
+        cache_file: existingCache ? cacheFileName : null,
         games: games,
         timestamp: new Date().toISOString()
       }),
@@ -190,7 +377,7 @@ Deno.serve(async (req) => {
     )
     
   } catch (error) {
-    console.error('ESPN API integration failed:', error)
+    console.error('ESPN API integration with cache update failed:', error)
     
     if (error.name === 'AbortError') {
       return new Response(
@@ -214,6 +401,7 @@ Deno.serve(async (req) => {
       JSON.stringify({
         success: false,
         error: error.message,
+        context: 'ESPN API integration with cache update',
         timestamp: new Date().toISOString()
       }),
       {

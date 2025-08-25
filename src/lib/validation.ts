@@ -388,15 +388,16 @@ export async function validateLeagueMembership(userId: string, leagueId: string)
   }
 }
 
-export async function validateGameScheduled(gameId: number | string): Promise<{
+export async function validateGameScheduled(gameId: number | string, cacheData?: any): Promise<{
   isValid: boolean;
   error?: string;
   gameData?: any;
 }> {
   try {
+    // Get static game data from database (no dynamic fields like status)
     const { data: game, error } = await supabase
       .from('games')
-      .select('id, status, date, home_team_id, away_team_id')
+      .select('id, game_date, home_team_id, away_team_id')
       .eq('id', gameId)
       .single();
 
@@ -404,16 +405,30 @@ export async function validateGameScheduled(gameId: number | string): Promise<{
       return { isValid: false, error: 'Game not found' };
     }
 
-    // Check if game is scheduled or upcoming
-    if (!['scheduled', 'upcoming'].includes(game.status)) {
-      return { 
-        isValid: false, 
-        error: 'Cannot make picks for games that have already started or finished'
-      };
+    // If cache data is provided, check game status from cache
+    if (cacheData) {
+      const cacheGame = cacheData.schedule?.by_week 
+        ? Object.values(cacheData.schedule.by_week).flat().find((g: any) => 
+            String(g.id) === String(gameId) || String(g.espn_id) === String(gameId)
+          )
+        : null;
+
+      if (cacheGame) {
+        // Check if game is completed or in progress based on cache status
+        const isCompleted = cacheGame.status === 'STATUS_FINAL' || cacheGame.is_completed;
+        const isInProgress = cacheGame.status === 'STATUS_IN_PROGRESS' || cacheGame.is_in_progress;
+        
+        if (isCompleted || isInProgress) {
+          return { 
+            isValid: false, 
+            error: 'Cannot make picks for games that have already started or finished'
+          };
+        }
+      }
     }
 
-    // Check if game is in the future
-    const gameTime = new Date(game.date);
+    // Fallback: Check if game is in the future (date-based validation)
+    const gameTime = new Date(game.game_date);
     const now = new Date();
     if (gameTime <= now) {
       return { 

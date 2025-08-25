@@ -13,15 +13,14 @@ import type {
   UsernameCheckResult
 } from '../types/profile';
 
-// Debug logging helper
+// Debug logging helper (disabled for production)
 const logDebug = (operation: string, data?: any) => {
-  console.log(`[ProfileDB] ${operation}:`, data);
+  // Disabled for production
 };
 
 // Error handling helper
 const handleDatabaseError = (operation: string, error: any): never => {
   const errorMessage = error?.message || 'Unknown database error';
-  console.error(`[ProfileDB] ${operation} failed:`, error);
   throw new Error(`${operation} failed: ${errorMessage}`);
 };
 

@@ -145,13 +145,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
         if (error) {
-          console.error('Error getting session:', error);
+          // Error getting session
         } else if (session?.user) {
           setSession(session);
           setUser(mapSupabaseUser(session.user, session.user.user_metadata));
         }
       } catch (error) {
-        console.error('Error initializing auth:', error);
+        // Error initializing auth
       } finally {
         setIsLoading(false);
         setIsInitialized(true);
@@ -163,7 +163,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Listen for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('Auth state changed:', event, session);
         setSession(session);
         
         if (session?.user) {
@@ -183,7 +182,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Helper function to handle auth errors
   const handleAuthError = (error: AuthError | Error) => {
-    console.error('Auth error:', error);
     const friendlyMessage = getAuthErrorMessage(error);
     throw new Error(friendlyMessage);
   };

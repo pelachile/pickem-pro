@@ -2,6 +2,7 @@
 // Migrated from Supabase edge functions to client-side database calls for better performance
 
 import { supabase } from './supabase';
+import { nflApi } from './api';
 import { 
   validateLeagueMembership, 
   validateGameScheduled, 
@@ -32,13 +33,12 @@ import type {
 
 // Debug logging helper
 const logDebug = (operation: string, data?: any) => {
-  console.log(`[PicksDB] ${operation}:`, data);
+  // Debug logging removed for production
 };
 
 // Error handling helper
 const handleDatabaseError = (operation: string, error: any): never => {
   const errorMessage = error?.message || 'Unknown database error';
-  console.error(`[PicksDB] ${operation} failed:`, error);
   throw new Error(`${operation} failed: ${errorMessage}`);
 };
 
@@ -51,12 +51,12 @@ const validateAuth = async (): Promise<string> => {
   return user.id;
 };
 
-// Check if pick deadline has passed for a game
-const checkPickDeadline = async (gameId: string): Promise<PickDeadline> => {
+// Check if pick deadline has passed for a game (uses cache for status, DB for date)
+const checkPickDeadline = async (gameId: string, cacheData?: any): Promise<PickDeadline> => {
   try {
     const { data: game, error } = await supabase
       .from('games')
-      .select('id, game_date as date, status')
+      .select('id, game_date')
       .eq('id', gameId)
       .single();
 
@@ -66,7 +66,23 @@ const checkPickDeadline = async (gameId: string): Promise<PickDeadline> => {
 
     const gameDate = new Date(game.date);
     const now = new Date();
-    const deadlinePassed = now >= gameDate || game.status !== 'scheduled';
+    
+    // Check cache for game status if available
+    let statusBasedDeadline = false;
+    if (cacheData) {
+      const cacheGame = cacheData.schedule?.by_week 
+        ? Object.values(cacheData.schedule.by_week).flat().find((g: any) => 
+            String(g.id) === String(gameId) || String(g.espn_id) === String(gameId)
+          )
+        : null;
+      
+      if (cacheGame) {
+        statusBasedDeadline = cacheGame.status === 'STATUS_FINAL' || cacheGame.status === 'STATUS_IN_PROGRESS' || 
+                             cacheGame.is_completed || cacheGame.is_in_progress;
+      }
+    }
+    
+    const deadlinePassed = now >= gameDate || statusBasedDeadline;
     const minutesUntilDeadline = deadlinePassed ? 0 : Math.floor((gameDate.getTime() - now.getTime()) / (1000 * 60));
 
     return {
@@ -86,6 +102,14 @@ const validatePickSubmissions = async (picks: PickSubmission[], leagueId: string
   const warnings: string[] = [];
 
   try {
+    // Fetch cache data for game status validation
+    let cacheData;
+    try {
+      cacheData = await nflApi.fetchTeamsAndSchedule();
+    } catch (cacheError) {
+      // Failed to fetch cache data for validation, using date-based validation only
+    }
+
     // Basic batch validation (duplicates, required fields)
     const batchValidation = validatePicksBatch(picks);
     if (!batchValidation.isValid) {
@@ -109,7 +133,7 @@ const validatePickSubmissions = async (picks: PickSubmission[], leagueId: string
     // Validate each pick against game data
     for (const pick of picks) {
       // Validate game is scheduled and get game details
-      const gameValidation = await validateGameScheduled(pick.game_id);
+      const gameValidation = await validateGameScheduled(pick.game_id, cacheData);
       
       if (!gameValidation.isValid) {
         errors.push({
@@ -196,8 +220,8 @@ export const submitUserPicks = async (request: SubmitPicksRequest): Promise<Subm
         .select(`
           *,
           games (
-            id, espn_id, week, season_year, season_type, game_date as date, status, game_status_detail as status_detail,
-            home_team_id, away_team_id, home_score, away_score
+            id, espn_id, week, season_year, season_type, game_date,
+            home_team_id, away_team_id
           )
         `)
         .single();
@@ -244,13 +268,13 @@ export const getUserPicks = async (request: GetUserPicksRequest): Promise<GetUse
       .select(`
         *,
         games (
-          id, espn_id, week, season_year, season_type, game_date as date, status, game_status_detail as status_detail,
-          home_team_id, away_team_id, home_score, away_score,
+          id, espn_id, week, season_year, season_type, game_date,
+          home_team_id, away_team_id,
           home_team:teams!games_home_team_id_fkey (
-            id, name, location, display_name, abbreviation, color, alternate_color, logo_url
+            id, name, location, display_name, abbreviation, primary_color, secondary_color, logo_url
           ),
           away_team:teams!games_away_team_id_fkey (
-            id, name, location, display_name, abbreviation, color, alternate_color, logo_url
+            id, name, location, display_name, abbreviation, primary_color, secondary_color, logo_url
           )
         )
       `)
@@ -268,7 +292,7 @@ export const getUserPicks = async (request: GetUserPicksRequest): Promise<GetUse
     }
 
     // Order by game date
-    query = query.order('games(date)', { ascending: true });
+    query = query.order('games(game_date)', { ascending: true });
 
     const { data: picks, error } = await query;
 
@@ -358,8 +382,8 @@ export const updateUserPick = async (pickId: string, request: UpdatePickRequest)
       .select(`
         *,
         games (
-          id, espn_id, week, season_year, season_type, game_date as date, status, game_status_detail as status_detail,
-          home_team_id, away_team_id, home_score, away_score
+          id, espn_id, week, season_year, season_type, game_date,
+          home_team_id, away_team_id
         )
       `)
       .single();
@@ -633,18 +657,17 @@ export const getUpcomingGames = async (leagueId: string, week?: number): Promise
     let query = supabase
       .from('games')
       .select(`
-        id, espn_id, week, season_year, season_type, game_date as date, status, game_status_detail as status_detail,
-        home_team_id, away_team_id, home_score, away_score,
+        id, espn_id, week, season_year, season_type, game_date,
+        home_team_id, away_team_id,
         home_team:teams!games_home_team_id_fkey (
-          id, name, location, display_name, abbreviation, color, alternate_color, logo_url
+          id, name, location, display_name, abbreviation, primary_color, secondary_color, logo_url
         ),
         away_team:teams!games_away_team_id_fkey (
-          id, name, location, display_name, abbreviation, color, alternate_color, logo_url
+          id, name, location, display_name, abbreviation, primary_color, secondary_color, logo_url
         )
       `)
-      .gte('date', new Date().toISOString())
-      .eq('status', 'scheduled')
-      .order('date', { ascending: true });
+      .gte('game_date', new Date().toISOString())
+      .order('game_date', { ascending: true });
 
     if (week !== undefined) {
       query = query.eq('week', week);
@@ -765,7 +788,7 @@ export const checkMultipleGameDeadlines = async (gameIds: string[]): Promise<Api
 
     const { data: games, error } = await supabase
       .from('games')
-      .select('id, game_date as date, status')
+      .select('id, game_date')
       .in('id', gameIds);
 
     if (error) {
@@ -775,7 +798,7 @@ export const checkMultipleGameDeadlines = async (gameIds: string[]): Promise<Api
     const now = new Date();
     const deadlines: PickDeadline[] = (games || []).map(game => {
       const gameDate = new Date(game.date);
-      const deadlinePassed = now >= gameDate || game.status !== 'scheduled';
+      const deadlinePassed = now >= gameDate; // Only check date-based deadline since status is in cache
       const minutesUntilDeadline = deadlinePassed ? 0 : Math.floor((gameDate.getTime() - now.getTime()) / (1000 * 60));
 
       return {

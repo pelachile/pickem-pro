@@ -87,6 +87,11 @@ export interface Team {
   conference: 'AFC' | 'NFC';
   division: 'North' | 'South' | 'East' | 'West';
   logo_url?: string;
+  display_name?: string;
+  location?: string;
+  nickname?: string;
+  primary_color?: string;
+  secondary_color?: string;
 }
 
 export interface Game {
@@ -98,6 +103,12 @@ export interface Game {
   status: 'scheduled' | 'upcoming' | 'in_progress' | 'final';
   home_score?: number;
   away_score?: number;
+  season_year?: number;
+  venue_name?: string;
+  game_date?: string;
+  // Enhanced team data from cache
+  home_team?: Team & { display_name?: string };
+  away_team?: Team & { display_name?: string };
 }
 
 // Feature flag helper
@@ -492,6 +503,11 @@ export const nflApi = {
       return transformed;
     };
 
+    const weeklyGames = data.schedule.by_week ? transformGamesInWeeks(data.schedule.by_week) : {};
+    
+    // Generate all_games from by_week data to avoid duplication
+    const allGamesFromWeeks = Object.values(weeklyGames).flat();
+    
     // Transform to match CacheData interface
     return {
       teams: {
@@ -499,8 +515,8 @@ export const nflApi = {
         by_conference: data.teams.by_conference,
       },
       schedule: {
-        all_games: data.schedule.all_games ? data.schedule.all_games.map(transformGame) : [],
-        by_week: data.schedule.by_week ? transformGamesInWeeks(data.schedule.by_week) : {},
+        all_games: allGamesFromWeeks, // Generated from by_week data
+        by_week: weeklyGames,
       },
       meta: {
         weeks_available: data.meta.weeks_available || [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18],

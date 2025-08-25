@@ -1,7 +1,10 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { nflApi, type CacheData, type Team, type Game } from '../lib/api'
+import { queryKeys } from '../lib/queryClient'
+import { useGames, useCurrentWeekGames } from './useSmartGames'
+import { getCurrentNFLWeek } from '../lib/nflCalendar'
 
-// Query keys
+// Legacy query keys - maintained for backward compatibility
 export const nflQueryKeys = {
   all: ['nfl'] as const,
   teamsAndSchedule: () => [...nflQueryKeys.all, 'teams-and-schedule'] as const,
@@ -29,26 +32,51 @@ export function useTeams() {
   }
 }
 
-// Hook for schedule data
+// Enhanced hook for schedule data with smart fetching
 export function useSchedule() {
-  const { data, ...rest } = useTeamsAndSchedule()
+  const legacyQuery = useTeamsAndSchedule()
+  const currentWeekQuery = useCurrentWeekGames()
+  const currentNFLWeek = getCurrentNFLWeek()
+  
+  // If we have current week data from smart fetcher, prefer it for current week
+  const enhancedGamesByWeek = { ...legacyQuery.data?.schedule.by_week }
+  if (currentWeekQuery.data?.games && currentWeekQuery.data.week === currentNFLWeek.week) {
+    enhancedGamesByWeek[currentNFLWeek.week] = currentWeekQuery.data.games
+  }
   
   return {
-    ...rest,
-    data: data?.schedule || null,
-    gamesByWeek: data?.schedule.by_week || {},
-    allGames: data?.schedule.all_games || [],
-    availableWeeks: data?.meta.weeks_available || [],
+    ...legacyQuery,
+    data: legacyQuery.data?.schedule || null,
+    gamesByWeek: enhancedGamesByWeek,
+    allGames: legacyQuery.data?.schedule.all_games || [],
+    availableWeeks: legacyQuery.data?.meta.weeks_available || [],
+    // Additional smart data info
+    currentWeekSource: currentWeekQuery.data?.source,
+    isCurrentWeekLive: currentWeekQuery.data?.source === 'cache',
   }
 }
 
-// Hook for specific week
-export function useWeekSchedule(week: number) {
-  const { data, ...rest } = useTeamsAndSchedule()
+// Enhanced hook for specific week with smart fetching
+export function useWeekSchedule(week: number, year?: number) {
+  const legacyQuery = useTeamsAndSchedule()
+  const smartQuery = useGames(week, year)
+  const currentNFLWeek = getCurrentNFLWeek()
+  const targetYear = year ?? currentNFLWeek.seasonYear
+  
+  // Use smart data if available, otherwise fall back to legacy
+  const weekGames = smartQuery.data?.games || legacyQuery.data?.schedule.by_week[week] || []
   
   return {
-    ...rest,
-    data: data?.schedule.by_week[week] || [],
+    isLoading: smartQuery.isLoading || legacyQuery.isLoading,
+    isError: smartQuery.isError || legacyQuery.isError,
+    error: smartQuery.error || legacyQuery.error,
+    data: weekGames,
+    source: smartQuery.data?.source,
+    isFetching: smartQuery.isFetching || legacyQuery.isFetching,
+    refetch: () => {
+      smartQuery.refetch()
+      legacyQuery.refetch()
+    },
   }
 }
 

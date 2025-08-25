@@ -107,10 +107,9 @@ const TeamLogo: React.FC<{
   
   return (
     <div className={cn('relative', sizeClasses[size], className)}>
-      {/* Team color background circle for better logo visibility */}
+      {/* Neutral background circle for better logo visibility */}
       <div 
-        className="absolute inset-0 rounded-full shadow-lg border border-white/20" 
-        style={{ backgroundColor: finalBackgroundColor }}
+        className="absolute inset-0 rounded-full shadow-lg border border-white/20 bg-white/90" 
       />
       
       {/* Loading state */}
@@ -450,7 +449,7 @@ const TeamRow: React.FC<{
  * <GameCard 
  *   game={gameData} 
  *   showPicks={true}
- *   onPickTeam={(teamId) => console.log('Picked team:', teamId)}
+ *   onPickTeam={(teamId) => handleTeamPick(teamId)}
  * />
  */
 export const GameCard: React.FC<GameCardProps> = ({

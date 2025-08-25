@@ -52,7 +52,6 @@ export const supabase: SupabaseClient<Database> = createClient<Database>(
 export async function getCurrentUser(): Promise<User | null> {
   const { data: { user }, error } = await supabase.auth.getUser();
   if (error) {
-    console.error('Error getting current user:', error);
     return null;
   }
   return user;
@@ -91,7 +90,6 @@ export class DatabaseQueryBuilder {
       const { data, error } = await queryPromise;
       
       if (error) {
-        console.error('Database query error:', error);
         return {
           data: null,
           error: error.message || 'Database query failed',
@@ -101,7 +99,6 @@ export class DatabaseQueryBuilder {
       return { data, error: null };
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
-      console.error('Unexpected database error:', err);
       return {
         data: null,
         error: errorMessage,
@@ -226,7 +223,6 @@ export async function callEdgeFunction<T = any>(
     });
     
     if (error) {
-      console.error(`Edge function ${functionName} error:`, error);
       return {
         data: null,
         error: error.message || `Failed to call ${functionName}`,
@@ -248,7 +244,6 @@ export async function callEdgeFunction<T = any>(
     return { data, error: null };
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
-    console.error(`Unexpected error calling ${functionName}:`, err);
     return {
       data: null,
       error: errorMessage,
@@ -268,27 +263,21 @@ export const migrationTracker = {
    * Log when a direct query is used instead of edge function
    */
   logDirectQuery: (table: string, operation: string) => {
-    if (import.meta.env.DEV) {
-      console.log(`🔄 Migration: Using direct ${operation} query on ${table}`);
-    }
+    // Migration logging removed for production
   },
   
   /**
    * Log when an edge function is still being used
    */
   logEdgeFunction: (functionName: string) => {
-    if (import.meta.env.DEV) {
-      console.log(`⚡ Legacy: Using edge function ${functionName}`);
-    }
+    // Migration logging removed for production
   },
   
   /**
    * Log real-time subscription usage
    */
   logRealtime: (table: string, event: string) => {
-    if (import.meta.env.DEV) {
-      console.log(`📡 Realtime: ${event} on ${table}`);
-    }
+    // Migration logging removed for production
   },
 };
 
@@ -336,6 +325,6 @@ export type TypedSupabaseClient = SupabaseClient<Database>;
  * // Real-time subscription (Phase 3+)
  * const { unsubscribe } = createRealtimeSubscription(
  *   'leagues',
- *   (payload) => console.log('League updated:', payload)
+ *   (payload) => handleLeagueUpdate(payload)
  * );
  */

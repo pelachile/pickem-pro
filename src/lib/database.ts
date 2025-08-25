@@ -178,7 +178,6 @@ export async function getUserLeagues(userId?: string): Promise<ApiResponse<Leagu
       data: leaguesWithMembership,
     };
   } catch (error) {
-    console.error('Error getting user leagues:', error);
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Failed to get user leagues',
@@ -270,7 +269,6 @@ export async function getPublicLeagues(params: ExtendedGetPublicLeaguesParams = 
       },
     };
   } catch (error) {
-    console.error('Error getting public leagues:', error);
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Failed to get public leagues',
@@ -347,7 +345,6 @@ export async function getLeagueById(leagueId: string, userId?: string): Promise<
       data: leagueWithMembership,
     };
   } catch (error) {
-    console.error('Error getting league by ID:', error);
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Failed to get league',
@@ -365,34 +362,22 @@ export async function getLeagueById(leagueId: string, userId?: string): Promise<
  */
 export async function createLeague(request: CreateLeagueRequest, userId?: string): Promise<ApiResponse<League>> {
   try {
-    console.log('🚀 createLeague called with request:', request);
     migrationTracker.logDirectQuery('leagues', 'createLeague');
 
     // Validate input data
-    console.log('📝 Validating create league request...');
     const validation = validateCreateLeague(request);
     if (!validation.isValid) {
-      console.error('❌ Validation failed:', validation.errors);
       return {
         success: false,
         error: formatValidationErrors(validation.errors),
         code: 'VALIDATION_ERROR',
       };
     }
-    console.log('✅ Validation passed');
 
     // Get current user
     if (!userId) {
-      console.log('🔍 Getting current user...');
       const { data: { user }, error: authError } = await supabase.auth.getUser();
-      console.log('👤 Auth result:', { 
-        userId: user?.id, 
-        userRole: user?.role,
-        userEmail: user?.email,
-        authError: authError?.message || 'none'
-      });
       if (!user) {
-        console.error('❌ User not authenticated');
         return {
           success: false,
           error: 'User not authenticated',
@@ -401,15 +386,9 @@ export async function createLeague(request: CreateLeagueRequest, userId?: string
       }
       userId = user.id;
     }
-    console.log('✅ User ID:', userId);
     
     // Check current session for RLS
     const { data: session, error: sessionError } = await supabase.auth.getSession();
-    console.log('🔐 Session check:', { 
-      hasSession: !!session?.session,
-      accessToken: session?.session?.access_token ? 'present' : 'missing',
-      sessionError: sessionError?.message || 'none'
-    });
 
     // Hash password if provided
     let passwordHash: string | null = null;
@@ -455,7 +434,6 @@ export async function createLeague(request: CreateLeagueRequest, userId?: string
     };
 
     // Create league
-    console.log('💾 Inserting league data:', leagueData);
     const { data: league, error: leagueError } = await supabase
       .from('leagues')
       .insert(leagueData)
@@ -463,14 +441,12 @@ export async function createLeague(request: CreateLeagueRequest, userId?: string
       .single();
 
     if (leagueError) {
-      console.error('❌ League insertion failed:', leagueError);
       return {
         success: false,
         error: parseSupabaseError(leagueError),
         code: 'DATABASE_ERROR',
       };
     }
-    console.log('✅ League created:', league);
 
     // Add creator as admin
     const memberData: LeagueMemberInsert = {
@@ -499,7 +475,6 @@ export async function createLeague(request: CreateLeagueRequest, userId?: string
       data: league,
     };
   } catch (error) {
-    console.error('Error creating league:', error);
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Failed to create league',
@@ -624,7 +599,6 @@ export async function joinLeague(request: JoinLeagueRequest, userId?: string): P
       data: league,
     };
   } catch (error) {
-    console.error('Error joining league:', error);
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Failed to join league',
@@ -643,13 +617,11 @@ export async function updateLeague(
 ): Promise<ApiResponse<League>> {
   try {
     migrationTracker.logDirectQuery('leagues', 'updateLeague');
-    console.log('🔄 updateLeague: Starting update for league', leagueId, 'with request:', request);
 
     // Get current user
     if (!userId) {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-        console.log('❌ updateLeague: User not authenticated');
         return {
           success: false,
           error: 'User not authenticated',
@@ -658,15 +630,12 @@ export async function updateLeague(
       }
       userId = user.id;
     }
-    console.log('👤 updateLeague: User ID:', userId);
 
     // Simplified approach: Direct update with basic validation
-    console.log('🔧 updateLeague: Using simplified direct update approach');
     
     // Basic validation
     const validation = validateUpdateLeague(request);
     if (!validation.isValid) {
-      console.log('❌ updateLeague: Validation failed:', validation.errors);
       return {
         success: false,
         error: formatValidationErrors(validation.errors),
@@ -712,7 +681,6 @@ export async function updateLeague(
       data: updatedLeague,
     };
   } catch (error) {
-    console.error('Error updating league:', error);
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Failed to update league',
@@ -780,7 +748,6 @@ export async function deleteLeague(leagueId: string, userId?: string): Promise<A
       success: true,
     };
   } catch (error) {
-    console.error('Error deleting league:', error);
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Failed to delete league',

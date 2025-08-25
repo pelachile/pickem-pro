@@ -94,7 +94,6 @@ export function useSubmitPicks() {
           context.previousPicks
         );
       }
-      console.error('Failed to submit picks:', error);
     },
     onSuccess: (_data, variables) => {
       // Invalidate and refetch related queries
@@ -162,7 +161,6 @@ export function useUpdatePick() {
           context.previousPicks
         );
       }
-      console.error('Failed to update pick:', error);
     },
     onSuccess: (_data, variables) => {
       // Refresh picks and standings

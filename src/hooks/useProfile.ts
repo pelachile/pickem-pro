@@ -79,7 +79,6 @@ export function useCreateProfile() {
       }
     },
     onError: (error) => {
-      console.error('Failed to create profile:', error);
     },
   });
 }
@@ -111,7 +110,6 @@ export function useUpdateProfile() {
       }
     },
     onError: (error) => {
-      console.error('Failed to update profile:', error);
     },
   });
 }

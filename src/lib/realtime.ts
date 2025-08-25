@@ -39,7 +39,7 @@ class RealtimeSubscriptionManager {
    */
   subscribeToLeague(leagueId: string, callback: (event: LeagueUpdateEvent) => void): () => void {
     if (!isFeatureEnabled('use_realtime_subscriptions')) {
-      console.log('Real-time subscriptions disabled, skipping league subscription');
+      // Real-time subscriptions disabled, skipping league subscription
       return () => {};
     }
 
@@ -101,7 +101,7 @@ class RealtimeSubscriptionManager {
    */
   subscribeToLeagueMembers(leagueId: string, callback: (event: MemberUpdateEvent) => void): () => void {
     if (!isFeatureEnabled('use_realtime_subscriptions')) {
-      console.log('Real-time subscriptions disabled, skipping member subscription');
+      // Real-time subscriptions disabled, skipping member subscription
       return () => {};
     }
 
@@ -163,7 +163,7 @@ class RealtimeSubscriptionManager {
    */
   subscribeToUserLeagues(userId: string, callback: (event: RealtimeEvent) => void): () => void {
     if (!isFeatureEnabled('use_realtime_subscriptions')) {
-      console.log('Real-time subscriptions disabled, skipping user leagues subscription');
+      // Real-time subscriptions disabled, skipping user leagues subscription
       return () => {};
     }
 

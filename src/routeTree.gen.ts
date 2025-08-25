@@ -22,6 +22,7 @@ import { Route as AuthenticatedMakePicksRouteImport } from './routes/_authentica
 import { Route as AuthenticatedLeaguesRouteImport } from './routes/_authenticated/leagues'
 import { Route as AuthenticatedJoinLeagueRouteImport } from './routes/_authenticated/join-league'
 import { Route as AuthenticatedDevPicksTestRouteImport } from './routes/_authenticated/dev-picks-test'
+import { Route as AuthenticatedDataDemoRouteImport } from './routes/_authenticated/data-demo'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedCreateLeagueRouteImport } from './routes/_authenticated/create-league'
 import { Route as AuthenticatedLeagueLeagueIdRouteImport } from './routes/_authenticated/league.$leagueId'
@@ -92,6 +93,11 @@ const AuthenticatedDevPicksTestRoute =
     path: '/dev-picks-test',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedDataDemoRoute = AuthenticatedDataDemoRouteImport.update({
+  id: '/data-demo',
+  path: '/data-demo',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -124,6 +130,7 @@ export interface FileRoutesByFullPath {
   '/register': typeof RegisterRoute
   '/create-league': typeof AuthenticatedCreateLeagueRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/data-demo': typeof AuthenticatedDataDemoRoute
   '/dev-picks-test': typeof AuthenticatedDevPicksTestRoute
   '/join-league': typeof AuthenticatedJoinLeagueRoute
   '/leagues': typeof AuthenticatedLeaguesRoute
@@ -142,6 +149,7 @@ export interface FileRoutesByTo {
   '/register': typeof RegisterRoute
   '/create-league': typeof AuthenticatedCreateLeagueRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/data-demo': typeof AuthenticatedDataDemoRoute
   '/dev-picks-test': typeof AuthenticatedDevPicksTestRoute
   '/join-league': typeof AuthenticatedJoinLeagueRoute
   '/leagues': typeof AuthenticatedLeaguesRoute
@@ -162,6 +170,7 @@ export interface FileRoutesById {
   '/register': typeof RegisterRoute
   '/_authenticated/create-league': typeof AuthenticatedCreateLeagueRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/data-demo': typeof AuthenticatedDataDemoRoute
   '/_authenticated/dev-picks-test': typeof AuthenticatedDevPicksTestRoute
   '/_authenticated/join-league': typeof AuthenticatedJoinLeagueRoute
   '/_authenticated/leagues': typeof AuthenticatedLeaguesRoute
@@ -182,6 +191,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/create-league'
     | '/dashboard'
+    | '/data-demo'
     | '/dev-picks-test'
     | '/join-league'
     | '/leagues'
@@ -200,6 +210,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/create-league'
     | '/dashboard'
+    | '/data-demo'
     | '/dev-picks-test'
     | '/join-league'
     | '/leagues'
@@ -219,6 +230,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/_authenticated/create-league'
     | '/_authenticated/dashboard'
+    | '/_authenticated/data-demo'
     | '/_authenticated/dev-picks-test'
     | '/_authenticated/join-league'
     | '/_authenticated/leagues'
@@ -332,6 +344,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDevPicksTestRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/data-demo': {
+      id: '/_authenticated/data-demo'
+      path: '/data-demo'
+      fullPath: '/data-demo'
+      preLoaderRoute: typeof AuthenticatedDataDemoRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
       path: '/dashboard'
@@ -366,6 +385,7 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedRouteChildren {
   AuthenticatedCreateLeagueRoute: typeof AuthenticatedCreateLeagueRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedDataDemoRoute: typeof AuthenticatedDataDemoRoute
   AuthenticatedDevPicksTestRoute: typeof AuthenticatedDevPicksTestRoute
   AuthenticatedJoinLeagueRoute: typeof AuthenticatedJoinLeagueRoute
   AuthenticatedLeaguesRoute: typeof AuthenticatedLeaguesRoute
@@ -380,6 +400,7 @@ interface AuthenticatedRouteChildren {
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedCreateLeagueRoute: AuthenticatedCreateLeagueRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedDataDemoRoute: AuthenticatedDataDemoRoute,
   AuthenticatedDevPicksTestRoute: AuthenticatedDevPicksTestRoute,
   AuthenticatedJoinLeagueRoute: AuthenticatedJoinLeagueRoute,
   AuthenticatedLeaguesRoute: AuthenticatedLeaguesRoute,

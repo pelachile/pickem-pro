@@ -3,7 +3,9 @@ import { useState, useMemo, useEffect } from 'react';
 import { GameCard } from '../../components/ui/GameCard';
 import type { Status } from '../../components/types';
 import ContentWrapper from '../../components/layout/ContentWrapper';
-import { useSchedule, useTeams } from '../../hooks/useNflData';
+import { useTeams } from '../../hooks/useNflData';
+import { useGamesByDate } from '../../hooks/useSmartGames';
+import { DataSourceIndicator } from '../../components/dev';
 import { usePicksWithDeadlines, useSubmitPicks } from '../../hooks/usePicks';
 import type { PickSubmission } from '../../types/picks';
 import { getCurrentNFLWeek, getNFLWeekDescription } from '../../lib/nflCalendar';
@@ -13,31 +15,24 @@ function MakePicksContent() {
     const [showSuccessMessage, setShowSuccessMessage] = useState(false);
     const [submitError, setSubmitError] = useState<string | null>(null);
     
-    // For now, we'll use a real league ID - in a real app this would come from route params or context
-    const leagueId = '0208f571-d6b7-4f33-90f9-608c3dbcef72'; // TODO: Get from actual league context (using BFG league)
+    const leagueId = '0208f571-d6b7-4f33-90f9-608c3dbcef72';
     
-    // Get current NFL week dynamically based on date
     const currentNFLWeek = getCurrentNFLWeek();
     const currentWeek = currentNFLWeek.week;
     const weekDescription = getNFLWeekDescription(currentNFLWeek);
 
-    // Get live data from TanStack Query  
-    const { gamesByWeek, isLoading: scheduleLoading, error: scheduleError } = useSchedule();
+    const { 
+        gamesByDate, 
+        sortedDates, 
+        dateCount,
+        isLoading: gamesLoading, 
+        error: gamesError,
+        data: smartGameData
+    } = useGamesByDate(currentWeek);
     const { isLoading: teamsLoading } = useTeams();
     
-    // Get games for current week only
-    const currentWeekGames = gamesByWeek[currentWeek] || [];
+    const currentWeekGames = smartGameData?.games || [];
     
-    // Debug logging
-    console.log('Make-picks debug:', {
-        currentWeek,
-        weekDescription,
-        totalWeeksAvailable: Object.keys(gamesByWeek),
-        currentWeekGamesCount: currentWeekGames.length,
-        firstGame: currentWeekGames[0]
-    });
-    
-    // Get picks data and game deadlines
     const {
         picks: existingPicks,
         deadlines,
@@ -46,10 +41,8 @@ function MakePicksContent() {
         refetch: refetchPicks
     } = usePicksWithDeadlines(leagueId, currentWeek);
     
-    // Submit picks mutation
     const submitPicksMutation = useSubmitPicks();
 
-    // Team win-loss records (dummy data for display)
     const teamRecords: Record<string, string> = {
         'DAL': '8-3', 'PHI': '9-2', 'KC': '10-1', 'LAC': '6-5',
         'TB': '7-4', 'ATL': '5-6', 'CIN': '8-3', 'CLE': '4-7',
@@ -59,47 +52,6 @@ function MakePicksContent() {
         'DET': '10-1', 'GB': '8-3', 'BAL': '9-2', 'BUF': '8-3'
     };
 
-    // Convert live schedule data to the format expected by GameCard
-    const games = useMemo(() => {
-        if (!currentWeekGames || currentWeekGames.length === 0) return [];
-        
-        return currentWeekGames.map((scheduleGame) => {
-            // Map various status formats to our Status type
-            let gameStatus: Status = 'scheduled';
-            if (scheduleGame.status === 'final' || scheduleGame.status === 'STATUS_FINAL' || scheduleGame.status === 'completed') {
-                gameStatus = 'final';
-            } else if (scheduleGame.status === 'in_progress' || scheduleGame.status === 'STATUS_IN_PROGRESS' || scheduleGame.status === 'live') {
-                gameStatus = 'live';
-            }
-            
-            return {
-                id: typeof scheduleGame.id === 'string' ? parseInt(scheduleGame.id, 10) : scheduleGame.id,
-                status: gameStatus,
-                homeTeam: {
-                    id: typeof scheduleGame.home_team?.id === 'string' ? parseInt(scheduleGame.home_team.id, 10) : scheduleGame.home_team?.id || scheduleGame.home_team_id,
-                    name: scheduleGame.home_team?.display_name || scheduleGame.home_team?.name || 'Home Team',
-                    abbreviation: scheduleGame.home_team?.abbreviation || 'HOM',
-                    color: scheduleGame.home_team?.color || '#000000',
-                    logo_url: scheduleGame.home_team?.logo_url || '',
-                    record: teamRecords[scheduleGame.home_team?.abbreviation] || '6-5',
-                },
-                awayTeam: {
-                    id: typeof scheduleGame.away_team?.id === 'string' ? parseInt(scheduleGame.away_team.id, 10) : scheduleGame.away_team?.id || scheduleGame.away_team_id,
-                    name: scheduleGame.away_team?.display_name || scheduleGame.away_team?.name || 'Away Team',
-                    abbreviation: scheduleGame.away_team?.abbreviation || 'AWY',
-                    color: scheduleGame.away_team?.color || '#000000',
-                    logo_url: scheduleGame.away_team?.logo_url || '',
-                    record: teamRecords[scheduleGame.away_team?.abbreviation] || '6-5',
-                },
-                homeScore: scheduleGame.home_team?.score || scheduleGame.home_score,
-                awayScore: scheduleGame.away_team?.score || scheduleGame.away_score,
-                gameTime: scheduleGame.date || scheduleGame.game_date,
-                venue: scheduleGame.venue_name || 'TBD',
-            };
-        });
-    }, [currentWeekGames, teamRecords]);
-
-    // Initialize user picks with existing picks
     useEffect(() => {
         if (existingPicks && existingPicks.length > 0) {
             const picksMap: Record<string, number> = {};
@@ -110,46 +62,70 @@ function MakePicksContent() {
         }
     }, [existingPicks]);
     
-    // Check for expired games based on deadlines
     const expiredGameIds = useMemo(() => {
         return deadlines
             .filter(deadline => deadline.deadline_passed)
             .map(deadline => deadline.game_id);
     }, [deadlines]);
 
-    // Group games by date with smart sequential layout logic
-    const gamesByDate = useMemo(() => {
-        const grouped = games.reduce((acc, game) => {
-            const date = new Date(game.gameTime).toDateString();
-            if (!acc[date]) {
-                acc[date] = [];
-            }
-            acc[date].push(game);
-            return acc;
-        }, {} as Record<string, any[]>);
+    const gamesGroupedByDate = useMemo(() => {
+        return sortedDates.map(date => {
+            const dateGames = gamesByDate[date] || [];
+            const transformedGames = dateGames.map((gameData) => {
+                let gameStatus: Status = 'scheduled';
+                if (gameData.status === 'final' || gameData.status === 'STATUS_FINAL' || gameData.status === 'completed') {
+                    gameStatus = 'final';
+                } else if (gameData.status === 'in_progress' || gameData.status === 'STATUS_IN_PROGRESS' || gameData.status === 'live') {
+                    gameStatus = 'live';
+                }
+                
+                return {
+                    id: typeof gameData.id === 'string' ? parseInt(gameData.id, 10) || Math.random() * 1000000 : gameData.id || Math.random() * 1000000,
+                    status: gameStatus,
+                    homeTeam: {
+                        id: typeof gameData.home_team?.id === 'string' ? parseInt(gameData.home_team.id, 10) : gameData.home_team?.id || gameData.home_team_id,
+                        name: gameData.home_team?.display_name || gameData.home_team?.name || `${gameData.home_team?.location} ${gameData.home_team?.name}` || 'Home Team',
+                        abbreviation: gameData.home_team?.abbreviation || 'HOM',
+                        color: gameData.home_team?.color ? `#${gameData.home_team.color}` : '#000000',
+                        logo_url: gameData.home_team?.logo_url || '',
+                        record: teamRecords[gameData.home_team?.abbreviation] || '6-5',
+                    },
+                    awayTeam: {
+                        id: typeof gameData.away_team?.id === 'string' ? parseInt(gameData.away_team.id, 10) : gameData.away_team?.id || gameData.away_team_id,
+                        name: gameData.away_team?.display_name || gameData.away_team?.name || `${gameData.away_team?.location} ${gameData.away_team?.name}` || 'Away Team',
+                        abbreviation: gameData.away_team?.abbreviation || 'AWY',
+                        color: gameData.away_team?.color ? `#${gameData.away_team.color}` : '#000000',
+                        logo_url: gameData.away_team?.logo_url || '',
+                        record: teamRecords[gameData.away_team?.abbreviation] || '6-5',
+                    },
+                    homeScore: gameData.home_team?.score || gameData.home_score,
+                    awayScore: gameData.away_team?.score || gameData.away_score,
+                    gameTime: gameData.date || gameData.game_date,
+                    venue: gameData.venue_name || 'TBD',
+                };
+            });
+            
+            return {
+                date,
+                games: transformedGames,
+                gameCount: transformedGames.length,
+            };
+        });
+    }, [gamesByDate, sortedDates, teamRecords]);
 
-        return Object.entries(grouped).map(([date, dateGames]) => ({
-            date,
-            games: dateGames,
-            gameCount: dateGames.length,
-        }));
-    }, [games]);
-
-    // Responsive grid layout logic
     const getGridClass = (gameCount: number) => {
         if (gameCount === 1) {
-            return 'grid-cols-1'; // Full width for single game
+            return 'grid-cols-1';
         } else if (gameCount === 2) {
-            return 'grid-cols-1 sm:grid-cols-2'; // Split for two games
+            return 'grid-cols-1 sm:grid-cols-2';
         } else {
-            return 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'; // Standard responsive grid for 3+
+            return 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4';
         }
     };
 
     const handlePickTeam = (gameId: string | number, teamId: number) => {
         const gameIdStr = gameId.toString();
         
-        // Don't allow picks on expired games
         if (expiredGameIds.includes(gameIdStr)) {
             return;
         }
@@ -159,7 +135,6 @@ function MakePicksContent() {
             [gameIdStr]: teamId,
         }));
         
-        // Clear any existing error/success messages when user makes changes
         setSubmitError(null);
         setShowSuccessMessage(false);
     };
@@ -168,11 +143,10 @@ function MakePicksContent() {
         setSubmitError(null);
         setShowSuccessMessage(false);
         
-        // Convert userPicks to PickSubmission format
         const pickSubmissions: PickSubmission[] = Object.entries(userPicks).map(([gameId, teamId]) => ({
             game_id: gameId,
             picked_team_id: teamId,
-            confidence_points: 1, // Default confidence points for now
+            confidence_points: 1,
         }));
         
         if (pickSubmissions.length === 0) {
@@ -188,22 +162,17 @@ function MakePicksContent() {
             
             if (result.success) {
                 setShowSuccessMessage(true);
-                // Refetch picks to get updated data
                 refetchPicks();
-                
-                // Hide success message after 5 seconds
                 setTimeout(() => setShowSuccessMessage(false), 5000);
             } else {
                 setSubmitError(result.error || 'Failed to submit picks. Please try again.');
             }
         } catch (error) {
-            console.error('Pick submission error:', error);
             setSubmitError(error instanceof Error ? error.message : 'Failed to submit picks. Please try again.');
         }
     };
 
-    // Show loading state
-    if (scheduleLoading || teamsLoading || picksLoading) {
+    if (gamesLoading || teamsLoading || picksLoading) {
         return (
             <ContentWrapper 
                 title="Make Your Picks" 
@@ -219,9 +188,8 @@ function MakePicksContent() {
         );
     }
 
-    // Show error state
-    if (scheduleError || picksError) {
-        const error = scheduleError || picksError;
+    if (gamesError || picksError) {
+        const error = gamesError || picksError;
         return (
             <ContentWrapper 
                 title="Make Your Picks" 
@@ -232,7 +200,7 @@ function MakePicksContent() {
                     <p className="text-red-300/80 text-sm mt-2">{error?.message}</p>
                     <button 
                         onClick={() => {
-                            if (scheduleError) {
+                            if (gamesError) {
                                 window.location.reload();
                             } else {
                                 refetchPicks();
@@ -252,7 +220,6 @@ function MakePicksContent() {
             title="Make Your Picks" 
             subtitle={`${weekDescription} - Select the winners for this week's games`}
         >
-            {/* Success Message */}
             {showSuccessMessage && (
                 <div className="mb-6 bg-green-500/20 border border-green-500/30 rounded-xl p-4">
                     <div className="flex items-center">
@@ -264,7 +231,6 @@ function MakePicksContent() {
                 </div>
             )}
             
-            {/* Error Message */}
             {submitError && (
                 <div className="mb-6 bg-red-500/20 border border-red-500/30 rounded-xl p-4">
                     <div className="flex items-center">
@@ -276,7 +242,6 @@ function MakePicksContent() {
                 </div>
             )}
 
-            {/* Submit Button - Fixed at top on mobile, inline on desktop */}
             <div className="mb-6 flex items-center gap-4">
                 <button
                     onClick={handleSubmitPicks}
@@ -286,7 +251,7 @@ function MakePicksContent() {
                     {submitPicksMutation.isPending && (
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
                     )}
-                    {submitPicksMutation.isPending ? 'Submitting...' : `Submit Picks (${Object.keys(userPicks).length}/${games.length})`}
+                    {submitPicksMutation.isPending ? 'Submitting...' : `Submit Picks (${Object.keys(userPicks).length}/${currentWeekGames.length})`}
                 </button>
                 
                 {existingPicks && existingPicks.length > 0 && (
@@ -296,11 +261,22 @@ function MakePicksContent() {
                 )}
             </div>
 
-            {/* Games with smart sequential layout logic */}
+            <div className="mb-4 flex items-center gap-3">
+                <DataSourceIndicator 
+                    source={smartGameData?.source}
+                    lastUpdated={smartGameData?.lastUpdated}
+                    size="md"
+                />
+                {smartGameData?.games.length && (
+                    <span className="text-white/60 text-sm">
+                        {smartGameData.games.length} games loaded
+                    </span>
+                )}
+            </div>
+
             <div className="space-y-8">
-                {gamesByDate.map(({ date, games: dateGames, gameCount }) => (
+                {gamesGroupedByDate.map(({ date, games: dateGames, gameCount }) => (
                     <div key={date}>
-                        {/* Date Header */}
                         <div className="mb-4">
                             <h2 className="text-xl font-semibold text-white flex items-center gap-4">
                                 {new Date(date).toLocaleDateString(undefined, {
@@ -312,35 +288,32 @@ function MakePicksContent() {
                             <div className="w-16 h-1 bg-gradient-to-r from-sky-400 to-sunset-500 rounded-full" />
                         </div>
 
-                        {/* Smart Grid Layout Based on Game Count */}
                         <div className={`grid ${getGridClass(gameCount)} gap-4`}>
                             {dateGames.map((game) => {
                                 const gameId = game.id.toString();
                                 const isExpired = expiredGameIds.includes(gameId);
                                 const deadline = deadlines.find(d => d.game_id === gameId);
                                 
-                                // Check if game is completed (final or in progress)
                                 const isGameCompleted = game.status === 'final' || game.status === 'live';
                                 const shouldShowPicks = !isExpired && !isGameCompleted;
                                 const shouldShowStats = isGameCompleted;
                                 
                                 return (
                                     <GameCard
-                                        key={game.id}
+                                        key={`game-${game.id}-${gameId}`}
                                         game={game}
                                         userPickTeamId={userPicks[gameId] || null}
                                         layout={
                                             gameCount === 1 
-                                                ? 'full' // Single game: full width with horizontal layout
+                                                ? 'full'
                                                 : gameCount === 2
-                                                ? 'wide' // Two games: wide layout
-                                                : 'default' // 3+ games: default vertical layout
+                                                ? 'wide'
+                                                : 'default'
                                         }
                                         showPicks={shouldShowPicks}
                                         showStats={shouldShowStats}
                                         onPickTeam={(teamId) => handlePickTeam(gameId, teamId)}
                                         className={`h-full w-full ${isExpired || isGameCompleted ? 'opacity-80' : ''}`}
-                                        // Add deadline warning if less than 30 minutes
                                         deadlineWarning={deadline && !deadline.deadline_passed && deadline.minutes_until_deadline && deadline.minutes_until_deadline < 30 ? 
                                             `${deadline.minutes_until_deadline} minutes left` : undefined
                                         }
@@ -352,20 +325,24 @@ function MakePicksContent() {
                 ))}
             </div>
 
-            {/* Summary at bottom */}
             {Object.keys(userPicks).length > 0 && (
-                <div className="mt-8 bg-white/[0.03] backdrop-blur-lg border border-white/10 rounded-xl p-6">
+                <div className="mt-8 bg-white/5 backdrop-blur-lg border border-white/10 rounded-xl p-6">
                     <h3 className="text-lg font-semibold text-white mb-4">Your Picks Summary</h3>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                         {Object.entries(userPicks).map(([gameId, teamId]) => {
-                            const game = games.find(g => g.id.toString() === gameId);
+                            let game: any = null;
+                            for (const { games: dateGames } of gamesGroupedByDate) {
+                                game = dateGames.find(g => g.id.toString() === gameId);
+                                if (game) break;
+                            }
+                            
                             const pickedTeam = game?.homeTeam.id === teamId ? game.homeTeam : game?.awayTeam;
                             const isExpired = expiredGameIds.includes(gameId);
                             
                             if (!game || !pickedTeam) return null;
                             
                             return (
-                                <div key={gameId} className={`flex items-center justify-between p-3 bg-white/[0.02] rounded-lg border border-white/5 ${isExpired ? 'opacity-60' : ''}`}>
+                                <div key={gameId} className={`flex items-center justify-between p-3 bg-white/5 rounded-lg border border-white/5 ${isExpired ? 'opacity-60' : ''}`}>
                                     <span className="text-white/60 text-sm">
                                         {game.awayTeam.abbreviation} @ {game.homeTeam.abbreviation}
                                         {isExpired && <span className="ml-2 text-red-400 text-xs">(Expired)</span>}

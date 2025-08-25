@@ -59,7 +59,7 @@ export function useJoinLeague() {
       queryClient.invalidateQueries({ queryKey: leagueQueryKeys.user() });
     },
     onError: (error) => {
-      console.error('Failed to join league:', error);
+      // Failed to join league
     },
   });
 }
@@ -106,7 +106,7 @@ export function useUpdateLeague() {
       queryClient.invalidateQueries({ queryKey: leagueQueryKeys.user() });
     },
     onError: (error) => {
-      console.error('Failed to update league:', error);
+      // Failed to update league
     },
   });
 }
@@ -128,7 +128,7 @@ export function useDeleteLeague() {
       queryClient.invalidateQueries({ queryKey: leagueQueryKeys.user() });
     },
     onError: (error) => {
-      console.error('Failed to delete league:', error);
+      // Failed to delete league
     },
   });
 }
@@ -153,10 +153,10 @@ export function useCreateLeague() {
       // Update public leagues if the new league is public
       queryClient.invalidateQueries({ queryKey: [...leagueQueryKeys.all, 'public'] });
       
-      console.log('✅ Cache invalidated after league creation');
+      // Cache invalidated after league creation
     },
     onError: (error) => {
-      console.error('Failed to create league:', error);
+      // Failed to create league
     },
   });
 }
@@ -167,7 +167,7 @@ export function useLeagueDetail(leagueId: string | null) {
 
   // Real-time subscription for this specific league
   const handleLeagueUpdate = useCallback((event: LeagueUpdateEvent) => {
-    console.log('League detail real-time update:', event);
+    // League detail real-time update
     
     // Invalidate league detail cache
     if (leagueId) {
@@ -176,7 +176,7 @@ export function useLeagueDetail(leagueId: string | null) {
   }, [queryClient, leagueId]);
 
   const handleMemberUpdate = useCallback((event: MemberUpdateEvent) => {
-    console.log('League members real-time update:', event);
+    // League members real-time update
     
     // Invalidate league detail cache when members change
     if (leagueId) {

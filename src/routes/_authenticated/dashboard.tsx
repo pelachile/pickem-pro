@@ -9,15 +9,14 @@ import {
 import { GameCard } from '../../components/ui/GameCard';
 import type { Status } from '../../components/types';
 import ContentWrapper from '../../components/layout/ContentWrapper';
-import { useSchedule, useTeams } from '../../hooks/useNflData';
+import { useEnhancedGames } from '../../hooks/useSmartGames';
 import { CacheClearButton } from '../../components/CacheClearButton';
 
 function DashboardContent() {
     // Dashboard is now display-only - no navigation or picking functionality
 
-    // Get live data from TanStack Query
-    const { allGames, isLoading: scheduleLoading, error: scheduleError } = useSchedule();
-    const { isLoading: teamsLoading } = useTeams();
+    // Get enhanced games data from smart games system
+    const { data: gamesData, isLoading: gamesLoading, error: gamesError } = useEnhancedGames();
 
     // Team win-loss records (dummy data for display)
     const teamRecords: Record<string, string> = {
@@ -29,33 +28,35 @@ function DashboardContent() {
         'DET': '10-1', 'GB': '8-3', 'BAL': '9-2', 'BUF': '8-3'
     };
 
-    // Convert live schedule data to the format expected by GameCard
+    // Convert enhanced games data to the format expected by GameCard
     const games = useMemo(() => {
-        if (!allGames) return [];
+        if (!gamesData?.games) return [];
         
-        return allGames.map((scheduleGame) => ({
-            id: parseInt(scheduleGame.id.toString()),
-            status: (scheduleGame.status === 'final' ? 'final' : scheduleGame.status === 'live' ? 'live' : 'scheduled') as Status,
+        return gamesData.games.map((game) => ({
+            id: game.id,
+            status: (game.status === 'final' ? 'final' : game.status === 'in_progress' ? 'live' : 'scheduled') as Status,
             homeTeam: {
-                id: scheduleGame.home_team.id,
-                name: scheduleGame.home_team.display_name,
-                abbreviation: scheduleGame.home_team.abbreviation,
-                color: scheduleGame.home_team.color,
-                logo_url: scheduleGame.home_team.logo_url,
-                record: teamRecords[scheduleGame.home_team.abbreviation] || '6-5',
+                id: game.home_team_id,
+                name: game.home_team?.display_name || game.home_team?.name || 'Home Team',
+                abbreviation: game.home_team?.abbreviation || 'HOM',
+                color: game.home_team?.primary_color || '#1E3A8A',
+                logo_url: game.home_team?.logo_url || '',
+                record: teamRecords[game.home_team?.abbreviation || ''] || '6-5',
             },
             awayTeam: {
-                id: scheduleGame.away_team.id,
-                name: scheduleGame.away_team.display_name,
-                abbreviation: scheduleGame.away_team.abbreviation,
-                color: scheduleGame.away_team.color,
-                logo_url: scheduleGame.away_team.logo_url,
-                record: teamRecords[scheduleGame.away_team.abbreviation] || '6-5',
+                id: game.away_team_id,
+                name: game.away_team?.display_name || game.away_team?.name || 'Away Team',
+                abbreviation: game.away_team?.abbreviation || 'AWY',
+                color: game.away_team?.primary_color || '#DC2626',
+                logo_url: game.away_team?.logo_url || '',
+                record: teamRecords[game.away_team?.abbreviation || ''] || '6-5',
             },
-            gameTime: scheduleGame.date,
-            venue: 'TBD', // Venue info not in current API structure
+            homeScore: game.home_score,
+            awayScore: game.away_score,
+            gameTime: game.date,
+            venue: game.venue_name || 'TBD',
         }));
-    }, [allGames, teamRecords]);
+    }, [gamesData?.games, teamRecords]);
 
     // Group games by date with smart sequential layout logic
     const gamesByDate = useMemo(() => {
@@ -101,7 +102,7 @@ function DashboardContent() {
     // Removed handlePickTeam - dashboard is now display-only
 
     // Show loading state
-    if (scheduleLoading || teamsLoading) {
+    if (gamesLoading) {
         return (
             <ContentWrapper 
                 title="Dashboard" 
@@ -118,15 +119,15 @@ function DashboardContent() {
     }
 
     // Show error state
-    if (scheduleError) {
+    if (gamesError) {
         return (
             <ContentWrapper 
                 title="Dashboard" 
                 subtitle="Error loading NFL data"
             >
                 <div className="bg-red-500/20 border border-red-500/30 rounded-xl p-6 text-center">
-                    <p className="text-red-400 font-medium">Failed to load NFL schedule</p>
-                    <p className="text-red-300/80 text-sm mt-2">{scheduleError.message}</p>
+                    <p className="text-red-400 font-medium">Failed to load NFL games</p>
+                    <p className="text-red-300/80 text-sm mt-2">{gamesError.message}</p>
                     <button 
                         onClick={() => window.location.reload()}
                         className="mt-4 px-4 py-2 bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 rounded-lg text-red-300 transition-colors"
