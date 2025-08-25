@@ -145,7 +145,7 @@ export function useProfileForm(initialData?: UserProfile) {
   const [touched, setTouched] = React.useState<Record<string, boolean>>({});
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
-  const updateField = (field: string, value: any) => {
+  const updateField = (field: string, value: string | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     setTouched(prev => ({ ...prev, [field]: true }));
   };
@@ -166,7 +166,7 @@ export function useProfileForm(initialData?: UserProfile) {
     setIsSubmitting(false);
   };
 
-  const getFieldError = (field: string, errors?: any[]): string | null => {
+  const getFieldError = (field: string, errors?: Array<{ field: string; message: string }>): string | null => {
     if (!touched[field] || !errors) return null;
     const error = errors.find(e => e.field === field);
     return error ? error.message : null;

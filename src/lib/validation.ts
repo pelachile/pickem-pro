@@ -41,7 +41,7 @@ const VALIDATION_RULES = {
 };
 
 // Reusable validation functions
-export function validateRequired(value: any, fieldName: string): string | null {
+export function validateRequired(value: unknown, fieldName: string): string | null {
   if (value === undefined || value === null || value === '') {
     return `${fieldName} is required`;
   }
@@ -389,10 +389,30 @@ export async function validateLeagueMembership(userId: string, leagueId: string)
   }
 }
 
-export async function validateGameScheduled(gameId: number | string, cacheData?: any): Promise<{
+interface GameCacheData {
+  schedule?: {
+    by_week?: Record<string, Array<{
+      id: string | number;
+      espn_id?: string | number;
+      game_status?: string;
+      has_started?: boolean;
+    }>>;
+  };
+}
+
+interface GameData {
+  id: number;
+  game_date: string;
+  home_team_id: number;
+  away_team_id: number;
+  game_status?: string;
+  has_started?: boolean;
+}
+
+export async function validateGameScheduled(gameId: number | string, cacheData?: GameCacheData): Promise<{
   isValid: boolean;
   error?: string;
-  gameData?: any;
+  gameData?: GameData;
 }> {
   try {
     // Get static game data from database (no dynamic fields like status)
@@ -409,7 +429,7 @@ export async function validateGameScheduled(gameId: number | string, cacheData?:
     // If cache data is provided, check game status from cache
     if (cacheData) {
       const cacheGame = cacheData.schedule?.by_week 
-        ? Object.values(cacheData.schedule.by_week).flat().find((g: any) => 
+        ? Object.values(cacheData.schedule.by_week).flat().find((g) => 
             String(g.id) === String(gameId) || String(g.espn_id) === String(gameId)
           )
         : null;

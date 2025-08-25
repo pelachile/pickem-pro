@@ -1,9 +1,11 @@
+import { isAuthError } from '../types/errors';
+
 /**
  * Maps Supabase auth errors to user-friendly messages
  */
-export const getAuthErrorMessage = (error: any): string => {
+export const getAuthErrorMessage = (error: unknown): string => {
   // Handle Supabase auth errors
-  if ('status' in error && error.status) {
+  if (isAuthError(error)) {
     switch (error.status) {
       case 400:
         if (error.message.includes('Invalid login credentials')) {
@@ -31,17 +33,33 @@ export const getAuthErrorMessage = (error: any): string => {
     }
   }
 
-  // Handle common error messages
-  if (error.message.includes('Invalid email')) {
-    return 'Please enter a valid email address.';
+  // Handle Error instances
+  if (error instanceof Error) {
+    if (error.message.includes('Invalid email')) {
+      return 'Please enter a valid email address.';
+    }
+    
+    if (error.message.includes('weak password')) {
+      return 'Password is too weak. Please choose a stronger password.';
+    }
+    
+    return error.message;
   }
   
-  if (error.message.includes('weak password')) {
-    return 'Password is too weak. Please choose a stronger password.';
+  // Handle objects with message property
+  if (typeof error === 'object' && error !== null && 'message' in error) {
+    const message = String((error as { message: unknown }).message);
+    if (message.includes('Invalid email')) {
+      return 'Please enter a valid email address.';
+    }
+    if (message.includes('weak password')) {
+      return 'Password is too weak. Please choose a stronger password.';
+    }
+    return message;
   }
 
-  // Return the original message if we don't have a specific mapping
-  return error.message || 'An unexpected error occurred. Please try again.';
+  // Return a default message for unknown error types
+  return 'An unexpected error occurred. Please try again.';
 };
 
 /**

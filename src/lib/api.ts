@@ -281,7 +281,7 @@ export const leagueApi = {
       
       if (result.success && result.data) {
         // Transform LeagueWithMembership to UserLeague format
-        const userLeagues = result.data.map((league: any) => ({
+        const userLeagues = result.data.map((league) => ({
           ...league,
           userRole: league.user_role,
           joinedAt: league.joined_at,
@@ -453,12 +453,12 @@ export const profileApi = {
   },
 
   // Create user profile
-  async createProfile(data: any) {
+  async createProfile(data: Parameters<typeof profileDatabase.createUserProfile>[0]) {
     return profileDatabase.createUserProfile(data);
   },
 
   // Update user profile
-  async updateProfile(data: any) {
+  async updateProfile(data: Parameters<typeof profileDatabase.updateUserProfile>[0]) {
     return profileDatabase.updateUserProfile(data);
   },
 
@@ -487,7 +487,25 @@ export const nflApi = {
     const data = await response.json();
     
     // Transform games to match Game interface (game_date -> date)
-    const transformGame = (game: any) => ({
+    interface GameWithDate {
+      id: number;
+      espn_id: string;
+      game_date?: string;
+      date?: string;
+      home_team_id: number;
+      away_team_id: number;
+      home_team?: { name: string; short_name: string };
+      away_team?: { name: string; short_name: string };
+      home_score?: number;
+      away_score?: number;
+      game_status?: string;
+      has_started?: boolean;
+      has_finished?: boolean;
+      quarter?: string;
+      time_remaining?: string;
+    }
+    
+    const transformGame = (game: GameWithDate) => ({
       ...game,
       date: game.game_date || game.date,
       status: game.status === 'STATUS_SCHEDULED' ? 'scheduled' : 
@@ -495,7 +513,7 @@ export const nflApi = {
               game.status === 'STATUS_FINAL' ? 'final' : 'scheduled',
     });
 
-    const transformGamesInWeeks = (weekData: any) => {
+    const transformGamesInWeeks = (weekData: Record<string, GameWithDate[]>) => {
       const transformed = {};
       for (const [week, games] of Object.entries(weekData)) {
         transformed[week] = games.map(transformGame);

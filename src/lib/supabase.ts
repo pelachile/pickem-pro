@@ -152,26 +152,43 @@ export function createRealtimeSubscription<T extends keyof Database['public']['T
  * @param error - Supabase error object
  * @returns User-friendly error message
  */
-export function parseSupabaseError(error: any): string {
+export function parseSupabaseError(error: unknown): string {
   if (!error) return 'Unknown error occurred';
   
-  // Handle specific error codes
-  switch (error.code) {
-    case 'PGRST116':
-      return 'No data found or access denied';
-    case 'PGRST301':
-      return 'Invalid request parameters';
-    case '42501':
-      return 'Permission denied - check your access rights';
-    case '23505':
-      return 'This data already exists';
-    case '23503':
-      return 'Referenced data does not exist';
-    case '23514':
-      return 'Invalid data format';
-    default:
-      return error.message || 'Database operation failed';
+  // Type-safe error checking
+  if (typeof error === 'object' && error !== null && 'code' in error) {
+    const errorWithCode = error as { code?: string; message?: string };
+    
+    // Handle specific error codes
+    switch (errorWithCode.code) {
+      case 'PGRST116':
+        return 'No data found or access denied';
+      case 'PGRST301':
+        return 'Invalid request parameters';
+      case '42501':
+        return 'Permission denied - check your access rights';
+      case '23505':
+        return 'This data already exists';
+      case '23503':
+        return 'Referenced data does not exist';
+      case '23514':
+        return 'Invalid data format';
+      default:
+        return errorWithCode.message || 'Database operation failed';
+    }
   }
+  
+  // Handle Error instances
+  if (error instanceof Error) {
+    return error.message;
+  }
+  
+  // Handle string errors
+  if (typeof error === 'string') {
+    return error;
+  }
+  
+  return 'Database operation failed';
 }
 
 // =====================================

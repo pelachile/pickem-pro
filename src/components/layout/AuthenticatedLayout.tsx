@@ -18,7 +18,7 @@ import {
 import { useAuth } from '../../hooks/useAuth';
 import { useUserProfile } from '../../hooks/useProfile';
 import { useUserLeagues } from '../../hooks/useLeague';
-import { UserAvatar } from '../../react-components/components/UserAvatar';
+import { UserAvatar } from '../ui/UserAvatar';
 
 interface AuthenticatedLayoutProps {
     children: React.ReactNode;

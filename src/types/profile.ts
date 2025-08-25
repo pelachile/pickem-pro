@@ -58,7 +58,7 @@ export interface UsernameCheckResult {
 export type AvatarIcon = '👤' | '🎯' | '🏈' | '🏆' | '⭐' | '🔥' | '💎' | '🚀' | '⚡' | '🎮' | '🎪' | '🎨';
 
 // Import the existing AvatarColor type to ensure compatibility
-import type { AvatarColor as ExistingAvatarColor } from '../react-components/types';
+import type { AvatarColor as ExistingAvatarColor } from '../components/types';
 export type AvatarColor = ExistingAvatarColor;
 
 export interface AvatarOption {

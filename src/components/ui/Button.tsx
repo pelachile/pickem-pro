@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { cn } from '../utils';
 import type { ButtonProps } from '../types';
 
@@ -15,7 +15,7 @@ import type { ButtonProps } from '../types';
  *   Delete item
  * </Button>
  */
-export const Button: React.FC<ButtonProps> = ({
+export const Button: React.FC<ButtonProps> = React.memo(({
   variant = 'primary',
   size = 'md',
   disabled = false,
@@ -64,11 +64,11 @@ export const Button: React.FC<ButtonProps> = ({
     className
   );
 
-  const handleClick = () => {
+  const handleClick = useCallback(() => {
     if (!disabled && !loading && onClick) {
       onClick();
     }
-  };
+  }, [disabled, loading, onClick]);
 
   return (
     <button
@@ -90,6 +90,8 @@ export const Button: React.FC<ButtonProps> = ({
       <span className={loading ? 'sr-only' : ''}>{children}</span>
     </button>
   );
-};
+});
+
+Button.displayName = 'Button';
 
 export default Button;

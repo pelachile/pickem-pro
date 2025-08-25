@@ -35,7 +35,7 @@ const TeamLogo: React.FC<{
   team: Team;
   size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl';
   className?: string;
-}> = ({ team, size = 'md', className }) => {
+}> = React.memo(({ team, size = 'md', className }) => {
   const [logoError, setLogoError] = useState(false);
   const [logoLoading, setLogoLoading] = useState(true);
   
@@ -138,7 +138,18 @@ const TeamLogo: React.FC<{
       />
     </div>
   );
-};
+}, (prevProps, nextProps) => {
+  // Custom comparison for memoization
+  return (
+    prevProps.team.id === nextProps.team.id &&
+    prevProps.team.logo_url === nextProps.team.logo_url &&
+    prevProps.team.logo === nextProps.team.logo &&
+    prevProps.size === nextProps.size &&
+    prevProps.className === nextProps.className
+  );
+});
+
+TeamLogo.displayName = 'TeamLogo';
 
 /**
  * TeamRow Component
@@ -155,7 +166,7 @@ const TeamRow: React.FC<{
   layout?: 'default' | 'wide' | 'full';
   showPicks?: boolean;
   onPickTeam?: (teamId: number) => void;
-}> = ({ 
+}> = React.memo(({ 
   team, 
   score, 
   isWinner, 
@@ -436,7 +447,22 @@ const TeamRow: React.FC<{
       )}
     </div>
   );
-};
+}, (prevProps, nextProps) => {
+  // Custom comparison for memoization
+  return (
+    prevProps.team.id === nextProps.team.id &&
+    prevProps.score === nextProps.score &&
+    prevProps.isWinner === nextProps.isWinner &&
+    prevProps.isUserPick === nextProps.isUserPick &&
+    prevProps.isHome === nextProps.isHome &&
+    prevProps.compact === nextProps.compact &&
+    prevProps.layout === nextProps.layout &&
+    prevProps.showPicks === nextProps.showPicks &&
+    prevProps.onPickTeam === nextProps.onPickTeam
+  );
+});
+
+TeamRow.displayName = 'TeamRow';
 
 /**
  * GameCard Component
@@ -452,7 +478,7 @@ const TeamRow: React.FC<{
  *   onPickTeam={(teamId) => handleTeamPick(teamId)}
  * />
  */
-export const GameCard: React.FC<GameCardProps> = ({
+export const GameCard: React.FC<GameCardProps> = React.memo(({
   game,
   userPickTeamId,
   compact = false,
@@ -775,6 +801,27 @@ export const GameCard: React.FC<GameCardProps> = ({
       )}
     </Card>
   );
-};
+}, (prevProps, nextProps) => {
+  // Custom comparison for memoization - check all relevant props
+  return (
+    prevProps.game.id === nextProps.game.id &&
+    prevProps.game.status === nextProps.game.status &&
+    prevProps.game.homeScore === nextProps.game.homeScore &&
+    prevProps.game.awayScore === nextProps.game.awayScore &&
+    prevProps.game.isRedZone === nextProps.game.isRedZone &&
+    prevProps.userPickTeamId === nextProps.userPickTeamId &&
+    prevProps.compact === nextProps.compact &&
+    prevProps.layout === nextProps.layout &&
+    prevProps.showPicks === nextProps.showPicks &&
+    prevProps.showStats === nextProps.showStats &&
+    prevProps.enableRefresh === nextProps.enableRefresh &&
+    prevProps.deadlineWarning === nextProps.deadlineWarning &&
+    prevProps.onPickTeam === nextProps.onPickTeam &&
+    prevProps.onRefresh === nextProps.onRefresh &&
+    prevProps.className === nextProps.className
+  );
+});
+
+GameCard.displayName = 'GameCard';
 
 export default GameCard;

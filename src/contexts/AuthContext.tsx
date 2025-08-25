@@ -1,6 +1,7 @@
-import React, { createContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { supabase } from '../lib/supabase';
-import type { AuthError } from '@supabase/supabase-js';
+import type { AuthError, Session, User as SupabaseUser } from '@supabase/supabase-js';
+import { isAuthError } from '../types/errors';
 
 // User interface for our application
 interface User {
@@ -33,12 +34,15 @@ interface SignUpResponse {
   };
 }
 
-// Authentication context interface
-interface AuthContextType {
+// Split state and actions for better performance
+interface AuthState {
   user: User | null;
   isLoading: boolean;
   isAuthenticated: boolean;
   isInitialized: boolean;
+}
+
+interface AuthActions {
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (
     email: string,
@@ -57,9 +61,12 @@ interface AuthContextType {
   ) => Promise<void>;
 }
 
+// Combined interface for backward compatibility
+interface AuthContextType extends AuthState, AuthActions {}
+
 // Utility functions
-const getAuthErrorMessage = (error: any): string => {
-  if ('status' in error && error.status) {
+const getAuthErrorMessage = (error: unknown): string => {
+  if (isAuthError(error)) {
     switch (error.status) {
       case 400:
         if (error.message.includes('Invalid login credentials')) {
@@ -87,15 +94,32 @@ const getAuthErrorMessage = (error: any): string => {
     }
   }
 
-  if (error.message.includes('Invalid email')) {
-    return 'Please enter a valid email address.';
+  // Check for Error instance
+  if (error instanceof Error) {
+    if (error.message.includes('Invalid email')) {
+      return 'Please enter a valid email address.';
+    }
+    
+    if (error.message.includes('weak password')) {
+      return 'Password is too weak. Please choose a stronger password.';
+    }
+    
+    return error.message;
   }
   
-  if (error.message.includes('weak password')) {
-    return 'Password is too weak. Please choose a stronger password.';
+  // Check for object with message property
+  if (typeof error === 'object' && error !== null && 'message' in error) {
+    const message = String((error as { message: unknown }).message);
+    if (message.includes('Invalid email')) {
+      return 'Please enter a valid email address.';
+    }
+    if (message.includes('weak password')) {
+      return 'Password is too weak. Please choose a stronger password.';
+    }
+    return message;
   }
 
-  return error.message || 'An unexpected error occurred. Please try again.';
+  return 'An unexpected error occurred. Please try again.';
 };
 
 const formatDisplayName = (firstName?: string, lastName?: string): string => {
@@ -105,21 +129,26 @@ const formatDisplayName = (firstName?: string, lastName?: string): string => {
   return firstName || lastName || '';
 };
 
+// Create separate contexts for state and actions
+export const AuthStateContext = createContext<AuthState | undefined>(undefined);
+export const AuthActionsContext = createContext<AuthActions | undefined>(undefined);
+
+// Keep the original context for backward compatibility
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // Export types for use in other files
-export type { User, AuthContextType };
+export type { User, AuthContextType, AuthState, AuthActions };
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
-  const [session, setSession] = useState<any>(null);
+  const [session, setSession] = useState<Session | null>(null);
 
   const isAuthenticated = !!user && !!session;
 
   // Helper function to convert Supabase user to our User interface
-  const mapSupabaseUser = (supabaseUser: any, userMetadata?: UserMetadata): User => {
+  const mapSupabaseUser = (supabaseUser: SupabaseUser, userMetadata?: UserMetadata): User => {
     const firstName = userMetadata?.first_name || userMetadata?.firstName;
     const lastName = userMetadata?.last_name || userMetadata?.lastName;
     const displayName = userMetadata?.display_name || userMetadata?.displayName || formatDisplayName(firstName, lastName);
@@ -186,8 +215,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     throw new Error(friendlyMessage);
   };
 
-  // Supabase authentication functions
-  const handleSignIn = async (email: string, password: string) => {
+  // Memoize authentication functions to prevent recreation on every render
+  const handleSignIn = useCallback(async (email: string, password: string) => {
     setIsLoading(true);
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
@@ -204,9 +233,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setIsLoading(false);
       throw error;
     }
-  };
+  }, []);
 
-  const handleSignUp = async (email: string, password: string, firstName?: string, lastName?: string) => {
+  const handleSignUp = useCallback(async (email: string, password: string, firstName?: string, lastName?: string) => {
     setIsLoading(true);
     try {
       const { data, error } = await supabase.auth.signUp({
@@ -237,9 +266,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setIsLoading(false);
       throw error;
     }
-  };
+  }, []);
 
-  const handleSignOut = async () => {
+  const handleSignOut = useCallback(async () => {
     setIsLoading(true);
     try {
       const { error } = await supabase.auth.signOut();
@@ -251,9 +280,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setIsLoading(false);
       throw error;
     }
-  };
+  }, []);
 
-  const handleConfirmSignUp = async (email: string, code: string) => {
+  const handleConfirmSignUp = useCallback(async (email: string, code: string) => {
     setIsLoading(true);
     try {
       const { data, error } = await supabase.auth.verifyOtp({
@@ -271,9 +300,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setIsLoading(false);
       throw error;
     }
-  };
+  }, []);
 
-  const handleResendConfirmationCode = async (email: string) => {
+  const handleResendConfirmationCode = useCallback(async (email: string) => {
     setIsLoading(true);
     try {
       const { error } = await supabase.auth.resend({
@@ -287,9 +316,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
-  const handleResetPassword = async (email: string) => {
+  const handleResetPassword = useCallback(async (email: string) => {
     setIsLoading(true);
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
@@ -302,9 +331,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
-  const handleConfirmResetPassword = async (email: string, code: string, newPassword: string) => {
+  const handleConfirmResetPassword = useCallback(async (email: string, code: string, newPassword: string) => {
     setIsLoading(true);
     try {
       const { error } = await supabase.auth.verifyOtp({
@@ -329,21 +358,51 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setIsLoading(false);
       throw error;
     }
-  };
+  }, []);
 
-  const value = {
-    user,
-    isLoading,
-    isAuthenticated,
-    isInitialized,
-    signIn: handleSignIn,
-    signUp: handleSignUp,
-    signOut: handleSignOut,
-    confirmSignUp: handleConfirmSignUp,
-    resendConfirmationCode: handleResendConfirmationCode,
-    resetPassword: handleResetPassword,
-    confirmResetPassword: handleConfirmResetPassword,
-  };
+  // Memoize state and actions separately to prevent unnecessary re-renders
+  const authState = useMemo<AuthState>(
+    () => ({
+      user,
+      isLoading,
+      isAuthenticated,
+      isInitialized,
+    }),
+    [user, isLoading, isAuthenticated, isInitialized]
+  );
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  const authActions = useMemo<AuthActions>(
+    () => ({
+      signIn: handleSignIn,
+      signUp: handleSignUp,
+      signOut: handleSignOut,
+      confirmSignUp: handleConfirmSignUp,
+      resendConfirmationCode: handleResendConfirmationCode,
+      resetPassword: handleResetPassword,
+      confirmResetPassword: handleConfirmResetPassword,
+    }),
+    [
+      handleSignIn,
+      handleSignUp,
+      handleSignOut,
+      handleConfirmSignUp,
+      handleResendConfirmationCode,
+      handleResetPassword,
+      handleConfirmResetPassword,
+    ]
+  );
+
+  // Combined value for backward compatibility
+  const value = useMemo<AuthContextType>(
+    () => ({ ...authState, ...authActions }),
+    [authState, authActions]
+  );
+
+  return (
+    <AuthStateContext.Provider value={authState}>
+      <AuthActionsContext.Provider value={authActions}>
+        <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
+      </AuthActionsContext.Provider>
+    </AuthStateContext.Provider>
+  );
 };

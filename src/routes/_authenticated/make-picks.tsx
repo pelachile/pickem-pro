@@ -330,7 +330,7 @@ function MakePicksContent() {
                     <h3 className="text-lg font-semibold text-white mb-4">Your Picks Summary</h3>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                         {Object.entries(userPicks).map(([gameId, teamId]) => {
-                            let game: any = null;
+                            let game: ReturnType<typeof normalizeGameData> | null = null;
                             for (const { games: dateGames } of gamesGroupedByDate) {
                                 game = dateGames.find(g => g.id.toString() === gameId);
                                 if (game) break;

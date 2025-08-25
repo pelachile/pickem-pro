@@ -2,6 +2,7 @@ import { createRootRoute, Link, Outlet } from '@tanstack/react-router';
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
 import { Trophy } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
+import { RouteErrorBoundary } from '../components/RouteErrorBoundary';
 
 function RootComponent() {
   const { isAuthenticated, isLoading, isInitialized } = useAuth();
@@ -44,7 +45,9 @@ function RootComponent() {
 
       {/* Main Content */}
       <main className="relative min-h-full">
-        <Outlet />
+        <RouteErrorBoundary routeName="Application">
+          <Outlet />
+        </RouteErrorBoundary>
       </main>
 
       {/* Dev Tools */}

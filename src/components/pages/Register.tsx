@@ -140,11 +140,15 @@ const Register: React.FC = () => {
         // Handle confirmation in a separate function
         // This will be called when user enters verification code
       }
-    } catch (error: any) {
-      if (error.name === 'UsernameExistsException') {
-        setErrors({ general: 'An account with this email already exists.' });
+    } catch (error) {
+      if (error instanceof Error) {
+        if (error.name === 'UsernameExistsException') {
+          setErrors({ general: 'An account with this email already exists.' });
+        } else {
+          setErrors({ general: error.message || 'Registration failed. Please try again.' });
+        }
       } else {
-        setErrors({ general: error.message || 'Registration failed. Please try again.' });
+        setErrors({ general: 'Registration failed. Please try again.' });
       }
     } finally {
       setFormLoading(false);
@@ -159,8 +163,12 @@ const Register: React.FC = () => {
       await confirmSignUp(formData.email, code);
       // Confirmation successful, redirect to login
       navigate({ to: '/login' });
-    } catch (error: any) {
-      setErrors({ general: error.message || 'Invalid verification code. Please try again.' });
+    } catch (error) {
+      if (error instanceof Error) {
+        setErrors({ general: error.message || 'Invalid verification code. Please try again.' });
+      } else {
+        setErrors({ general: 'Invalid verification code. Please try again.' });
+      }
     } finally {
       setFormLoading(false);
     }
@@ -276,8 +284,12 @@ const Register: React.FC = () => {
                         await resendConfirmationCode(formData.email);
                         setSuccessMessage('Verification code sent!');
                         setTimeout(() => setSuccessMessage(null), 5000);
-                      } catch (error: any) {
-                        setErrors({ general: error.message || 'Failed to resend code. Please try again.' });
+                      } catch (error) {
+                        if (error instanceof Error) {
+                          setErrors({ general: error.message || 'Failed to resend code. Please try again.' });
+                        } else {
+                          setErrors({ general: 'Failed to resend code. Please try again.' });
+                        }
                       } finally {
                         setResendLoading(false);
                       }

@@ -32,13 +32,15 @@ import type {
 } from '../types/picks';
 
 // Debug logging helper
-const logDebug = (operation: string, data?: any) => {
+const logDebug = (operation: string, data?: unknown) => {
   // Debug logging removed for production
 };
 
 // Error handling helper
-const handleDatabaseError = (operation: string, error: any): never => {
-  const errorMessage = error?.message || 'Unknown database error';
+const handleDatabaseError = (operation: string, error: unknown): never => {
+  const errorMessage = error instanceof Error ? error.message : 
+    (typeof error === 'object' && error !== null && 'message' in error) ? 
+    String((error as { message: unknown }).message) : 'Unknown database error';
   throw new Error(`${operation} failed: ${errorMessage}`);
 };
 

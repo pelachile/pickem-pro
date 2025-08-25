@@ -2,6 +2,7 @@ import { createFileRoute, Outlet, useNavigate } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import AuthenticatedLayout from '../components/layout/AuthenticatedLayout';
+import { RouteErrorBoundary } from '../components/RouteErrorBoundary';
 
 function AuthenticatedLayoutComponent() {
   const { user, isLoading, isInitialized } = useAuth();
@@ -36,9 +37,11 @@ function AuthenticatedLayoutComponent() {
   }
 
   return (
-    <AuthenticatedLayout>
-      <Outlet />
-    </AuthenticatedLayout>
+    <RouteErrorBoundary routeName="Authenticated Layout">
+      <AuthenticatedLayout>
+        <Outlet />
+      </AuthenticatedLayout>
+    </RouteErrorBoundary>
   );
 }
 

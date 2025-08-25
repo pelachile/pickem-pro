@@ -16,10 +16,10 @@ import {
   Clock,
   Loader2
 } from 'lucide-react';
-import { Card } from '../../react-components/components/Card';
-import { Button } from '../../react-components/components/Button';
-import { UserAvatar } from '../../react-components/components/UserAvatar';
-import { StatusBadge } from '../../react-components/components/StatusBadge';
+import { Card } from '../../components/ui/Card';
+import { Button } from '../../components/ui/Button';
+import { UserAvatar } from '../../components/ui/UserAvatar';
+import { StatusBadge } from '../../components/ui/StatusBadge';
 import { useUserProfile, useProfileStats } from '../../hooks/useProfile';
 import { useAuth } from '../../hooks/useAuth';
 

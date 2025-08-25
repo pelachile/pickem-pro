@@ -493,22 +493,43 @@ export interface UpdateLeagueRequest {
 /**
  * Type guard for checking if an object is a League
  */
-export function isLeague(obj: any): obj is League {
-  return obj && typeof obj.id === 'string' && typeof obj.name === 'string';
+export function isLeague(obj: unknown): obj is League {
+  return (
+    typeof obj === 'object' &&
+    obj !== null &&
+    'id' in obj &&
+    'name' in obj &&
+    typeof (obj as League).id === 'string' &&
+    typeof (obj as League).name === 'string'
+  );
 }
 
 /**
  * Type guard for checking if an object is a Game
  */
-export function isGame(obj: any): obj is Game {
-  return obj && typeof obj.id === 'number' && typeof obj.espn_id === 'string';
+export function isGame(obj: unknown): obj is Game {
+  return (
+    typeof obj === 'object' &&
+    obj !== null &&
+    'id' in obj &&
+    'espn_id' in obj &&
+    typeof (obj as Game).id === 'number' &&
+    typeof (obj as Game).espn_id === 'string'
+  );
 }
 
 /**
  * Type guard for checking if an object is a Team
  */
-export function isTeam(obj: any): obj is Team {
-  return obj && typeof obj.id === 'number' && typeof obj.name === 'string';
+export function isTeam(obj: unknown): obj is Team {
+  return (
+    typeof obj === 'object' &&
+    obj !== null &&
+    'id' in obj &&
+    'name' in obj &&
+    typeof (obj as Team).id === 'number' &&
+    typeof (obj as Team).name === 'string'
+  );
 }
 
 // =====================================

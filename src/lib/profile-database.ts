@@ -14,13 +14,15 @@ import type {
 } from '../types/profile';
 
 // Debug logging helper (disabled for production)
-const logDebug = (operation: string, data?: any) => {
+const logDebug = (operation: string, data?: unknown) => {
   // Disabled for production
 };
 
 // Error handling helper
-const handleDatabaseError = (operation: string, error: any): never => {
-  const errorMessage = error?.message || 'Unknown database error';
+const handleDatabaseError = (operation: string, error: unknown): never => {
+  const errorMessage = error instanceof Error ? error.message : 
+    (typeof error === 'object' && error !== null && 'message' in error) ? 
+    String((error as { message: unknown }).message) : 'Unknown database error';
   throw new Error(`${operation} failed: ${errorMessage}`);
 };
 
@@ -232,7 +234,15 @@ export const updateUserProfile = async (data: UpdateProfileRequest): Promise<Api
     }
 
     // Prepare update data (only include provided fields)
-    const updateData: any = {
+    interface UpdateData {
+      updated_at: string;
+      username?: string | null;
+      full_name?: string | null;
+      website?: string | null;
+      avatar_icon?: string;
+      avatar_color?: string;
+    }
+    const updateData: UpdateData = {
       updated_at: new Date().toISOString()
     };
 

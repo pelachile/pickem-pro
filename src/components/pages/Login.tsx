@@ -79,13 +79,17 @@ const Login: React.FC = () => {
       await signIn(formData.email, formData.password);
       // If signIn succeeds, navigate to dashboard
       navigate({ to: '/dashboard' });
-    } catch (error: any) {
-      if (error.name === 'UserNotConfirmedException') {
-        setErrors({ general: 'Please verify your email before signing in.' });
-      } else if (error.name === 'NotAuthorizedException') {
-        setErrors({ general: 'Invalid email or password. Please try again.' });
+    } catch (error) {
+      if (error instanceof Error) {
+        if (error.name === 'UserNotConfirmedException') {
+          setErrors({ general: 'Please verify your email before signing in.' });
+        } else if (error.name === 'NotAuthorizedException') {
+          setErrors({ general: 'Invalid email or password. Please try again.' });
+        } else {
+          setErrors({ general: error.message || 'An error occurred during sign in.' });
+        }
       } else {
-        setErrors({ general: error.message || 'An error occurred during sign in.' });
+        setErrors({ general: 'An error occurred during sign in.' });
       }
     } finally {
       setFormLoading(false);

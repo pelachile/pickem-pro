@@ -46,7 +46,7 @@ interface CreateLeagueRequest {
   password?: string;
 }
 
-interface ApiResponse<T = any> {
+interface ApiResponse<T = unknown> {
   success: boolean;
   data?: T;
   error?: string;
@@ -163,7 +163,8 @@ export async function getUserLeagues(userId?: string): Promise<ApiResponse<Leagu
         .select('id', { count: 'exact', head: true })
         .eq('league_id', league.id);
 
-      const membershipInfo = (league as any).league_members[0];
+      const leagueWithMembers = league as League & { league_members: Array<{ role: string; joined_at: string }> };
+      const membershipInfo = leagueWithMembers.league_members[0];
       
       leaguesWithMembership.push({
         ...league,
@@ -324,7 +325,8 @@ export async function getLeagueById(leagueId: string, userId?: string): Promise<
       .select('id', { count: 'exact', head: true })
       .eq('league_id', leagueId);
 
-    const membershipInfo = (leagueData as any).league_members[0];
+    const leagueWithMembers = leagueData as League & { league_members: Array<{ role: string; joined_at: string }> };
+    const membershipInfo = leagueWithMembers.league_members[0];
     
     if (!membershipInfo) {
       return {
@@ -764,7 +766,7 @@ export async function deleteLeague(leagueId: string, userId?: string): Promise<A
 /**
  * Get user leagues with feature flag fallback
  */
-export async function getUserLeaguesWithFallback(userId?: string): Promise<ApiResponse<any[]>> {
+export async function getUserLeaguesWithFallback(userId?: string): Promise<ApiResponse<LeagueWithMembership[]>> {
   if (isFeatureEnabled('use_direct_league_queries')) {
     return getUserLeagues(userId);
   } else {
@@ -778,7 +780,7 @@ export async function getUserLeaguesWithFallback(userId?: string): Promise<ApiRe
 /**
  * Get public leagues with feature flag fallback
  */
-export async function getPublicLeaguesWithFallback(params?: GetPublicLeaguesParams): Promise<PaginatedResponse<any>> {
+export async function getPublicLeaguesWithFallback(params?: GetPublicLeaguesParams): Promise<PaginatedResponse<PublicLeague>> {
   if (isFeatureEnabled('use_direct_league_queries')) {
     return getPublicLeagues(params);
   } else {
@@ -792,7 +794,7 @@ export async function getPublicLeaguesWithFallback(params?: GetPublicLeaguesPara
 /**
  * Join league with feature flag fallback
  */
-export async function joinLeagueWithFallback(request: JoinLeagueRequest, userId?: string): Promise<ApiResponse<any>> {
+export async function joinLeagueWithFallback(request: JoinLeagueRequest, userId?: string): Promise<ApiResponse<League>> {
   if (isFeatureEnabled('use_direct_league_queries')) {
     return joinLeague(request, userId);
   } else {
