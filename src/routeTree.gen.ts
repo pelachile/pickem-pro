@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as HomeSimpleRouteImport } from './routes/home-simple'
 import { Route as HomeRouteImport } from './routes/home'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
@@ -29,6 +30,11 @@ const RegisterRoute = RegisterRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HomeSimpleRoute = HomeSimpleRouteImport.update({
+  id: '/home-simple',
+  path: '/home-simple',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HomeRoute = HomeRouteImport.update({
@@ -80,6 +86,7 @@ const AuthenticatedCreateLeagueRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/home': typeof HomeRoute
+  '/home-simple': typeof HomeSimpleRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/create-league': typeof AuthenticatedCreateLeagueRoute
@@ -92,6 +99,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/home': typeof HomeRoute
+  '/home-simple': typeof HomeSimpleRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/create-league': typeof AuthenticatedCreateLeagueRoute
@@ -106,6 +114,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/home': typeof HomeRoute
+  '/home-simple': typeof HomeSimpleRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/_authenticated/create-league': typeof AuthenticatedCreateLeagueRoute
@@ -120,6 +129,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/home'
+    | '/home-simple'
     | '/login'
     | '/register'
     | '/create-league'
@@ -132,6 +142,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/home'
+    | '/home-simple'
     | '/login'
     | '/register'
     | '/create-league'
@@ -145,6 +156,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/home'
+    | '/home-simple'
     | '/login'
     | '/register'
     | '/_authenticated/create-league'
@@ -159,6 +171,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   HomeRoute: typeof HomeRoute
+  HomeSimpleRoute: typeof HomeSimpleRoute
   LoginRoute: typeof LoginRoute
   RegisterRoute: typeof RegisterRoute
 }
@@ -177,6 +190,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/home-simple': {
+      id: '/home-simple'
+      path: '/home-simple'
+      fullPath: '/home-simple'
+      preLoaderRoute: typeof HomeSimpleRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/home': {
@@ -271,6 +291,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   HomeRoute: HomeRoute,
+  HomeSimpleRoute: HomeSimpleRoute,
   LoginRoute: LoginRoute,
   RegisterRoute: RegisterRoute,
 }
