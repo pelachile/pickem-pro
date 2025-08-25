@@ -61,14 +61,11 @@ export async function fetchGamesFromCache(week: number, year: number): Promise<G
   
   for (const { bucket, fileName } of attempts) {
     try {
-      console.log(`🏈 Trying cache: bucket=${bucket}, file=${fileName}`)
-      
       const { data, error } = await supabase.storage
         .from(bucket)
         .download(fileName)
       
       if (error) {
-        console.log(`🏈 Cache error for ${bucket}/${fileName}:`, error)
         continue
       }
       
@@ -80,12 +77,7 @@ export async function fetchGamesFromCache(week: number, year: number): Promise<G
       const text = await data.text()
       const cacheData = JSON.parse(text)
       
-      console.log(`🏈 Successfully loaded cache from ${bucket}/${fileName}`, {
-        keys: Object.keys(cacheData),
-        hasSchedule: !!cacheData.schedule,
-        hasAllGames: !!cacheData.schedule?.all_games,
-        allGamesCount: cacheData.schedule?.all_games?.length
-      })
+      // Successfully loaded cache from storage
       
       // Handle different cache formats
       let games: Game[] = []
@@ -200,25 +192,10 @@ export async function fetchGamesSmartly(week?: number, year?: number): Promise<S
   const targetWeek = week ?? defaultWeek
   const targetYear = year ?? currentNFLWeek.seasonYear
   
-  console.log('🏈 fetchGamesSmartly debug:', {
-    requestedWeek: week,
-    requestedYear: year,
-    currentNFLWeek,
-    defaultWeek,
-    targetWeek,
-    targetYear,
-    isDeadPeriod: currentNFLWeek.isDeadPeriod,
-    displayWeek: currentNFLWeek.displayWeek
-  })
-  
-  
   const shouldUseCache = shouldUseCacheFile(targetWeek, targetYear)
-  
-  console.log('🏈 shouldUseCache:', shouldUseCache)
   
   try {
     if (shouldUseCache) {
-      console.log('🏈 Fetching from cache for week', targetWeek, 'year', targetYear)
       const games = await fetchGamesFromCache(targetWeek, targetYear)
       return {
         games,
@@ -228,7 +205,6 @@ export async function fetchGamesSmartly(week?: number, year?: number): Promise<S
         lastUpdated: new Date().toISOString(),
       }
     } else {
-      console.log('🏈 Fetching from database for week', targetWeek, 'year', targetYear)
       const games = await fetchGamesFromDatabase(targetWeek, targetYear)
       return {
         games,
@@ -238,15 +214,11 @@ export async function fetchGamesSmartly(week?: number, year?: number): Promise<S
       }
     }
   } catch (error) {
-    console.error('🏈 Error in primary fetch:', error)
-    
     // For current week in production, don't fallback to database - cache is expected
     // But in development (localhost), allow database fallback for current week
     const currentNFLWeek = getCurrentNFLWeek()
     const isCurrentWeek = targetWeek === currentNFLWeek.week && targetYear === currentNFLWeek.seasonYear
     const isLocalDevelopment = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-    
-    console.log('🏈 Error context:', { isCurrentWeek, shouldUseCache, isLocalDevelopment })
     
     if (isCurrentWeek && shouldUseCache && !isLocalDevelopment) {
       throw new Error(`Cache file not found for current week ${targetWeek}, ${targetYear}. Please generate cache first.`)
@@ -257,7 +229,6 @@ export async function fetchGamesSmartly(week?: number, year?: number): Promise<S
     try {
       if (shouldUseCache) {
         // Cache failed, try database
-        console.log('🏈 Cache failed, trying database fallback')
         const games = await fetchGamesFromDatabase(targetWeek, targetYear)
         return {
           games,
@@ -267,7 +238,6 @@ export async function fetchGamesSmartly(week?: number, year?: number): Promise<S
         }
       } else {
         // Database failed, try cache
-        console.log('🏈 Database failed, trying cache fallback')
         const games = await fetchGamesFromCache(targetWeek, targetYear)
         return {
           games,
@@ -278,7 +248,6 @@ export async function fetchGamesSmartly(week?: number, year?: number): Promise<S
         }
       }
     } catch (fallbackError) {
-      console.error('🏈 Fallback also failed:', fallbackError)
       throw fallbackError
     }
   }
