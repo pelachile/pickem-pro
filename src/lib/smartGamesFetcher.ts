@@ -195,17 +195,20 @@ export async function fetchGamesSmartly(week?: number, year?: number): Promise<S
   // Use current week/year if not specified
   const currentNFLWeek = getCurrentNFLWeek()
   
-  // Use current week/year if not specified
-  const targetWeek = week ?? currentNFLWeek.week
+  // Use current week/year if not specified, but respect dead period logic
+  const defaultWeek = currentNFLWeek.isDeadPeriod ? currentNFLWeek.displayWeek! : currentNFLWeek.week
+  const targetWeek = week ?? defaultWeek
   const targetYear = year ?? currentNFLWeek.seasonYear
   
   console.log('🏈 fetchGamesSmartly debug:', {
     requestedWeek: week,
     requestedYear: year,
     currentNFLWeek,
+    defaultWeek,
     targetWeek,
     targetYear,
-    isDeadPeriod: currentNFLWeek.isDeadPeriod
+    isDeadPeriod: currentNFLWeek.isDeadPeriod,
+    displayWeek: currentNFLWeek.displayWeek
   })
   
   
