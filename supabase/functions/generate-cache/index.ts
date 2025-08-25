@@ -279,7 +279,11 @@ function transformTeam(dbTeam: any): Team {
     conference: dbTeam.conference,
     division: dbTeam.division,
     is_active: dbTeam.is_active,
-    logo_url: dbTeam.logo_url || ''
+    logo_url: dbTeam.logo_url || '',
+    // Win-loss record fields - will be populated from ESPN API when available during regular season
+    record: dbTeam.record, // e.g., "10-7" - will be null during preseason
+    wins: dbTeam.wins,     // Individual win count
+    losses: dbTeam.losses  // Individual loss count
   }
 }
 
@@ -337,6 +341,10 @@ function createGameFromESPNData(espnEvent: any, homeTeam: any, awayTeam: any, cu
     (game.espn_id === espnEvent.id)
   )
   
+  // Extract record data from ESPN competitors
+  const homeOverallRecord = homeCompetitor?.records?.find((r: any) => r.name === 'overall')?.summary
+  const awayOverallRecord = awayCompetitor?.records?.find((r: any) => r.name === 'overall')?.summary
+
   return {
     id: `espn-${espnEvent.id}`,
     espn_id: espnEvent.id,
@@ -353,7 +361,9 @@ function createGameFromESPNData(espnEvent: any, homeTeam: any, awayTeam: any, cu
       abbreviation: homeTeam.abbreviation || homeCompetitor?.team?.abbreviation || 'UNK',
       color: cleanHexColor(homeTeam.primary_color || homeCompetitor?.team?.color),
       alternate_color: cleanHexColor(homeTeam.secondary_color || homeCompetitor?.team?.alternateColor),
-      logo_url: homeTeam.logo_url || homeCompetitor?.team?.logo || ''
+      logo_url: homeTeam.logo_url || homeCompetitor?.team?.logo || '',
+      // Use live ESPN record data when available, fallback to database
+      record: homeOverallRecord || homeTeam.record
     },
     away_team: {
       id: awayTeam.id || 0,
@@ -364,7 +374,9 @@ function createGameFromESPNData(espnEvent: any, homeTeam: any, awayTeam: any, cu
       abbreviation: awayTeam.abbreviation || awayCompetitor?.team?.abbreviation || 'UNK',
       color: cleanHexColor(awayTeam.primary_color || awayCompetitor?.team?.color),
       alternate_color: cleanHexColor(awayTeam.secondary_color || awayCompetitor?.team?.alternateColor),
-      logo_url: awayTeam.logo_url || awayCompetitor?.team?.logo || ''
+      logo_url: awayTeam.logo_url || awayCompetitor?.team?.logo || '',
+      // Use live ESPN record data when available, fallback to database
+      record: awayOverallRecord || awayTeam.record
     },
     home_score: homeCompetitor?.score ? parseInt(homeCompetitor.score) : undefined,
     away_score: awayCompetitor?.score ? parseInt(awayCompetitor.score) : undefined,

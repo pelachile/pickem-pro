@@ -43,13 +43,14 @@ function MakePicksContent() {
     
     const submitPicksMutation = useSubmitPicks();
 
+    // Team win-loss records (2024 season final records - will be replaced with live ESPN data during regular season)
     const teamRecords: Record<string, string> = {
-        'DAL': '8-3', 'PHI': '9-2', 'KC': '10-1', 'LAC': '6-5',
-        'TB': '7-4', 'ATL': '5-6', 'CIN': '8-3', 'CLE': '4-7',
-        'MIA': '7-4', 'IND': '6-5', 'LV': '5-6', 'NE': '3-8',
-        'ARI': '6-5', 'NO': '7-4', 'PIT': '8-3', 'NYJ': '4-7',
-        'TEN': '5-6', 'DEN': '6-5', 'SF': '9-2', 'SEA': '7-4',
-        'DET': '10-1', 'GB': '8-3', 'BAL': '9-2', 'BUF': '8-3'
+        'DAL': '2024: 8-3', 'PHI': '2024: 9-2', 'KC': '2024: 10-1', 'LAC': '2024: 6-5',
+        'TB': '2024: 7-4', 'ATL': '2024: 5-6', 'CIN': '2024: 8-3', 'CLE': '2024: 4-7',
+        'MIA': '2024: 7-4', 'IND': '2024: 6-5', 'LV': '2024: 5-6', 'NE': '2024: 3-8',
+        'ARI': '2024: 6-5', 'NO': '2024: 7-4', 'PIT': '2024: 8-3', 'NYJ': '2024: 4-7',
+        'TEN': '2024: 5-6', 'DEN': '2024: 6-5', 'SF': '2024: 9-2', 'SEA': '2024: 7-4',
+        'DET': '2024: 10-1', 'GB': '2024: 8-3', 'BAL': '2024: 9-2', 'BUF': '2024: 8-3'
     };
 
     useEffect(() => {
