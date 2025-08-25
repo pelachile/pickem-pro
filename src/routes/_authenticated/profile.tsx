@@ -62,7 +62,7 @@ function ProfileManagement() {
     isLoading: profileLoading, 
     error: profileError,
     refetch: refetchProfile 
-  } = useUserProfile();
+  } = useUserProfile(user?.id);
 
   const profile = profileResponse?.data;
   const hasProfile = profileResponse?.success && profile;

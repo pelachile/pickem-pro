@@ -368,16 +368,17 @@ export async function validateLeagueMembership(userId: string, leagueId: string)
   error?: string;
 }> {
   try {
-    const { data: membership, error } = await supabase
+    const { data: memberships, error } = await supabase
       .from('league_members')
       .select('id')
       .eq('user_id', userId)
-      .eq('league_id', leagueId)
-      .single();
+      .eq('league_id', leagueId);
 
-    if (error && error.code !== 'PGRST116') { // PGRST116 = no rows found
+    if (error) {
       return { isValid: false, error: 'Failed to check league membership' };
     }
+
+    const membership = memberships && memberships.length > 0 ? memberships[0] : null;
 
     return { 
       isValid: !!membership,

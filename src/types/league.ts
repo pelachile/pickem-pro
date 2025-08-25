@@ -47,6 +47,7 @@ export interface PublicLeague {
   status: 'draft' | 'active' | 'completed' | 'cancelled';
   is_full: boolean;
   prize_pool: number;
+  invite_code: string;
 }
 
 export interface JoinLeagueRequest {

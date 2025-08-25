@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useRouter, useLocation } from '@tanstack/react-router';
 import { Dialog, DialogBackdrop, DialogPanel, TransitionChild } from '@headlessui/react';
-import { useQuery } from '@tanstack/react-query';
 import {
     Menu,
     Home,
@@ -18,7 +17,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { useUserProfile } from '../../hooks/useProfile';
-import { leagueApi } from '../../lib/api';
+import { useUserLeagues } from '../../hooks/useLeague';
 import { UserAvatar } from '../../react-components/components/UserAvatar';
 
 interface AuthenticatedLayoutProps {
@@ -50,20 +49,15 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
     const location = useLocation();
     
     // Fetch user profile for enhanced display
-    const { data: profileResponse } = useUserProfile();
+    const { data: profileResponse } = useUserProfile(user?.id);
     const profile = profileResponse?.data;
 
-    // Fetch user's leagues
+    // Fetch user's leagues using the proper hook with user-specific caching
     const { 
         data: leaguesData, 
         isLoading: leaguesLoading, 
         error: leaguesError 
-    } = useQuery({
-        queryKey: ['leagues', 'user'],
-        queryFn: leagueApi.getUserLeagues,
-        staleTime: 1000 * 60 * 5, // 5 minutes
-        retry: 2,
-    });
+    } = useUserLeagues(user?.id);
 
     const userLeagues = leaguesData?.data || [];
     const hasLeaguesError = leaguesError || (leaguesData && !leaguesData.success);

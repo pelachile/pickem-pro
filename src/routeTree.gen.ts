@@ -15,6 +15,7 @@ import { Route as HomeSimpleRouteImport } from './routes/home-simple'
 import { Route as HomeRouteImport } from './routes/home'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedTestVenuesRouteImport } from './routes/_authenticated/test-venues'
 import { Route as AuthenticatedStatsRouteImport } from './routes/_authenticated/stats'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
@@ -56,6 +57,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedTestVenuesRoute = AuthenticatedTestVenuesRouteImport.update({
+  id: '/test-venues',
+  path: '/test-venues',
+  getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedStatsRoute = AuthenticatedStatsRouteImport.update({
   id: '/stats',
@@ -138,6 +144,7 @@ export interface FileRoutesByFullPath {
   '/profile': typeof AuthenticatedProfileRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/stats': typeof AuthenticatedStatsRoute
+  '/test-venues': typeof AuthenticatedTestVenuesRoute
   '/league-manage/$leagueId': typeof AuthenticatedLeagueManageLeagueIdRoute
   '/league/$leagueId': typeof AuthenticatedLeagueLeagueIdRoute
 }
@@ -157,6 +164,7 @@ export interface FileRoutesByTo {
   '/profile': typeof AuthenticatedProfileRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/stats': typeof AuthenticatedStatsRoute
+  '/test-venues': typeof AuthenticatedTestVenuesRoute
   '/league-manage/$leagueId': typeof AuthenticatedLeagueManageLeagueIdRoute
   '/league/$leagueId': typeof AuthenticatedLeagueLeagueIdRoute
 }
@@ -178,6 +186,7 @@ export interface FileRoutesById {
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/stats': typeof AuthenticatedStatsRoute
+  '/_authenticated/test-venues': typeof AuthenticatedTestVenuesRoute
   '/_authenticated/league-manage/$leagueId': typeof AuthenticatedLeagueManageLeagueIdRoute
   '/_authenticated/league/$leagueId': typeof AuthenticatedLeagueLeagueIdRoute
 }
@@ -199,6 +208,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/settings'
     | '/stats'
+    | '/test-venues'
     | '/league-manage/$leagueId'
     | '/league/$leagueId'
   fileRoutesByTo: FileRoutesByTo
@@ -218,6 +228,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/settings'
     | '/stats'
+    | '/test-venues'
     | '/league-manage/$leagueId'
     | '/league/$leagueId'
   id:
@@ -238,6 +249,7 @@ export interface FileRouteTypes {
     | '/_authenticated/profile'
     | '/_authenticated/settings'
     | '/_authenticated/stats'
+    | '/_authenticated/test-venues'
     | '/_authenticated/league-manage/$leagueId'
     | '/_authenticated/league/$leagueId'
   fileRoutesById: FileRoutesById
@@ -294,6 +306,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/test-venues': {
+      id: '/_authenticated/test-venues'
+      path: '/test-venues'
+      fullPath: '/test-venues'
+      preLoaderRoute: typeof AuthenticatedTestVenuesRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/stats': {
       id: '/_authenticated/stats'
@@ -393,6 +412,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedStatsRoute: typeof AuthenticatedStatsRoute
+  AuthenticatedTestVenuesRoute: typeof AuthenticatedTestVenuesRoute
   AuthenticatedLeagueManageLeagueIdRoute: typeof AuthenticatedLeagueManageLeagueIdRoute
   AuthenticatedLeagueLeagueIdRoute: typeof AuthenticatedLeagueLeagueIdRoute
 }
@@ -408,6 +428,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedStatsRoute: AuthenticatedStatsRoute,
+  AuthenticatedTestVenuesRoute: AuthenticatedTestVenuesRoute,
   AuthenticatedLeagueManageLeagueIdRoute:
     AuthenticatedLeagueManageLeagueIdRoute,
   AuthenticatedLeagueLeagueIdRoute: AuthenticatedLeagueLeagueIdRoute,

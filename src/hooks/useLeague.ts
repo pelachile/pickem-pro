@@ -29,7 +29,7 @@ interface MemberUpdateEvent {
 export const leagueQueryKeys = {
   all: ['leagues'] as const,
   public: (params: GetPublicLeaguesParams) => [...leagueQueryKeys.all, 'public', params] as const,
-  user: () => [...leagueQueryKeys.all, 'user'] as const,
+  user: (userId?: string) => [...leagueQueryKeys.all, 'user', userId || 'current'] as const,
   detail: (id: string) => [...leagueQueryKeys.all, 'detail', id] as const,
 };
 
@@ -56,7 +56,7 @@ export function useJoinLeague() {
       queryClient.invalidateQueries({ queryKey: leagueQueryKeys.all });
       
       // Invalidate user's leagues as well since they joined a new one
-      queryClient.invalidateQueries({ queryKey: leagueQueryKeys.user() });
+      queryClient.invalidateQueries({ queryKey: [...leagueQueryKeys.all, 'user'] });
     },
     onError: (error) => {
       // Failed to join league
@@ -78,9 +78,9 @@ export function useSearchPublicLeagues(searchQuery: string, enabled: boolean = t
 }
 
 // Hook to fetch user's leagues
-export function useUserLeagues() {
+export function useUserLeagues(userId?: string) {
   return useQuery({
-    queryKey: leagueQueryKeys.user(),
+    queryKey: leagueQueryKeys.user(userId),
     queryFn: () => leagueApi.getUserLeagues(),
     staleTime: 1000 * 60 * 5, // 5 minutes
     gcTime: 1000 * 60 * 15, // 15 minutes
@@ -103,7 +103,7 @@ export function useUpdateLeague() {
       queryClient.invalidateQueries({ queryKey: leagueQueryKeys.detail(variables.leagueId) });
       
       // Update user leagues cache
-      queryClient.invalidateQueries({ queryKey: leagueQueryKeys.user() });
+      queryClient.invalidateQueries({ queryKey: [...leagueQueryKeys.all, 'user'] });
     },
     onError: (error) => {
       // Failed to update league
@@ -125,7 +125,7 @@ export function useDeleteLeague() {
       queryClient.removeQueries({ queryKey: leagueQueryKeys.detail(leagueId) });
       
       // Update user leagues cache
-      queryClient.invalidateQueries({ queryKey: leagueQueryKeys.user() });
+      queryClient.invalidateQueries({ queryKey: [...leagueQueryKeys.all, 'user'] });
     },
     onError: (error) => {
       // Failed to delete league
@@ -145,7 +145,7 @@ export function useCreateLeague() {
     mutationFn: leagueApi.createLeague,
     onSuccess: () => {
       // Invalidate user leagues first - this will update the sidebar immediately
-      queryClient.invalidateQueries({ queryKey: leagueQueryKeys.user() });
+      queryClient.invalidateQueries({ queryKey: [...leagueQueryKeys.all, 'user'] });
       
       // Invalidate all league queries to refresh data
       queryClient.invalidateQueries({ queryKey: leagueQueryKeys.all });
@@ -181,7 +181,7 @@ export function useLeagueDetail(leagueId: string | null) {
     // Invalidate league detail cache when members change
     if (leagueId) {
       queryClient.invalidateQueries({ queryKey: leagueQueryKeys.detail(leagueId) });
-      queryClient.invalidateQueries({ queryKey: leagueQueryKeys.user() });
+      queryClient.invalidateQueries({ queryKey: [...leagueQueryKeys.all, 'user'] });
     }
   }, [queryClient, leagueId]);
 

@@ -25,7 +25,7 @@ import { useAuth } from '../../hooks/useAuth';
 
 function Settings() {
   const { user, signOut } = useAuth();
-  const { data: profileResponse, isLoading: profileLoading } = useUserProfile();
+  const { data: profileResponse, isLoading: profileLoading } = useUserProfile(user?.id);
   const { data: statsResponse, isLoading: statsLoading } = useProfileStats();
 
   const profile = profileResponse?.data;

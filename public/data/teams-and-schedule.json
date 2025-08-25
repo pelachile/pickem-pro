@@ -1,13 +1,13 @@
 {
   "meta": {
-    "export_date": "2025-08-25T00:08:06.275Z",
+    "export_date": "2025-08-25T18:01:05.296Z",
     "total_teams": 32,
     "total_games": 16,
     "current_season": 2025,
     "weeks_available": [
       3
     ],
-    "cache_version": "meqczb7n"
+    "cache_version": "merfb6ds"
   },
   "teams": {
     "all": [
@@ -1158,7 +1158,8 @@
           "home_score": 10,
           "away_score": 19,
           "status": "STATUS_FINAL",
-          "status_detail": "Final"
+          "status_detail": "Final",
+          "venue_name": "Bank of America Stadium"
         },
         {
           "id": "espn-401772974",
@@ -1192,7 +1193,8 @@
           "home_score": 42,
           "away_score": 10,
           "status": "STATUS_FINAL",
-          "status_detail": "Final"
+          "status_detail": "Final",
+          "venue_name": "MetLife Stadium"
         },
         {
           "id": "espn-401772997",
@@ -1226,7 +1228,8 @@
           "home_score": 17,
           "away_score": 19,
           "status": "STATUS_FINAL",
-          "status_detail": "Final"
+          "status_detail": "Final",
+          "venue_name": "MetLife Stadium"
         },
         {
           "id": "espn-401773008",
@@ -1260,7 +1263,8 @@
           "home_score": 31,
           "away_score": 13,
           "status": "STATUS_FINAL",
-          "status_detail": "Final"
+          "status_detail": "Final",
+          "venue_name": "AT&T Stadium"
         },
         {
           "id": "espn-401772975",
@@ -1294,7 +1298,8 @@
           "home_score": 23,
           "away_score": 13,
           "status": "STATUS_FINAL",
-          "status_detail": "Final"
+          "status_detail": "Final",
+          "venue_name": "Nissan Stadium"
         },
         {
           "id": "espn-401773004",
@@ -1328,7 +1333,8 @@
           "home_score": 27,
           "away_score": 29,
           "status": "STATUS_FINAL",
-          "status_detail": "Final"
+          "status_detail": "Final",
+          "venue_name": "Arrowhead Stadium"
         },
         {
           "id": "espn-401777124",
@@ -1362,7 +1368,8 @@
           "home_score": 3,
           "away_score": 30,
           "status": "STATUS_FINAL",
-          "status_detail": "Final"
+          "status_detail": "Final",
+          "venue_name": "FedExField"
         },
         {
           "id": "espn-401772998",
@@ -1396,7 +1403,8 @@
           "home_score": 14,
           "away_score": 41,
           "status": "STATUS_FINAL",
-          "status_detail": "Final"
+          "status_detail": "Final",
+          "venue_name": "Paul Brown Stadium"
         },
         {
           "id": "espn-401772999",
@@ -1430,7 +1438,8 @@
           "home_score": 19,
           "away_score": 17,
           "status": "STATUS_FINAL",
-          "status_detail": "Final"
+          "status_detail": "Final",
+          "venue_name": "FirstEnergy Stadium"
         },
         {
           "id": "espn-401776265",
@@ -1464,7 +1473,8 @@
           "home_score": 7,
           "away_score": 26,
           "status": "STATUS_FINAL",
-          "status_detail": "Final"
+          "status_detail": "Final",
+          "venue_name": "Ford Field"
         },
         {
           "id": "espn-401773015",
@@ -1498,7 +1508,8 @@
           "home_score": 19,
           "away_score": 28,
           "status": "STATUS_FINAL",
-          "status_detail": "Final"
+          "status_detail": "Final",
+          "venue_name": "Hard Rock Stadium"
         },
         {
           "id": "espn-401773011",
@@ -1532,7 +1543,8 @@
           "home_score": 20,
           "away_score": 7,
           "status": "STATUS_FINAL",
-          "status_detail": "Final"
+          "status_detail": "Final",
+          "venue_name": "Lambeau Field"
         },
         {
           "id": "espn-401776565",
@@ -1566,7 +1578,8 @@
           "home_score": 14,
           "away_score": 6,
           "status": "STATUS_FINAL",
-          "status_detail": "Final"
+          "status_detail": "Final",
+          "venue_name": "Lucas Oil Stadium"
         },
         {
           "id": "espn-401774030",
@@ -1600,7 +1613,8 @@
           "home_score": 19,
           "away_score": 23,
           "status": "STATUS_FINAL",
-          "status_detail": "Final"
+          "status_detail": "Final",
+          "venue_name": "Raymond James Stadium"
         },
         {
           "id": "espn-401776567",
@@ -1634,7 +1648,8 @@
           "home_score": 30,
           "away_score": 23,
           "status": "STATUS_FINAL",
-          "status_detail": "Final"
+          "status_detail": "Final",
+          "venue_name": "Levi's Stadium"
         },
         {
           "id": "espn-401774590",
@@ -1668,7 +1683,8 @@
           "home_score": 20,
           "away_score": 10,
           "status": "STATUS_FINAL",
-          "status_detail": "Final"
+          "status_detail": "Final",
+          "venue_name": "State Farm Stadium"
         }
       ]
     },
@@ -1705,7 +1721,8 @@
         "home_score": 10,
         "away_score": 19,
         "status": "STATUS_FINAL",
-        "status_detail": "Final"
+        "status_detail": "Final",
+        "venue_name": "Bank of America Stadium"
       },
       {
         "id": "espn-401772974",
@@ -1739,7 +1756,8 @@
         "home_score": 42,
         "away_score": 10,
         "status": "STATUS_FINAL",
-        "status_detail": "Final"
+        "status_detail": "Final",
+        "venue_name": "MetLife Stadium"
       },
       {
         "id": "espn-401772997",
@@ -1773,7 +1791,8 @@
         "home_score": 17,
         "away_score": 19,
         "status": "STATUS_FINAL",
-        "status_detail": "Final"
+        "status_detail": "Final",
+        "venue_name": "MetLife Stadium"
       },
       {
         "id": "espn-401773008",
@@ -1807,7 +1826,8 @@
         "home_score": 31,
         "away_score": 13,
         "status": "STATUS_FINAL",
-        "status_detail": "Final"
+        "status_detail": "Final",
+        "venue_name": "AT&T Stadium"
       },
       {
         "id": "espn-401772975",
@@ -1841,7 +1861,8 @@
         "home_score": 23,
         "away_score": 13,
         "status": "STATUS_FINAL",
-        "status_detail": "Final"
+        "status_detail": "Final",
+        "venue_name": "Nissan Stadium"
       },
       {
         "id": "espn-401773004",
@@ -1875,7 +1896,8 @@
         "home_score": 27,
         "away_score": 29,
         "status": "STATUS_FINAL",
-        "status_detail": "Final"
+        "status_detail": "Final",
+        "venue_name": "Arrowhead Stadium"
       },
       {
         "id": "espn-401777124",
@@ -1909,7 +1931,8 @@
         "home_score": 3,
         "away_score": 30,
         "status": "STATUS_FINAL",
-        "status_detail": "Final"
+        "status_detail": "Final",
+        "venue_name": "FedExField"
       },
       {
         "id": "espn-401772998",
@@ -1943,7 +1966,8 @@
         "home_score": 14,
         "away_score": 41,
         "status": "STATUS_FINAL",
-        "status_detail": "Final"
+        "status_detail": "Final",
+        "venue_name": "Paul Brown Stadium"
       },
       {
         "id": "espn-401772999",
@@ -1977,7 +2001,8 @@
         "home_score": 19,
         "away_score": 17,
         "status": "STATUS_FINAL",
-        "status_detail": "Final"
+        "status_detail": "Final",
+        "venue_name": "FirstEnergy Stadium"
       },
       {
         "id": "espn-401776265",
@@ -2011,7 +2036,8 @@
         "home_score": 7,
         "away_score": 26,
         "status": "STATUS_FINAL",
-        "status_detail": "Final"
+        "status_detail": "Final",
+        "venue_name": "Ford Field"
       },
       {
         "id": "espn-401773015",
@@ -2045,7 +2071,8 @@
         "home_score": 19,
         "away_score": 28,
         "status": "STATUS_FINAL",
-        "status_detail": "Final"
+        "status_detail": "Final",
+        "venue_name": "Hard Rock Stadium"
       },
       {
         "id": "espn-401773011",
@@ -2079,7 +2106,8 @@
         "home_score": 20,
         "away_score": 7,
         "status": "STATUS_FINAL",
-        "status_detail": "Final"
+        "status_detail": "Final",
+        "venue_name": "Lambeau Field"
       },
       {
         "id": "espn-401776565",
@@ -2113,7 +2141,8 @@
         "home_score": 14,
         "away_score": 6,
         "status": "STATUS_FINAL",
-        "status_detail": "Final"
+        "status_detail": "Final",
+        "venue_name": "Lucas Oil Stadium"
       },
       {
         "id": "espn-401774030",
@@ -2147,7 +2176,8 @@
         "home_score": 19,
         "away_score": 23,
         "status": "STATUS_FINAL",
-        "status_detail": "Final"
+        "status_detail": "Final",
+        "venue_name": "Raymond James Stadium"
       },
       {
         "id": "espn-401776567",
@@ -2181,7 +2211,8 @@
         "home_score": 30,
         "away_score": 23,
         "status": "STATUS_FINAL",
-        "status_detail": "Final"
+        "status_detail": "Final",
+        "venue_name": "Levi's Stadium"
       },
       {
         "id": "espn-401774590",
@@ -2215,7 +2246,8 @@
         "home_score": 20,
         "away_score": 10,
         "status": "STATUS_FINAL",
-        "status_detail": "Final"
+        "status_detail": "Final",
+        "venue_name": "State Farm Stadium"
       }
     ]
   }

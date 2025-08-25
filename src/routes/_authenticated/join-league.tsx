@@ -57,7 +57,7 @@ function JoinLeagueContent() {
 
         try {
             await joinLeagueMutation.mutateAsync({
-                inviteCode: league.id, // For public leagues, use the league ID as invite code
+                inviteCode: league.invite_code, // Use the actual invite code
             });
             
             setJoinSuccess(`Successfully joined "${league.name}"!`);

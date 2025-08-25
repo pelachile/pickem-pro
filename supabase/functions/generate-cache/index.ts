@@ -253,7 +253,7 @@ function transformTeam(dbTeam: any): Team {
 }
 
 // Transform ESPN game data to our cache format
-function transformESPNGame(espnEvent: any, teams: Map<string, any>, currentNFLWeek: NFLWeekInfo): Game {
+function transformESPNGame(espnEvent: any, teams: Map<string, any>, currentNFLWeek: NFLWeekInfo, dbGames?: any[]): Game {
   const competition = espnEvent.competitions?.[0]
   const homeCompetitor = competition?.competitors?.find((c: any) => c.homeAway === 'home')
   const awayCompetitor = competition?.competitors?.find((c: any) => c.homeAway === 'away')
@@ -288,17 +288,23 @@ function transformESPNGame(espnEvent: any, teams: Map<string, any>, currentNFLWe
       logo_url: awayCompetitor?.team?.logo || ''
     }
     
-    return createGameFromESPNData(espnEvent, fallbackHome, fallbackAway, currentNFLWeek)
+    return createGameFromESPNData(espnEvent, fallbackHome, fallbackAway, currentNFLWeek, dbGames)
   }
   
-  return createGameFromESPNData(espnEvent, homeTeam, awayTeam, currentNFLWeek)
+  return createGameFromESPNData(espnEvent, homeTeam, awayTeam, currentNFLWeek, dbGames)
 }
 
 // Helper function to create game object from ESPN data
-function createGameFromESPNData(espnEvent: any, homeTeam: any, awayTeam: any, currentNFLWeek: NFLWeekInfo): Game {
+function createGameFromESPNData(espnEvent: any, homeTeam: any, awayTeam: any, currentNFLWeek: NFLWeekInfo, dbGames?: any[]): Game {
   const competition = espnEvent.competitions?.[0]
   const homeCompetitor = competition?.competitors?.find((c: any) => c.homeAway === 'home')
   const awayCompetitor = competition?.competitors?.find((c: any) => c.homeAway === 'away')
+  
+  // Find matching database game by team IDs or ESPN ID for venue info
+  const dbGame = dbGames?.find(game => 
+    (game.home_team_id === homeTeam?.id && game.away_team_id === awayTeam?.id) ||
+    (game.espn_id === espnEvent.id)
+  )
   
   return {
     id: `espn-${espnEvent.id}`,
@@ -332,7 +338,8 @@ function createGameFromESPNData(espnEvent: any, homeTeam: any, awayTeam: any, cu
     home_score: homeCompetitor?.score ? parseInt(homeCompetitor.score) : undefined,
     away_score: awayCompetitor?.score ? parseInt(awayCompetitor.score) : undefined,
     status: espnEvent.status?.type?.name || 'scheduled',
-    status_detail: espnEvent.status?.type?.detail || ''
+    status_detail: espnEvent.status?.type?.detail || '',
+    venue_name: dbGame?.venue_name || null
   }
 }
 
@@ -443,9 +450,19 @@ async function generateCache(supabase: any) {
     const teams = dbTeams.map(transformTeam)
     const espnTeamMap = new Map(dbTeams.map((t: any) => [t.espn_id, t]))
     
-    
     // Get current NFL week info
     const currentNFLWeek = getCurrentNFLWeek()
+    
+    // Fetch database games for venue info
+    const { data: dbGames, error: gamesError } = await supabase
+      .from('games')
+      .select('id, espn_id, home_team_id, away_team_id, venue_name, week, season_year')
+      .eq('week', currentNFLWeek.week)
+      .eq('season_year', currentNFLWeek.seasonYear)
+    
+    if (gamesError) {
+      console.warn('Could not fetch database games for venue info:', gamesError)
+    }
     
     // Fetch current week games from ESPN API (LIVE DATA)
     const espnEvents = await fetchESPNGames(currentNFLWeek)
@@ -456,7 +473,7 @@ async function generateCache(supabase: any) {
     
     // Transform ESPN games to our cache format
     const games = espnEvents.map((event: any) => 
-      transformESPNGame(event, espnTeamMap, currentNFLWeek)
+      transformESPNGame(event, espnTeamMap, currentNFLWeek, dbGames || [])
     )
     
     

@@ -255,6 +255,7 @@ export async function getPublicLeagues(params: ExtendedGetPublicLeaguesParams = 
         status: (league.status || 'active') as 'draft' | 'active' | 'completed' | 'cancelled',
         is_full: currentMembers >= maxMembers,
         prize_pool: prizePool,
+        invite_code: league.invite_code,
       });
     }
 

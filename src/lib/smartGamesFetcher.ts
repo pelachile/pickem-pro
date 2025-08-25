@@ -98,7 +98,16 @@ export async function fetchGamesFromCache(week: number, year: number): Promise<G
         return gameWeek === week && gameYear === year
       })
       
-      return filteredGames
+      // Transform games to match expected interface (fix status format and date field)
+      const transformedGames = filteredGames.map(game => ({
+        ...game,
+        date: game.game_date || game.date,
+        status: game.status === 'STATUS_SCHEDULED' ? 'scheduled' : 
+                game.status === 'STATUS_IN_PROGRESS' ? 'in_progress' :
+                game.status === 'STATUS_FINAL' ? 'final' : 'scheduled',
+      }))
+      
+      return transformedGames
       
     } catch (error) {
       continue
@@ -143,6 +152,7 @@ export async function fetchGamesFromDatabase(week: number, year: number): Promis
       status: dbGame.status as 'scheduled' | 'upcoming' | 'in_progress' | 'final',
       home_score: dbGame.home_score,
       away_score: dbGame.away_score,
+      season_year: dbGame.season_year,
       venue_name: dbGame.venue_name,
     }))
   } catch (error) {
@@ -179,11 +189,13 @@ export async function fetchGamesSmartly(week?: number, year?: number): Promise<S
       }
     }
   } catch (error) {
-    // For current week, don't fallback to database - this is expected to use cache only
+    // For current week in production, don't fallback to database - cache is expected
+    // But in development (localhost), allow database fallback for current week
     const currentNFLWeek = getCurrentNFLWeek()
     const isCurrentWeek = targetWeek === currentNFLWeek.week && targetYear === currentNFLWeek.seasonYear
+    const isLocalDevelopment = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
     
-    if (isCurrentWeek && shouldUseCache) {
+    if (isCurrentWeek && shouldUseCache && !isLocalDevelopment) {
       throw new Error(`Cache file not found for current week ${targetWeek}, ${targetYear}. Please generate cache first.`)
     }
     

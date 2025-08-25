@@ -3,6 +3,7 @@ import { getCurrentNFLWeek } from '../lib/nflCalendar'
 import { fetchGamesSmartly, getCacheFileMetadata, getAvailableWeeks, type SmartGameData } from '../lib/smartGamesFetcher'
 import { queryKeys } from '../lib/queryClient'
 import { useTeams } from './useNflData'
+import { useDbTeams } from './useDbTeams'
 
 // Smart hook that fetches games intelligently based on context
 export function useGames(week?: number, year?: number) {
@@ -58,17 +59,48 @@ export function useEnhancedGames(week?: number, year?: number) {
   const enhancedGames = gamesQuery.data?.games.map(game => {
     // If game already has complete team data (from cache), use it
     if (game.home_team && game.away_team && game.home_team.display_name) {
-      return game
+      // Transform to component Game format for cache data
+      return {
+        id: game.id,
+        status: game.status as any, // Convert status format
+        homeTeam: game.home_team,
+        awayTeam: game.away_team,
+        homeScore: game.home_score,
+        awayScore: game.away_score,
+        gameTime: game.date,
+        venue: game.venue_name, // Map venue_name to venue
+        week: game.week,
+        season_year: game.season_year,
+        // Preserve original fields for backward compatibility
+        home_team: game.home_team,
+        away_team: game.away_team,
+        venue_name: game.venue_name,
+        game_date: game.date,
+        date: game.date,
+        espn_id: game.id?.toString(),
+      }
     }
     
     // Otherwise, enhance with team data from database
     const homeTeam = teams?.find(team => team.id === game.home_team_id)
     const awayTeam = teams?.find(team => team.id === game.away_team_id)
     
+    // Transform to component Game format for database data
     return {
-      ...game,
-      home_team: homeTeam,
-      away_team: awayTeam,
+      id: game.id,
+      status: game.status as any, // Convert status format if needed
+      homeTeam: homeTeam,
+      awayTeam: awayTeam,
+      homeScore: game.home_score,
+      awayScore: game.away_score,
+      gameTime: game.date,
+      venue: game.venue_name, // Map venue_name to venue
+      week: game.week,
+      season_year: game.season_year,
+      // Preserve other fields
+      venue_name: game.venue_name,
+      game_date: game.date,
+      espn_id: game.id?.toString(),
     }
   })
   
