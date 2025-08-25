@@ -1,5 +1,111 @@
 import { createClient } from 'npm:@supabase/supabase-js@2'
 
+// NFL Calendar utilities (same as generate-cache)
+interface NFLWeekInfo {
+  week: number;
+  seasonType: 'preseason' | 'regular' | 'postseason';
+  seasonYear: number;
+  isDeadPeriod?: boolean;
+  displayWeek?: number;
+  displaySeasonType?: 'preseason' | 'regular' | 'postseason';
+  deadPeriodReason?: string;
+}
+
+function getCurrentNFLWeek(): NFLWeekInfo {
+  const now = new Date();
+  const currentMonth = now.getMonth() + 1;
+  const currentDay = now.getDate();
+  const currentYear = now.getFullYear();
+
+  let seasonYear: number;
+  let seasonType: 'preseason' | 'regular' | 'postseason';
+  let week: number;
+
+  if (currentMonth >= 8) {
+    seasonYear = currentYear;
+  } else {
+    seasonYear = currentYear - 1;
+  }
+
+  // For development/testing: Enhanced logic for August 2025
+  if (currentYear === 2025 && currentMonth === 8) {
+    if (currentDay >= 25 && currentDay <= 31) {
+      // Dead period between preseason and regular season (Aug 25-31)
+      return {
+        week: 1, // Next regular season week
+        seasonType: 'regular',
+        seasonYear: 2025,
+        isDeadPeriod: true,
+        displayWeek: 3, // Show last completed preseason week
+        displaySeasonType: 'preseason',
+        deadPeriodReason: 'Between preseason and regular season'
+      };
+    } else if (currentDay >= 21) {
+      // Preseason week 3
+      return {
+        week: 3,
+        seasonType: 'preseason',
+        seasonYear: 2025
+      };
+    }
+  }
+
+  // Check for dead period between preseason and regular season (Aug 25 - Sep 3)
+  if ((currentMonth === 8 && currentDay >= 25) || (currentMonth === 9 && currentDay <= 3)) {
+    return {
+      week: 1, // Next regular season week
+      seasonType: 'regular',
+      seasonYear: seasonYear,
+      isDeadPeriod: true,
+      displayWeek: 3, // Show last completed preseason week
+      displaySeasonType: 'preseason',
+      deadPeriodReason: 'Between preseason and regular season'
+    };
+  }
+
+  // Determine season type and week based on month and day
+  if (currentMonth === 8) {
+    seasonType = 'preseason';
+    if (currentDay <= 15) {
+      week = 1;
+    } else if (currentDay <= 22) {
+      week = 2;
+    } else {
+      week = 3;
+    }
+  } else if (currentMonth >= 9 || (currentMonth === 1 && currentDay <= 7)) {
+    seasonType = 'regular';
+    // Simplified regular season week logic
+    week = 1;
+  } else {
+    seasonType = 'postseason';
+    week = 1;
+  }
+
+  return { week, seasonType, seasonYear };
+}
+
+function getESPNSeasonType(seasonType: string): string {
+  switch (seasonType) {
+    case 'preseason': return '1';
+    case 'regular': return '2';
+    case 'postseason': return '3';
+    default: return '2';
+  }
+}
+
+function getESPNWeekNumber(week: number, seasonType: string): number {
+  if (seasonType === 'preseason') {
+    switch (week) {
+      case 1: return 1;
+      case 2: return 2;
+      case 3: return 4; // ESPN mapping fix
+      default: return week;
+    }
+  }
+  return week;
+}
+
 // Helper functions to map ESPN data to our schema
 function mapConference(espnConference?: string): string {
   if (!espnConference) return 'AFC' // default fallback
@@ -88,6 +194,14 @@ async function fetchWithRetry(url: string, retries = 3): Promise<Response> {
 // Sync teams data from ESPN
 async function syncTeams(supabase: any) {
   try {
+    console.log('=== STARTING TEAM SYNC ====')
+    console.log('Supabase client initialized:', !!supabase)
+    
+    // Test database connection and permissions
+    console.log('Testing database connection...')
+    const { data: testData, error: testError } = await supabase.auth.getUser()
+    console.log('Auth test result:', { testData: !!testData, testError: testError?.message })
+    
     console.log('Fetching teams from ESPN API...')
     const response = await fetchWithRetry('https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams')
     const data = await response.json()
@@ -120,6 +234,8 @@ async function syncTeams(supabase: any) {
     
     for (const team of teams) {
       console.log(`Upserting team: ${team.name} (${team.espn_id})`)
+      console.log('Team data:', JSON.stringify(team, null, 2))
+      
       const { data, error } = await supabase
         .from('teams')
         .upsert(team, { 
@@ -129,10 +245,15 @@ async function syncTeams(supabase: any) {
         .select()
       
       if (error) {
-        console.error(`Error upserting team ${team.name}:`, error)
-        errors.push(`${team.name}: ${error.message}`)
+        console.error(`ERROR upserting team ${team.name}:`, {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code
+        })
+        errors.push(`${team.name}: ${error.message} (${error.code})`)
       } else {
-        console.log(`Successfully upserted team: ${team.name}`)
+        console.log(`SUCCESS: Upserted team ${team.name}, returned data:`, data)
         successfulInserts++
       }
     }
@@ -154,14 +275,30 @@ async function syncTeams(supabase: any) {
 }
 
 // Sync games data from ESPN
-async function syncGames(supabase: any, week?: number, seasonYear?: number) {
+async function syncGames(supabase: any, week?: number, seasonYear?: number, seasonType?: string) {
   try {
-    const currentYear = seasonYear || new Date().getFullYear()
-    const currentWeek = week || 1
+    // Use NFL calendar logic if no parameters provided
+    let currentNFLWeek: NFLWeekInfo;
+    if (week && seasonYear) {
+      currentNFLWeek = { 
+        week, 
+        seasonType: (seasonType as any) || 'regular', 
+        seasonYear 
+      };
+    } else {
+      currentNFLWeek = getCurrentNFLWeek();
+    }
     
-    console.log(`Fetching games for week ${currentWeek}, season ${currentYear}...`)
+    // During dead period, sync the display week/season type
+    const weekToSync = currentNFLWeek.isDeadPeriod ? currentNFLWeek.displayWeek! : currentNFLWeek.week;
+    const seasonTypeToSync = currentNFLWeek.isDeadPeriod ? currentNFLWeek.displaySeasonType! : currentNFLWeek.seasonType;
+    
+    const espnWeek = getESPNWeekNumber(weekToSync, seasonTypeToSync);
+    const seasonTypeParam = getESPNSeasonType(seasonTypeToSync);
+    
+    console.log(`Fetching games for ${currentNFLWeek.isDeadPeriod ? 'DEAD PERIOD - ' : ''}${seasonTypeToSync} week ${weekToSync} (ESPN week ${espnWeek}), season ${currentNFLWeek.seasonYear}...`);
     const response = await fetchWithRetry(
-      `https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates=${currentYear}&seasontype=2&week=${currentWeek}`
+      `https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?week=${espnWeek}&seasontype=${seasonTypeParam}&year=${currentNFLWeek.seasonYear}`
     )
     const data = await response.json()
     
@@ -193,9 +330,9 @@ async function syncGames(supabase: any, week?: number, seasonYear?: number) {
       
       return {
         espn_id: event.id,
-        week: currentWeek,
-        season_year: currentYear,
-        season_type: 'regular',
+        week: currentNFLWeek.displayWeek || currentNFLWeek.week,
+        season_year: currentNFLWeek.seasonYear,
+        season_type: currentNFLWeek.displaySeasonType || currentNFLWeek.seasonType,
         game_date: new Date(event.date).toISOString(),
         home_team_id: homeTeamId,
         away_team_id: awayTeamId,
@@ -221,8 +358,15 @@ async function syncGames(supabase: any, week?: number, seasonYear?: number) {
       }
     }
     
-    console.log(`Successfully synced ${games.length} games for week ${currentWeek}`)
-    return { games: games.length, week: currentWeek }
+    console.log(`Successfully synced ${games.length} games for ${currentNFLWeek.isDeadPeriod ? 'DEAD PERIOD - ' : ''}${seasonTypeToSync} week ${weekToSync}`)
+    return { 
+      games: games.length, 
+      week: currentNFLWeek.week,
+      seasonType: currentNFLWeek.seasonType,
+      isDeadPeriod: currentNFLWeek.isDeadPeriod,
+      displayWeek: currentNFLWeek.displayWeek,
+      displaySeasonType: currentNFLWeek.displaySeasonType
+    }
   } catch (error) {
     console.error('Error syncing games:', error)
     throw error
@@ -231,11 +375,22 @@ async function syncGames(supabase: any, week?: number, seasonYear?: number) {
 
 Deno.serve(async (req) => {
   try {
+    console.log('=== SYNC NFL DATA REQUEST ====')
+    console.log('Environment check:')
+    console.log('- SUPABASE_URL exists:', !!Deno.env.get('SUPABASE_URL'))
+    console.log('- SUPABASE_SERVICE_ROLE_KEY exists:', !!Deno.env.get('SUPABASE_SERVICE_ROLE_KEY'))
+    console.log('- SUPABASE_SERVICE_ROLE_KEY starts with:', Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')?.substring(0, 20))
+    
     // Initialize Supabase client
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+      {
+        auth: { persistSession: false }
+      }
     )
+    
+    console.log('Supabase client created successfully')
     
     // Handle CORS for browser requests
     if (req.method === 'OPTIONS') {

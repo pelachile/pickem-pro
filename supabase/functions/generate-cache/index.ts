@@ -5,6 +5,10 @@ interface NFLWeekInfo {
   week: number;
   seasonType: 'preseason' | 'regular' | 'postseason';
   seasonYear: number;
+  isDeadPeriod?: boolean;
+  displayWeek?: number;
+  displaySeasonType?: 'preseason' | 'regular' | 'postseason';
+  deadPeriodReason?: string;
 }
 
 function getCurrentNFLWeek(): NFLWeekInfo {
@@ -26,12 +30,39 @@ function getCurrentNFLWeek(): NFLWeekInfo {
     seasonYear = currentYear - 1;
   }
 
-  // For development/testing: if we're in August 2025, assume preseason week 3
-  if (currentYear === 2025 && currentMonth === 8 && currentDay >= 24) {
+  // For development/testing: Enhanced logic for August 2025
+  if (currentYear === 2025 && currentMonth === 8) {
+    if (currentDay >= 25 && currentDay <= 31) {
+      // Dead period between preseason and regular season (Aug 25-31)
+      return {
+        week: 1, // Next regular season week
+        seasonType: 'regular',
+        seasonYear: 2025,
+        isDeadPeriod: true,
+        displayWeek: 3, // Show last completed preseason week
+        displaySeasonType: 'preseason',
+        deadPeriodReason: 'Between preseason and regular season'
+      };
+    } else if (currentDay >= 21) {
+      // Preseason week 3
+      return {
+        week: 3,
+        seasonType: 'preseason',
+        seasonYear: 2025
+      };
+    }
+  }
+
+  // Check for dead period between preseason and regular season (Aug 25 - Sep 3)
+  if ((currentMonth === 8 && currentDay >= 25) || (currentMonth === 9 && currentDay <= 3)) {
     return {
-      week: 3,
-      seasonType: 'preseason',
-      seasonYear: 2025
+      week: 1, // Next regular season week
+      seasonType: 'regular',
+      seasonYear: seasonYear,
+      isDeadPeriod: true,
+      displayWeek: 3, // Show last completed preseason week
+      displaySeasonType: 'preseason',
+      deadPeriodReason: 'Between preseason and regular season'
     };
   }
 
@@ -345,10 +376,16 @@ function createGameFromESPNData(espnEvent: any, homeTeam: any, awayTeam: any, cu
 
 // Fetch games from ESPN API for current week
 async function fetchESPNGames(currentNFLWeek: NFLWeekInfo): Promise<any[]> {
-  const espnWeek = getESPNWeekNumber(currentNFLWeek.week, currentNFLWeek.seasonType)
-  const seasonType = getESPNSeasonType(currentNFLWeek.seasonType)
+  // During dead period, fetch the display week/season type
+  const weekToFetch = currentNFLWeek.isDeadPeriod ? currentNFLWeek.displayWeek! : currentNFLWeek.week
+  const seasonTypeToFetch = currentNFLWeek.isDeadPeriod ? currentNFLWeek.displaySeasonType! : currentNFLWeek.seasonType
+  
+  const espnWeek = getESPNWeekNumber(weekToFetch, seasonTypeToFetch)
+  const seasonType = getESPNSeasonType(seasonTypeToFetch)
   
   const espnUrl = `https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?week=${espnWeek}&seasontype=${seasonType}&year=${currentNFLWeek.seasonYear}`
+  
+  console.log(`Fetching ESPN games: ${currentNFLWeek.isDeadPeriod ? 'DEAD PERIOD - ' : ''}Week ${weekToFetch} ${seasonTypeToFetch} ${currentNFLWeek.seasonYear}`)
   
   
   // Call ESPN API with timeout
@@ -499,7 +536,13 @@ async function generateCache(supabase: any) {
         total_games: games.length,
         current_season: currentNFLWeek.seasonYear,
         weeks_available: availableWeeks,
-        cache_version: generateCacheVersion()
+        cache_version: generateCacheVersion(),
+        is_dead_period: currentNFLWeek.isDeadPeriod || false,
+        dead_period_reason: currentNFLWeek.deadPeriodReason,
+        current_week: currentNFLWeek.week,
+        current_season_type: currentNFLWeek.seasonType,
+        display_week: currentNFLWeek.displayWeek,
+        display_season_type: currentNFLWeek.displaySeasonType
       },
       teams: {
         all: teams,
