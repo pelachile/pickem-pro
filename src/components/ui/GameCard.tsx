@@ -107,10 +107,9 @@ const TeamLogo: React.FC<{
   
   return (
     <div className={cn('relative', sizeClasses[size], className)}>
-      {/* Team color background circle for better logo visibility */}
+      {/* Neutral background circle for better logo visibility */}
       <div 
-        className="absolute inset-0 rounded-full shadow-lg border border-white/20" 
-        style={{ backgroundColor: finalBackgroundColor }}
+        className="absolute inset-0 rounded-full shadow-lg border border-white/20 bg-white/90" 
       />
       
       {/* Loading state */}
@@ -186,17 +185,20 @@ const TeamRow: React.FC<{
       className={cn(
         'rounded-lg border transition-all duration-300 group relative',
         'bg-white/[0.03] backdrop-blur-lg border-white/10',
-        isUserPick && 'ring-2 ring-sky-400/50 bg-sky-400/10 border-sky-400/30',
-        isWinner && 'bg-sunrise-gold/15 border-sunrise-gold/40 shadow-sunrise-gold/20',
-        showPicks && 'cursor-pointer hover:bg-white/[0.05] hover:border-white/20',
-        !isUserPick && showPicks && 'hover:ring-1 hover:ring-white/20',
-        // Dynamic padding based on layout
-        layout === 'full' ? 'p-4' : layout === 'wide' ? 'p-3.5' : 'p-3'
+        isUserPick && 'ring-2 ring-sky-400/60 bg-sky-400/15 border-sky-400/40',
+        isWinner && 'bg-sunrise-gold/20 border-sunrise-gold/50 shadow-sunrise-gold/30',
+        showPicks && 'cursor-pointer hover:bg-white/[0.08] hover:border-white/30',
+        !isUserPick && showPicks && 'hover:ring-2 hover:ring-white/30',
+        // Dynamic padding based on layout with minimum touch targets
+        layout === 'full' ? 'p-4' : layout === 'wide' ? 'p-3.5' : 'p-3',
+        // Focus styles for accessibility
+        showPicks && 'focus:outline-none focus:ring-2 focus:ring-sunrise-400 focus:ring-offset-2 focus:ring-offset-transparent'
       )}
       style={teamColorStyles}
-      role={showPicks ? "button" : undefined}
-      tabIndex={showPicks ? 0 : -1}
-      aria-label={`${team.name} ${isHome ? 'home' : 'away'} team${isUserPick ? ' - selected' : ''}`}
+      role={showPicks ? "button" : "group"}
+      tabIndex={showPicks && !(layout === 'full' || layout === 'wide') ? 0 : -1}
+      aria-label={`${team.name} ${isHome ? 'home' : 'away'} team${isUserPick ? ' - currently selected' : ''}${showPicks ? ' - click to select' : ''}`}
+      aria-describedby={`team-${team.id}-details`}
       onClick={() => showPicks && onPickTeam && !(layout === 'full' || layout === 'wide') && onPickTeam(team.id)}
       onKeyDown={(e) => {
         if (showPicks && onPickTeam && !(layout === 'full' || layout === 'wide') && (e.key === 'Enter' || e.key === ' ')) {
@@ -213,13 +215,17 @@ const TeamRow: React.FC<{
         />
       )}
       
-      {/* Enhanced Selection indicator */}
+      {/* Enhanced Selection indicator with better accessibility */}
       {isUserPick && (
-        <div className={cn(
-          'absolute -top-1 -right-1 bg-sky-400 rounded-full flex items-center justify-center text-white font-bold shadow-lg border-2 border-white/20',
-          layout === 'full' ? 'w-8 h-8 text-sm -top-2 -right-2' : layout === 'wide' ? 'w-7 h-7 text-xs' : 'w-6 h-6 text-xs'
-        )}>
-          ✓
+        <div 
+          className={cn(
+            'absolute -top-1 -right-1 bg-sky-400 rounded-full flex items-center justify-center text-white font-bold shadow-lg border-2 border-white/20',
+            layout === 'full' ? 'w-8 h-8 text-sm -top-2 -right-2' : layout === 'wide' ? 'w-7 h-7 text-xs' : 'w-6 h-6 text-xs'
+          )}
+          aria-label="Selected team indicator"
+          role="img"
+        >
+          <span aria-hidden="true">✓</span>
         </div>
       )}
       
@@ -250,10 +256,12 @@ const TeamRow: React.FC<{
             className={cn(
               'inline-block font-semibold px-2 py-1 rounded border backdrop-blur-sm leading-none',
               compact ? 'text-[10px] px-1.5 py-0.5' : 'text-[11px] px-2.5 py-1',
+              // Improved contrast for WCAG compliance
               isHome 
-                ? 'bg-sunset-500/60 text-sunset-50 border-sunset-400/60 shadow-lg'
-                : 'bg-sky-400/60 text-sky-50 border-sky-300/60 shadow-lg'
+                ? 'bg-sunset-600/80 text-white border-sunset-500/60 shadow-lg'
+                : 'bg-sky-500/80 text-white border-sky-400/60 shadow-lg'
             )}
+            role="status"
             aria-label={`${isHome ? 'Home' : 'Away'} team designation`}
           >
             {isHome ? 'HOME' : 'AWAY'}
@@ -286,10 +294,12 @@ const TeamRow: React.FC<{
                 className={cn(
                   'inline-block font-semibold px-2 py-1 rounded border backdrop-blur-sm leading-none',
                   layout === 'full' ? 'text-xs px-3 py-1.5' : 'text-[11px] px-2.5 py-1',
+                  // Improved contrast for WCAG compliance
                   isHome 
-                    ? 'bg-sunset-500/60 text-sunset-50 border-sunset-400/60 shadow-lg'
-                    : 'bg-sky-400/60 text-sky-50 border-sky-300/60 shadow-lg'
+                    ? 'bg-sunset-600/80 text-white border-sunset-500/60 shadow-lg'
+                    : 'bg-sky-500/80 text-white border-sky-400/60 shadow-lg'
                 )}
+                role="status"
                 aria-label={`${isHome ? 'Home' : 'Away'} team designation`}
               >
                 {isHome ? 'HOME' : 'AWAY'}
@@ -338,7 +348,7 @@ const TeamRow: React.FC<{
                 {team.record || '6-5'}
               </p>
               
-              {/* Pick button with proper sizing */}
+              {/* Pick button with proper sizing and accessibility */}
               {showPicks && (
                 <div className={cn(
                   'pt-2',
@@ -347,18 +357,23 @@ const TeamRow: React.FC<{
                   <button
                     className={cn(
                       'inline-flex items-center justify-center font-semibold transition-all duration-200 rounded-full border shadow-lg',
-                      layout === 'full' ? 'text-sm lg:text-base px-4 lg:px-6 py-2 lg:py-3' : 'text-xs lg:text-sm px-3 lg:px-5 py-1.5 lg:py-2.5',
+                      // Ensure minimum touch target size
+                      layout === 'full' ? 'text-sm lg:text-base px-4 lg:px-6 py-2 lg:py-3 min-h-[44px]' : 'text-xs lg:text-sm px-3 lg:px-5 py-2 lg:py-2.5 min-h-[44px]',
+                      // Improved contrast and focus states
+                      'focus:outline-none focus:ring-2 focus:ring-sunrise-400 focus:ring-offset-2',
                       isUserPick 
-                        ? 'text-sky-200 bg-sky-400/30 border-sky-400/50 ring-2 ring-sky-400/30' 
-                        : 'text-white bg-white/10 border-white/30 hover:bg-white/20 hover:text-white hover:border-white/50 hover:shadow-xl'
+                        ? 'text-white bg-sky-500/40 border-sky-400/60 ring-2 ring-sky-400/40 backdrop-blur-lg' 
+                        : 'text-white bg-white/15 border-white/40 hover:bg-white/25 hover:text-white hover:border-white/60 hover:shadow-xl backdrop-blur-lg'
                     )}
                     onClick={() => onPickTeam && onPickTeam(team.id)}
                     disabled={!onPickTeam}
-                    aria-label={`${isUserPick ? 'Selected' : 'Select'} ${team.name}`}
+                    aria-label={`${isUserPick ? 'Currently selected' : 'Select'} ${team.name} for this game`}
+                    aria-pressed={isUserPick}
+                    type="button"
                   >
                     {isUserPick ? (
                       <>
-                        <span className="mr-1 lg:mr-2 text-sm lg:text-lg">✓</span>
+                        <span className="mr-1 lg:mr-2 text-sm lg:text-lg" aria-hidden="true">✓</span>
                         <span className="text-xs lg:text-sm">Your Pick</span>
                       </>
                     ) : (
@@ -400,16 +415,21 @@ const TeamRow: React.FC<{
         </div>
       )}
       
-      {/* Pick indicator for non-proportional layouts only */}
+      {/* Pick indicator for non-proportional layouts only - with better accessibility */}
       {showPicks && !(layout === 'full' || layout === 'wide') && (
-        <div className="mt-3 text-center">
-          <span className={cn(
-            'font-medium transition-all duration-200 px-2 py-1 rounded-full',
-            'text-xs px-2 py-1',
-            isUserPick 
-              ? 'text-sky-300 bg-sky-400/20 border border-sky-400/30' 
-              : 'text-white/60 group-hover:text-white/80 group-hover:bg-white/5'
-          )}>
+        <div className="mt-3 text-center" id={`team-${team.id}-details`}>
+          <span 
+            className={cn(
+              'font-medium transition-all duration-200 px-3 py-2 rounded-full backdrop-blur-sm',
+              'text-xs min-h-[32px] inline-flex items-center justify-center',
+              // Improved contrast
+              isUserPick 
+                ? 'text-white bg-sky-500/30 border border-sky-400/50' 
+                : 'text-white/80 group-hover:text-white group-hover:bg-white/10 border border-white/20'
+            )}
+            role="status"
+            aria-label={isUserPick ? 'This team is your current pick' : 'Click anywhere on this card to select this team'}
+          >
             {isUserPick ? 'Your Pick' : 'Click to Pick'}
           </span>
         </div>
@@ -429,7 +449,7 @@ const TeamRow: React.FC<{
  * <GameCard 
  *   game={gameData} 
  *   showPicks={true}
- *   onPickTeam={(teamId) => console.log('Picked team:', teamId)}
+ *   onPickTeam={(teamId) => handleTeamPick(teamId)}
  * />
  */
 export const GameCard: React.FC<GameCardProps> = ({
@@ -441,6 +461,7 @@ export const GameCard: React.FC<GameCardProps> = ({
   showStats = false,
   enableRefresh = false,
   className,
+  deadlineWarning,
   onPickTeam,
   onRefresh,
   ...props
@@ -472,6 +493,9 @@ export const GameCard: React.FC<GameCardProps> = ({
       glass={true}
       hover={true}
       padding="sm" // This will be overridden by the className padding
+      role="region"
+      aria-labelledby={`game-${game.id}-header`}
+      aria-describedby={`game-${game.id}-teams`}
       {...props}
     >
       {/* Subtle gradient overlay */}
@@ -479,7 +503,7 @@ export const GameCard: React.FC<GameCardProps> = ({
       
       
       {/* Status and Date Header */}
-      <header className="flex items-center justify-between mb-4 relative z-10">
+      <header className="flex items-center justify-between mb-4 relative z-10" id={`game-${game.id}-header`}>
         <div className="flex items-center gap-2">
           <StatusBadge
             status={game.status}
@@ -496,6 +520,15 @@ export const GameCard: React.FC<GameCardProps> = ({
               showIndicator={true}
               size={layout === 'full' ? 'default' : 'sm'}
             />
+          )}
+          
+          {deadlineWarning && (
+            <div className={cn(
+              'text-yellow-400 font-medium px-2 py-1 bg-yellow-400/10 rounded-md border border-yellow-400/20',
+              layout === 'full' ? 'text-sm px-3 py-1.5' : 'text-xs px-2 py-1'
+            )}>
+              ⚠️ {deadlineWarning}
+            </div>
           )}
         </div>
         
@@ -528,21 +561,18 @@ export const GameCard: React.FC<GameCardProps> = ({
         </div>
       </header>
       
-      {/* Enhanced Matchup Button for Default Layout */}
-      {/* Mobile: Always show default button. Desktop: Only for vertical layouts */}
+      {/* Enhanced Matchup Header for Default Layout */}
+      {/* Mobile: Always show matchup info. Desktop: Only for vertical layouts */}
       <div className="md:hidden">
         <div className="flex items-center justify-center mb-4 relative z-10">
-          <Button
-            variant="outline"
-            size="md"
+          <div
             className={cn(
-              'font-semibold text-white/80 border-white/20 bg-white/5 hover:bg-white/10 hover:border-white/30 transition-all duration-200',
-              'px-6 py-3 text-sm rounded-full backdrop-blur-sm shadow-lg'
+              'font-semibold text-white/90 border-white/20 bg-white/5 border transition-all duration-200',
+              'px-6 py-3 text-sm rounded-full backdrop-blur-sm shadow-lg cursor-default'
             )}
-            onClick={() => {}}
           >
             {`${game.awayTeam.abbreviation} @ ${game.homeTeam.abbreviation}`}
-          </Button>
+          </div>
         </div>
       </div>
       
@@ -550,31 +580,32 @@ export const GameCard: React.FC<GameCardProps> = ({
       <div className="hidden md:block">
       {!useHorizontalLayout && (
         <div className="flex items-center justify-center mb-4 relative z-10">
-          <Button
-            variant="outline"
-            size="md"
+          <div
             className={cn(
-              'font-semibold text-white/80 border-white/20 bg-white/5 hover:bg-white/10 hover:border-white/30 transition-all duration-200',
-              'px-6 py-3 text-sm rounded-full backdrop-blur-sm shadow-lg'
+              'font-semibold text-white/90 border-white/20 bg-white/5 border transition-all duration-200',
+              'px-6 py-3 text-sm rounded-full backdrop-blur-sm shadow-lg cursor-default'
             )}
-            onClick={() => {}}
           >
             {(layout === 'default' || compact) 
               ? `${game.awayTeam.abbreviation} @ ${game.homeTeam.abbreviation}`
               : `${game.awayTeam.display_name || game.awayTeam.name} @ ${game.homeTeam.display_name || game.homeTeam.name}`
             }
-          </Button>
+          </div>
         </div>
       )}
       </div>
       
       {/* Teams and Scores */}
-      <main className={cn(
-        'relative z-10',
-        // Use vertical layout on mobile, horizontal on larger screens when layout is wide/full
-        'md:space-y-0', // Reset spacing on md+ for horizontal layout
-        useHorizontalLayout ? 'space-y-2 md:space-y-3' : 'space-y-2'
-      )}>
+      <main 
+        className={cn(
+          'relative z-10',
+          // Use vertical layout on mobile, horizontal on larger screens when layout is wide/full
+          'md:space-y-0', // Reset spacing on md+ for horizontal layout
+          useHorizontalLayout ? 'space-y-2 md:space-y-3' : 'space-y-2'
+        )}
+        id={`game-${game.id}-teams`}
+        aria-label="Team matchup and scores"
+      >
         {/* Mobile: Always use vertical layout. Desktop: Use layout prop */}
         <div className="md:hidden">
           {/* Mobile vertical layout - always use default layout behavior */}
@@ -618,25 +649,22 @@ export const GameCard: React.FC<GameCardProps> = ({
             'space-y-6',
             layout === 'full' ? 'space-y-8' : 'space-y-6'
           )}>
-            {/* Enhanced Matchup Button for Horizontal Layout */}
+            {/* Enhanced Matchup Header for Horizontal Layout */}
             <div className="flex items-center justify-center">
-              <Button
-                variant="outline"
-                size={layout === 'full' ? 'lg' : 'md'}
+              <div
                 className={cn(
-                  'font-bold text-white border-white/20 bg-white/5 hover:bg-white/10 hover:border-white/30 transition-all duration-200',
-                  'backdrop-blur-sm shadow-lg rounded-full',
+                  'font-bold text-white border-white/20 bg-white/5 border transition-all duration-200',
+                  'backdrop-blur-sm shadow-lg rounded-full cursor-default',
                   layout === 'full' 
                     ? 'px-8 py-4 text-lg' 
                     : 'px-6 py-3 text-base'
                 )}
-                onClick={() => {}}
               >
                 {(layout === 'full' || layout === 'wide')
                   ? `${game.awayTeam.display_name || game.awayTeam.name} @ ${game.homeTeam.display_name || game.homeTeam.name}`
                   : `${game.awayTeam.abbreviation} @ ${game.homeTeam.abbreviation}`
                 }
-              </Button>
+              </div>
             </div>
             
             {/* Teams in horizontal layout */}

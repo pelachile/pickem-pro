@@ -11,15 +11,22 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as HomeSimpleRouteImport } from './routes/home-simple'
 import { Route as HomeRouteImport } from './routes/home'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedStatsRouteImport } from './routes/_authenticated/stats'
+import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
+import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as AuthenticatedMakePicksRouteImport } from './routes/_authenticated/make-picks'
 import { Route as AuthenticatedLeaguesRouteImport } from './routes/_authenticated/leagues'
 import { Route as AuthenticatedJoinLeagueRouteImport } from './routes/_authenticated/join-league'
+import { Route as AuthenticatedDevPicksTestRouteImport } from './routes/_authenticated/dev-picks-test'
+import { Route as AuthenticatedDataDemoRouteImport } from './routes/_authenticated/data-demo'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedCreateLeagueRouteImport } from './routes/_authenticated/create-league'
+import { Route as AuthenticatedLeagueLeagueIdRouteImport } from './routes/_authenticated/league.$leagueId'
+import { Route as AuthenticatedLeagueManageLeagueIdRouteImport } from './routes/_authenticated/league-manage.$leagueId'
 
 const RegisterRoute = RegisterRouteImport.update({
   id: '/register',
@@ -29,6 +36,11 @@ const RegisterRoute = RegisterRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HomeSimpleRoute = HomeSimpleRouteImport.update({
+  id: '/home-simple',
+  path: '/home-simple',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HomeRoute = HomeRouteImport.update({
@@ -50,6 +62,16 @@ const AuthenticatedStatsRoute = AuthenticatedStatsRouteImport.update({
   path: '/stats',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedMakePicksRoute = AuthenticatedMakePicksRouteImport.update({
   id: '/make-picks',
   path: '/make-picks',
@@ -65,6 +87,17 @@ const AuthenticatedJoinLeagueRoute = AuthenticatedJoinLeagueRouteImport.update({
   path: '/join-league',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedDevPicksTestRoute =
+  AuthenticatedDevPicksTestRouteImport.update({
+    id: '/dev-picks-test',
+    path: '/dev-picks-test',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedDataDemoRoute = AuthenticatedDataDemoRouteImport.update({
+  id: '/data-demo',
+  path: '/data-demo',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -76,89 +109,144 @@ const AuthenticatedCreateLeagueRoute =
     path: '/create-league',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedLeagueLeagueIdRoute =
+  AuthenticatedLeagueLeagueIdRouteImport.update({
+    id: '/league/$leagueId',
+    path: '/league/$leagueId',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedLeagueManageLeagueIdRoute =
+  AuthenticatedLeagueManageLeagueIdRouteImport.update({
+    id: '/league-manage/$leagueId',
+    path: '/league-manage/$leagueId',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/home': typeof HomeRoute
+  '/home-simple': typeof HomeSimpleRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/create-league': typeof AuthenticatedCreateLeagueRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/data-demo': typeof AuthenticatedDataDemoRoute
+  '/dev-picks-test': typeof AuthenticatedDevPicksTestRoute
   '/join-league': typeof AuthenticatedJoinLeagueRoute
   '/leagues': typeof AuthenticatedLeaguesRoute
   '/make-picks': typeof AuthenticatedMakePicksRoute
+  '/profile': typeof AuthenticatedProfileRoute
+  '/settings': typeof AuthenticatedSettingsRoute
   '/stats': typeof AuthenticatedStatsRoute
+  '/league-manage/$leagueId': typeof AuthenticatedLeagueManageLeagueIdRoute
+  '/league/$leagueId': typeof AuthenticatedLeagueLeagueIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/home': typeof HomeRoute
+  '/home-simple': typeof HomeSimpleRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/create-league': typeof AuthenticatedCreateLeagueRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/data-demo': typeof AuthenticatedDataDemoRoute
+  '/dev-picks-test': typeof AuthenticatedDevPicksTestRoute
   '/join-league': typeof AuthenticatedJoinLeagueRoute
   '/leagues': typeof AuthenticatedLeaguesRoute
   '/make-picks': typeof AuthenticatedMakePicksRoute
+  '/profile': typeof AuthenticatedProfileRoute
+  '/settings': typeof AuthenticatedSettingsRoute
   '/stats': typeof AuthenticatedStatsRoute
+  '/league-manage/$leagueId': typeof AuthenticatedLeagueManageLeagueIdRoute
+  '/league/$leagueId': typeof AuthenticatedLeagueLeagueIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/home': typeof HomeRoute
+  '/home-simple': typeof HomeSimpleRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/_authenticated/create-league': typeof AuthenticatedCreateLeagueRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/data-demo': typeof AuthenticatedDataDemoRoute
+  '/_authenticated/dev-picks-test': typeof AuthenticatedDevPicksTestRoute
   '/_authenticated/join-league': typeof AuthenticatedJoinLeagueRoute
   '/_authenticated/leagues': typeof AuthenticatedLeaguesRoute
   '/_authenticated/make-picks': typeof AuthenticatedMakePicksRoute
+  '/_authenticated/profile': typeof AuthenticatedProfileRoute
+  '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/stats': typeof AuthenticatedStatsRoute
+  '/_authenticated/league-manage/$leagueId': typeof AuthenticatedLeagueManageLeagueIdRoute
+  '/_authenticated/league/$leagueId': typeof AuthenticatedLeagueLeagueIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/home'
+    | '/home-simple'
     | '/login'
     | '/register'
     | '/create-league'
     | '/dashboard'
+    | '/data-demo'
+    | '/dev-picks-test'
     | '/join-league'
     | '/leagues'
     | '/make-picks'
+    | '/profile'
+    | '/settings'
     | '/stats'
+    | '/league-manage/$leagueId'
+    | '/league/$leagueId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/home'
+    | '/home-simple'
     | '/login'
     | '/register'
     | '/create-league'
     | '/dashboard'
+    | '/data-demo'
+    | '/dev-picks-test'
     | '/join-league'
     | '/leagues'
     | '/make-picks'
+    | '/profile'
+    | '/settings'
     | '/stats'
+    | '/league-manage/$leagueId'
+    | '/league/$leagueId'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/home'
+    | '/home-simple'
     | '/login'
     | '/register'
     | '/_authenticated/create-league'
     | '/_authenticated/dashboard'
+    | '/_authenticated/data-demo'
+    | '/_authenticated/dev-picks-test'
     | '/_authenticated/join-league'
     | '/_authenticated/leagues'
     | '/_authenticated/make-picks'
+    | '/_authenticated/profile'
+    | '/_authenticated/settings'
     | '/_authenticated/stats'
+    | '/_authenticated/league-manage/$leagueId'
+    | '/_authenticated/league/$leagueId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   HomeRoute: typeof HomeRoute
+  HomeSimpleRoute: typeof HomeSimpleRoute
   LoginRoute: typeof LoginRoute
   RegisterRoute: typeof RegisterRoute
 }
@@ -177,6 +265,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/home-simple': {
+      id: '/home-simple'
+      path: '/home-simple'
+      fullPath: '/home-simple'
+      preLoaderRoute: typeof HomeSimpleRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/home': {
@@ -207,6 +302,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStatsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/settings': {
+      id: '/_authenticated/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AuthenticatedSettingsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/profile': {
+      id: '/_authenticated/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof AuthenticatedProfileRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/make-picks': {
       id: '/_authenticated/make-picks'
       path: '/make-picks'
@@ -228,6 +337,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedJoinLeagueRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/dev-picks-test': {
+      id: '/_authenticated/dev-picks-test'
+      path: '/dev-picks-test'
+      fullPath: '/dev-picks-test'
+      preLoaderRoute: typeof AuthenticatedDevPicksTestRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/data-demo': {
+      id: '/_authenticated/data-demo'
+      path: '/data-demo'
+      fullPath: '/data-demo'
+      preLoaderRoute: typeof AuthenticatedDataDemoRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
       path: '/dashboard'
@@ -242,25 +365,52 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCreateLeagueRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/league/$leagueId': {
+      id: '/_authenticated/league/$leagueId'
+      path: '/league/$leagueId'
+      fullPath: '/league/$leagueId'
+      preLoaderRoute: typeof AuthenticatedLeagueLeagueIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/league-manage/$leagueId': {
+      id: '/_authenticated/league-manage/$leagueId'
+      path: '/league-manage/$leagueId'
+      fullPath: '/league-manage/$leagueId'
+      preLoaderRoute: typeof AuthenticatedLeagueManageLeagueIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
   }
 }
 
 interface AuthenticatedRouteChildren {
   AuthenticatedCreateLeagueRoute: typeof AuthenticatedCreateLeagueRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedDataDemoRoute: typeof AuthenticatedDataDemoRoute
+  AuthenticatedDevPicksTestRoute: typeof AuthenticatedDevPicksTestRoute
   AuthenticatedJoinLeagueRoute: typeof AuthenticatedJoinLeagueRoute
   AuthenticatedLeaguesRoute: typeof AuthenticatedLeaguesRoute
   AuthenticatedMakePicksRoute: typeof AuthenticatedMakePicksRoute
+  AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
+  AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedStatsRoute: typeof AuthenticatedStatsRoute
+  AuthenticatedLeagueManageLeagueIdRoute: typeof AuthenticatedLeagueManageLeagueIdRoute
+  AuthenticatedLeagueLeagueIdRoute: typeof AuthenticatedLeagueLeagueIdRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedCreateLeagueRoute: AuthenticatedCreateLeagueRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedDataDemoRoute: AuthenticatedDataDemoRoute,
+  AuthenticatedDevPicksTestRoute: AuthenticatedDevPicksTestRoute,
   AuthenticatedJoinLeagueRoute: AuthenticatedJoinLeagueRoute,
   AuthenticatedLeaguesRoute: AuthenticatedLeaguesRoute,
   AuthenticatedMakePicksRoute: AuthenticatedMakePicksRoute,
+  AuthenticatedProfileRoute: AuthenticatedProfileRoute,
+  AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedStatsRoute: AuthenticatedStatsRoute,
+  AuthenticatedLeagueManageLeagueIdRoute:
+    AuthenticatedLeagueManageLeagueIdRoute,
+  AuthenticatedLeagueLeagueIdRoute: AuthenticatedLeagueLeagueIdRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
@@ -271,6 +421,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   HomeRoute: HomeRoute,
+  HomeSimpleRoute: HomeSimpleRoute,
   LoginRoute: LoginRoute,
   RegisterRoute: RegisterRoute,
 }

@@ -66,3 +66,9 @@ export interface AuthError {
   message: string;
   status?: number;
 }
+
+// Supabase user type (re-exported from Supabase)
+export type { User as SupabaseUser } from '@supabase/supabase-js';
+
+// Supabase session type (re-exported from Supabase)  
+export type { Session } from '@supabase/supabase-js';

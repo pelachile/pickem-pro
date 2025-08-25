@@ -240,7 +240,7 @@ const FeaturesSection: React.FC = () => {
           <div className="space-y-8">
             <div className="space-y-6">
               <div className="inline-flex items-center gap-2 bg-sky-400/20 text-sky-400 px-4 py-2 rounded-full text-sm font-medium">
-                <CheckCircleIcon className="w-4 h-4" />
+                <CheckCircle className="w-4 h-4" />
                 Easy Setup
               </div>
               <h3 className="text-3xl md:text-4xl font-bold text-white">

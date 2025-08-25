@@ -1,8 +1,24 @@
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
+import { Loader2, CheckCircle, XCircle, Copy } from 'lucide-react';
 import ContentWrapper from '../../components/layout/ContentWrapper';
+import { useCreateLeague } from '../../hooks/useLeague';
+import { validateCreateLeague, formatValidationErrors } from '../../lib/validation';
+// Define CreateLeagueRequest interface locally
+interface CreateLeagueRequest {
+  name: string;
+  description?: string;
+  entryFee: number;
+  maxMembers: number;
+  isPrivate: boolean;
+  password?: string;
+}
+
 
 function CreateLeagueContent() {
+    const navigate = useNavigate();
+    const createLeagueMutation = useCreateLeague();
+    
     const [formData, setFormData] = useState({
         name: '',
         description: '',
@@ -11,11 +27,59 @@ function CreateLeagueContent() {
         isPrivate: false,
         password: '',
     });
+    const [successData, setSuccessData] = useState<any>(null);
+    const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+    const [inviteCodeCopied, setInviteCodeCopied] = useState(false);
 
-    const handleSubmit = (e: React.FormEvent) => {
+
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        console.log('Creating league:', formData);
-        // Future: Submit to API
+        
+        // Clear previous validation errors
+        setValidationErrors({});
+        
+        const request: CreateLeagueRequest = {
+            name: formData.name.trim(),
+            description: formData.description.trim() || undefined,
+            entryFee: formData.entryFee,
+            maxMembers: formData.maxMembers,
+            isPrivate: formData.isPrivate,
+            password: formData.isPrivate && formData.password ? formData.password : undefined,
+        };
+        
+        // Validate using the new validation system
+        const validation = validateCreateLeague(request);
+        if (!validation.isValid) {
+            const errors: Record<string, string> = {};
+            validation.errors.forEach(error => {
+                errors[error.field.toLowerCase().replace(/\s+/g, '')] = error.message;
+            });
+            setValidationErrors(errors);
+            return;
+        }
+        
+        try {
+            const result = await createLeagueMutation.mutateAsync(request);
+            
+            if (result.success && result.data) {
+                setSuccessData({
+                    id: result.data.id,
+                    name: result.data.name,
+                    inviteCode: result.data.invite_code,
+                    description: result.data.description,
+                    entryFee: result.data.entry_fee,
+                    maxMembers: result.data.max_members,
+                    isPrivate: result.data.is_private,
+                });
+                
+                // Navigate to leagues page after showing success message
+                setTimeout(() => {
+                    navigate({ to: '/leagues' });
+                }, 5000);
+            }
+        } catch (error) {
+            console.error('League creation error:', error);
+        }
     };
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -33,7 +97,7 @@ function CreateLeagueContent() {
             subtitle="Set up your own pick'em league and invite friends to compete"
             showSearchBar={false}
         >
-            <div className="max-w-2xl mx-auto">
+            <div className="max-w-2xl mx-auto relative">
                 <form onSubmit={handleSubmit} className="space-y-6">
                     {/* League Name */}
                     <div className="bg-white/[0.03] backdrop-blur-lg border border-white/10 rounded-xl p-6">
@@ -50,10 +114,18 @@ function CreateLeagueContent() {
                                     name="name"
                                     value={formData.name}
                                     onChange={handleInputChange}
-                                    className="w-full px-4 py-3 bg-white/[0.05] border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-sky-400 focus:bg-white/[0.08] transition-all duration-200"
+                                    disabled={createLeagueMutation.isPending || !!successData}
+                                    className={`w-full px-4 py-3 bg-white/[0.05] border rounded-lg text-white placeholder-white/40 focus:outline-none focus:bg-white/[0.08] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 ${
+                                        validationErrors.leaguename || validationErrors.name
+                                            ? 'border-red-500/60 focus:border-red-500'
+                                            : 'border-white/20 focus:border-sky-400'
+                                    }`}
                                     placeholder="Enter league name"
                                     required
                                 />
+                                {(validationErrors.leaguename || validationErrors.name) && (
+                                    <p className="text-sm text-red-400 mt-1">{validationErrors.leaguename || validationErrors.name}</p>
+                                )}
                             </div>
 
                             <div>
@@ -65,8 +137,9 @@ function CreateLeagueContent() {
                                     name="description"
                                     value={formData.description}
                                     onChange={handleInputChange}
+                                    disabled={createLeagueMutation.isPending || !!successData}
                                     rows={3}
-                                    className="w-full px-4 py-3 bg-white/[0.05] border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-sky-400 focus:bg-white/[0.08] transition-all duration-200 resize-none"
+                                    className="w-full px-4 py-3 bg-white/[0.05] border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-sky-400 focus:bg-white/[0.08] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 resize-none"
                                     placeholder="Describe your league"
                                 />
                             </div>
@@ -88,10 +161,19 @@ function CreateLeagueContent() {
                                     name="entryFee"
                                     value={formData.entryFee}
                                     onChange={handleInputChange}
+                                    disabled={createLeagueMutation.isPending || !!successData}
                                     min="0"
-                                    className="w-full px-4 py-3 bg-white/[0.05] border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-sky-400 focus:bg-white/[0.08] transition-all duration-200"
+                                    max="1000"
+                                    className={`w-full px-4 py-3 bg-white/[0.05] border rounded-lg text-white placeholder-white/40 focus:outline-none focus:bg-white/[0.08] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 ${
+                                        validationErrors.entryfee
+                                            ? 'border-red-500/60 focus:border-red-500'
+                                            : 'border-white/20 focus:border-sky-400'
+                                    }`}
                                     placeholder="0"
                                 />
+                                {validationErrors.entryfee && (
+                                    <p className="text-sm text-red-400 mt-1">{validationErrors.entryfee}</p>
+                                )}
                             </div>
 
                             <div>
@@ -104,10 +186,18 @@ function CreateLeagueContent() {
                                     name="maxMembers"
                                     value={formData.maxMembers}
                                     onChange={handleInputChange}
+                                    disabled={createLeagueMutation.isPending || !!successData}
                                     min="2"
                                     max="50"
-                                    className="w-full px-4 py-3 bg-white/[0.05] border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-sky-400 focus:bg-white/[0.08] transition-all duration-200"
+                                    className={`w-full px-4 py-3 bg-white/[0.05] border rounded-lg text-white placeholder-white/40 focus:outline-none focus:bg-white/[0.08] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 ${
+                                        validationErrors.maxmembers || validationErrors.maximummembers
+                                            ? 'border-red-500/60 focus:border-red-500'
+                                            : 'border-white/20 focus:border-sky-400'
+                                    }`}
                                 />
+                                {(validationErrors.maxmembers || validationErrors.maximummembers) && (
+                                    <p className="text-sm text-red-400 mt-1">{validationErrors.maxmembers || validationErrors.maximummembers}</p>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -124,7 +214,8 @@ function CreateLeagueContent() {
                                     name="isPrivate"
                                     checked={formData.isPrivate}
                                     onChange={handleInputChange}
-                                    className="w-4 h-4 text-sky-400 bg-white/[0.05] border-white/20 rounded focus:ring-sky-400 focus:ring-2"
+                                    disabled={createLeagueMutation.isPending || !!successData}
+                                    className="w-4 h-4 text-sky-400 bg-white/[0.05] border-white/20 rounded focus:ring-sky-400 focus:ring-2 disabled:opacity-50 disabled:cursor-not-allowed"
                                 />
                                 <label htmlFor="isPrivate" className="ml-3 text-sm text-white/80">
                                     Make this league private (requires password to join)
@@ -142,10 +233,18 @@ function CreateLeagueContent() {
                                         name="password"
                                         value={formData.password}
                                         onChange={handleInputChange}
-                                        className="w-full px-4 py-3 bg-white/[0.05] border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-sky-400 focus:bg-white/[0.08] transition-all duration-200"
+                                        disabled={createLeagueMutation.isPending || !!successData}
+                                        className={`w-full px-4 py-3 bg-white/[0.05] border rounded-lg text-white placeholder-white/40 focus:outline-none focus:bg-white/[0.08] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 ${
+                                            validationErrors.password
+                                                ? 'border-red-500/60 focus:border-red-500'
+                                                : 'border-white/20 focus:border-sky-400'
+                                        }`}
                                         placeholder="Enter password"
                                         required={formData.isPrivate}
                                     />
+                                    {validationErrors.password && (
+                                        <p className="text-sm text-red-400 mt-1">{validationErrors.password}</p>
+                                    )}
                                 </div>
                             )}
                         </div>
@@ -182,19 +281,156 @@ function CreateLeagueContent() {
                     <div className="flex gap-4">
                         <button
                             type="button"
-                            className="flex-1 px-6 py-3 bg-white/[0.05] border border-white/20 text-white rounded-lg hover:bg-white/[0.08] hover:border-white/30 transition-all duration-200"
+                            onClick={() => navigate({ to: '/leagues' })}
+                            disabled={createLeagueMutation.isPending}
+                            className="flex-1 px-6 py-3 bg-white/[0.05] border border-white/20 text-white rounded-lg hover:bg-white/[0.08] hover:border-white/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
                         >
                             Cancel
                         </button>
                         <button
                             type="submit"
-                            disabled={!formData.name}
-                            className="flex-1 px-6 py-3 bg-gradient-to-r from-sunset-500 to-sunrise-500 text-white rounded-lg hover:from-sunset-600 hover:to-sunrise-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl"
+                            disabled={!formData.name || createLeagueMutation.isPending}
+                            className="flex-1 px-6 py-3 bg-gradient-to-r from-sunset-500 to-sunrise-500 text-white rounded-lg hover:from-sunset-600 hover:to-sunrise-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
                         >
-                            Create League
+                            {createLeagueMutation.isPending ? (
+                                <>
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                    Creating...
+                                </>
+                            ) : (
+                                'Create League'
+                            )}
                         </button>
                     </div>
+
+                    {/* Error Message */}
+                    {createLeagueMutation.error && (
+                        <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4 flex items-start gap-3">
+                            <XCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+                            <div>
+                                <h4 className="text-red-400 font-medium mb-1">Error Creating League</h4>
+                                <p className="text-red-300 text-sm">{createLeagueMutation.error.message}</p>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Success Message */}
+                    {successData && (
+                        <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-6">
+                            <div className="flex items-start gap-3">
+                                <CheckCircle className="w-6 h-6 text-green-400 flex-shrink-0 mt-0.5" />
+                                <div className="flex-1">
+                                    <h4 className="text-green-400 font-semibold mb-2">League Created Successfully!</h4>
+                                    <p className="text-green-300 text-sm mb-4">
+                                        Your league "{successData.name}" has been created. Share the invite code below with friends to join.
+                                    </p>
+                                    
+                                    <div className="bg-white/[0.05] border border-white/10 rounded-lg p-4">
+                                        <div className="flex items-center justify-between mb-2">
+                                            <span className="text-white/80 text-sm font-medium">Invite Code:</span>
+                                            <button
+                                                onClick={async () => {
+                                                    try {
+                                                        await navigator.clipboard.writeText(successData.inviteCode);
+                                                        setInviteCodeCopied(true);
+                                                        setTimeout(() => setInviteCodeCopied(false), 2000);
+                                                    } catch (err) {
+                                                        console.error('Failed to copy:', err);
+                                                    }
+                                                }}
+                                                className="flex items-center gap-2 text-sky-400 hover:text-sky-300 text-sm transition-colors"
+                                            >
+                                                <Copy className="w-4 h-4" />
+                                                {inviteCodeCopied ? 'Copied!' : 'Copy'}
+                                            </button>
+                                        </div>
+                                        <div className="text-2xl font-mono font-bold text-white bg-white/[0.05] rounded-lg p-3 text-center">
+                                            {successData.inviteCode}
+                                        </div>
+                                    </div>
+                                    
+                                    <p className="text-green-300/80 text-xs mt-3">
+                                        Redirecting to leagues page in a few seconds...
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </form>
+
+                {/* Loading and success overlay */}
+                {createLeagueMutation.isPending && (
+                    <div className="absolute inset-0 bg-black/40 backdrop-blur-sm rounded-xl flex items-center justify-center">
+                        <div className="bg-white/[0.05] backdrop-blur-lg border border-white/20 rounded-xl p-8 text-center">
+                            <Loader2 className="w-12 h-12 text-sky-400 animate-spin mx-auto mb-4" />
+                            <h3 className="text-xl font-semibold text-white mb-2">Creating League...</h3>
+                            <p className="text-white/60">Setting up your league and generating invite code</p>
+                        </div>
+                    </div>
+                )}
+
+                {/* Success overlay */}
+                {successData && !createLeagueMutation.isPending && (
+                    <div className="absolute inset-0 bg-black/40 backdrop-blur-sm rounded-xl flex items-center justify-center">
+                        <div className="bg-green-500/10 backdrop-blur-lg border border-green-500/20 rounded-xl p-8 text-center max-w-md">
+                            <CheckCircle className="w-16 h-16 text-green-400 mx-auto mb-4" />
+                            <h3 className="text-2xl font-semibold text-white mb-2">League Created! 🎉</h3>
+                            <p className="text-white/80 mb-4">
+                                "{successData.name}" is ready for action!
+                            </p>
+                            
+                            <div className="bg-white/[0.05] border border-white/20 rounded-lg p-4 mb-4">
+                                <p className="text-sm text-white/60 mb-2">Share this invite code:</p>
+                                <div className="flex items-center justify-center gap-2">
+                                    <code className="bg-white/[0.1] px-3 py-2 rounded text-sky-400 font-mono text-lg tracking-wider">
+                                        {successData.inviteCode}
+                                    </code>
+                                    <button
+                                        onClick={async () => {
+                                            try {
+                                                await navigator.clipboard.writeText(successData.inviteCode);
+                                                setInviteCodeCopied(true);
+                                                setTimeout(() => setInviteCodeCopied(false), 2000);
+                                            } catch (err) {
+                                                console.error('Failed to copy:', err);
+                                            }
+                                        }}
+                                        className="p-2 bg-white/[0.05] hover:bg-white/[0.1] border border-white/20 rounded transition-colors"
+                                    >
+                                        {inviteCodeCopied ? (
+                                            <CheckCircle className="w-4 h-4 text-green-400" />
+                                        ) : (
+                                            <Copy className="w-4 h-4 text-white/60" />
+                                        )}
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <p className="text-sm text-white/60">
+                                Redirecting to your leagues in a few seconds...
+                            </p>
+                        </div>
+                    </div>
+                )}
+
+                {/* Error overlay */}
+                {createLeagueMutation.error && !createLeagueMutation.isPending && !successData && (
+                    <div className="absolute inset-0 bg-black/40 backdrop-blur-sm rounded-xl flex items-center justify-center">
+                        <div className="bg-red-500/10 backdrop-blur-lg border border-red-500/20 rounded-xl p-8 text-center max-w-md">
+                            <XCircle className="w-16 h-16 text-red-400 mx-auto mb-4" />
+                            <h3 className="text-2xl font-semibold text-white mb-2">Oops! Something went wrong</h3>
+                            <p className="text-red-200 mb-6">
+                                {createLeagueMutation.error.message}
+                            </p>
+                            <button
+                                onClick={() => createLeagueMutation.reset()}
+                                className="px-6 py-3 bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 text-red-100 rounded-lg transition-colors"
+                            >
+                                Try Again
+                            </button>
+                        </div>
+                    </div>
+                )}
             </div>
         </ContentWrapper>
     );

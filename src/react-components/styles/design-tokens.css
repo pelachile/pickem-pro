@@ -1,0 +1,297 @@
+/* DESIGN TOKENS - Ocean-to-Sunset Design System */
+/* Enhanced Typography Scale and Visual Hierarchy */
+
+@layer utilities {
+  /* Enhanced typography scale with improved hierarchy */
+  .text-display-2xl {
+    @apply text-5xl sm:text-6xl font-bold tracking-tight leading-tight;
+  }
+
+  .text-display-xl {
+    @apply text-4xl sm:text-5xl font-bold tracking-tight leading-tight;
+  }
+
+  .text-display-lg {
+    @apply text-3xl sm:text-4xl font-bold tracking-tight leading-tight;
+  }
+
+  .text-display-md {
+    @apply text-2xl sm:text-3xl font-bold tracking-tight leading-tight;
+  }
+
+  .text-display-sm {
+    @apply text-xl sm:text-2xl font-bold tracking-tight leading-tight;
+  }
+
+  /* Enhanced heading scale */
+  .text-heading-xl {
+    @apply text-2xl font-semibold tracking-tight leading-tight;
+  }
+
+  .text-heading-lg {
+    @apply text-xl font-semibold tracking-tight leading-tight;
+  }
+
+  .text-heading-md {
+    @apply text-lg font-semibold tracking-tight leading-snug;
+  }
+
+  .text-heading-sm {
+    @apply text-base font-semibold tracking-normal leading-snug;
+  }
+
+  /* Body text with optimal readability */
+  .text-body-xl {
+    @apply text-lg leading-relaxed;
+  }
+
+  .text-body-lg {
+    @apply text-base leading-relaxed;
+  }
+
+  .text-body-md {
+    @apply text-sm leading-relaxed;
+  }
+
+  .text-body-sm {
+    @apply text-xs leading-normal;
+  }
+
+  /* Labels and metadata */
+  .text-label-lg {
+    @apply text-sm font-medium tracking-wide uppercase;
+  }
+
+  .text-label-md {
+    @apply text-xs font-medium tracking-wide uppercase;
+  }
+
+  .text-label-sm {
+    @apply text-[10px] font-medium tracking-wider uppercase;
+  }
+
+  /* Consistent spacing scale - 4px base unit */
+  .space-y-micro > * + * {
+    @apply mt-1; /* 4px */
+  }
+
+  .space-y-xs > * + * {
+    @apply mt-2; /* 8px */
+  }
+
+  .space-y-sm > * + * {
+    @apply mt-3; /* 12px */
+  }
+
+  .space-y-md > * + * {
+    @apply mt-4; /* 16px */
+  }
+
+  .space-y-lg > * + * {
+    @apply mt-6; /* 24px */
+  }
+
+  .space-y-xl > * + * {
+    @apply mt-8; /* 32px */
+  }
+
+  .space-y-2xl > * + * {
+    @apply mt-12; /* 48px */
+  }
+
+  .space-y-3xl > * + * {
+    @apply mt-16; /* 64px */
+  }
+
+  /* Consistent gap utilities */
+  .gap-micro {
+    @apply gap-1; /* 4px */
+  }
+
+  .gap-xs {
+    @apply gap-2; /* 8px */
+  }
+
+  .gap-sm {
+    @apply gap-3; /* 12px */
+  }
+
+  .gap-md {
+    @apply gap-4; /* 16px */
+  }
+
+  .gap-lg {
+    @apply gap-6; /* 24px */
+  }
+
+  .gap-xl {
+    @apply gap-8; /* 32px */
+  }
+
+  /* Enhanced glass morphism effects */
+  .glass-card {
+    @apply backdrop-blur-lg bg-navy-900/40 border border-white/15 shadow-xl shadow-black/20;
+  }
+
+  .glass-card-subtle {
+    @apply backdrop-blur-md bg-navy-900/20 border border-white/10 shadow-lg shadow-black/10;
+  }
+
+  .glass-button {
+    @apply backdrop-blur-lg bg-white/5 border border-white/20 shadow-lg shadow-black/10;
+  }
+
+  .glass-input {
+    @apply backdrop-blur-md bg-white/5 border border-white/20 shadow-inner;
+  }
+
+  /* Enhanced hover states */
+  .hover-lift {
+    @apply transition-transform duration-150 ease-out hover:scale-101 active:scale-99;
+  }
+
+  .hover-lift-lg {
+    @apply transition-transform duration-150 ease-out hover:scale-102 active:scale-98;
+  }
+
+  .hover-glow {
+    @apply transition-shadow duration-200 hover:shadow-xl hover:shadow-sky-400/20;
+  }
+
+  .hover-glass {
+    @apply transition-all duration-200 hover:bg-white/10 hover:border-white/30;
+  }
+
+  /* Status-based color systems */
+  .status-live {
+    @apply bg-sunset-500/95 text-white border-sunset-400/30 shadow-lg shadow-sunset-500/20;
+  }
+
+  .status-scheduled {
+    @apply bg-sky-400/95 text-white border-sky-300/30 shadow-lg shadow-sky-400/20;
+  }
+
+  .status-final {
+    @apply bg-navy-700/95 text-white border-navy-600/30 shadow-lg shadow-navy-700/20;
+  }
+
+  .status-red-zone {
+    @apply bg-sunrise-500/95 text-white border-sunrise-400/30 shadow-lg shadow-sunrise-500/20 animate-pulse-fast;
+  }
+
+  /* Focus states for accessibility */
+  .focus-ring {
+    @apply focus:outline-none focus:ring-3 focus:ring-sunrise-500/60 focus:ring-offset-2 focus:ring-offset-transparent;
+  }
+
+  .focus-ring-inset {
+    @apply focus:outline-none focus:ring-3 focus:ring-inset focus:ring-sunrise-500/60;
+  }
+
+  /* Loading states */
+  .skeleton {
+    @apply animate-pulse bg-white/10 rounded-md;
+  }
+
+  .skeleton-text {
+    @apply h-4 bg-white/10 rounded animate-pulse;
+  }
+
+  .skeleton-circle {
+    @apply bg-white/10 rounded-full animate-pulse;
+  }
+
+  /* Improved mobile touch targets */
+  .touch-target {
+    @apply min-h-[44px] min-w-[44px];
+  }
+
+  .touch-target-lg {
+    @apply min-h-[56px] min-w-[56px];
+  }
+
+  /* Responsive container utilities */
+  .container-narrow {
+    @apply max-w-2xl mx-auto px-4;
+  }
+
+  .container-wide {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  /* Enhanced border radius system */
+  .rounded-card {
+    @apply rounded-xl;
+  }
+
+  .rounded-button {
+    @apply rounded-lg;
+  }
+
+  .rounded-input {
+    @apply rounded-lg;
+  }
+
+  .rounded-badge {
+    @apply rounded-full;
+  }
+
+  /* Consistent shadow system */
+  .shadow-soft {
+    @apply shadow-lg shadow-black/10;
+  }
+
+  .shadow-medium {
+    @apply shadow-xl shadow-black/20;
+  }
+
+  .shadow-strong {
+    @apply shadow-2xl shadow-black/30;
+  }
+
+  .shadow-glow-sky {
+    @apply shadow-xl shadow-sky-400/20;
+  }
+
+  .shadow-glow-sunset {
+    @apply shadow-xl shadow-sunset-500/20;
+  }
+
+  .shadow-glow-sunrise {
+    @apply shadow-xl shadow-sunrise-500/20;
+  }
+}
+
+/* High contrast mode enhancements */
+@media (prefers-contrast: high) {
+  .glass-card,
+  .glass-card-subtle,
+  .glass-button,
+  .glass-input {
+    @apply bg-navy-900/90 border-white/40;
+  }
+
+  .text-white\/60 {
+    @apply text-white/95;
+  }
+
+  .text-white\/70 {
+    @apply text-white;
+  }
+
+  .text-white\/80 {
+    @apply text-white;
+  }
+}
+
+/* Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .hover-lift,
+  .hover-lift-lg,
+  .hover-glow,
+  .hover-glass,
+  .animate-pulse-slow,
+  .animate-pulse-fast {
+    @apply transition-none transform-none animate-none;
+  }
+}

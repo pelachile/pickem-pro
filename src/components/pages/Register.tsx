@@ -405,7 +405,7 @@ const Register: React.FC = () => {
                 onChange={handleInputChange('confirmPassword')}
                 placeholder="Confirm your password"
                 variant="glass"
-                icon={<LockClosedIcon className="h-5 w-5" />}
+                icon={<Lock className="h-5 w-5" />}
                 showPassword={showConfirmPassword}
                 onTogglePassword={() => setShowConfirmPassword(!showConfirmPassword)}
                 error={errors.confirmPassword}

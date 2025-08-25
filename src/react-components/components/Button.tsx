@@ -26,13 +26,13 @@ export const Button: React.FC<ButtonProps> = ({
   type = 'button',
   ...props
 }) => {
-  // Variant styles mapping - optimized for dark theme
+  // Variant styles mapping - standardized glass morphism with accessibility compliance
   const variantStyles = {
-    primary: 'bg-sky-400 hover:bg-sky-500 text-white border-transparent focus:ring-sky-500/50 shadow-sm',
-    secondary: 'bg-ocean-600 hover:bg-ocean-700 text-white border-transparent focus:ring-ocean-500/50 shadow-sm',
-    ghost: 'bg-transparent hover:bg-white/10 text-white border-transparent focus:ring-white/30',
-    destructive: 'bg-sunset-500 hover:bg-sunset-600 text-white border-transparent focus:ring-sunset-500/50 shadow-sm',
-    outline: 'bg-transparent hover:bg-white/10 text-white border-white/30 hover:border-white/50 focus:ring-white/30 backdrop-blur-sm hover:text-sky-400',
+    primary: 'bg-sky-400/90 hover:bg-sky-500 text-white border-transparent focus:ring-sky-400/50 shadow-lg backdrop-blur-lg',
+    secondary: 'bg-ocean-600/90 hover:bg-ocean-700 text-white border-transparent focus:ring-ocean-500/50 shadow-lg backdrop-blur-lg',
+    ghost: 'bg-white/5 hover:bg-white/10 text-white border-transparent focus:ring-white/40 backdrop-blur-sm',
+    destructive: 'bg-sunset-500/90 hover:bg-sunset-600 text-white border-transparent focus:ring-sunset-400/50 shadow-lg backdrop-blur-lg',
+    outline: 'bg-white/5 hover:bg-white/10 text-white border-white/30 hover:border-white/50 focus:ring-sky-400/50 backdrop-blur-lg hover:text-sky-400 shadow-md',
   };
 
   // Size styles mapping
@@ -46,11 +46,11 @@ export const Button: React.FC<ButtonProps> = ({
 
   // Combine all classes
   const buttonClasses = cn(
-    // Base styles
+    // Base styles with improved accessibility
     'inline-flex items-center justify-center gap-2 rounded-lg border transition-all duration-200 ease-in-out',
-    'focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-transparent',
+    'focus:outline-none focus:ring-3 focus:ring-offset-2 focus:ring-offset-transparent',
     'disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100',
-    'hover:scale-105 active:scale-95',
+    'hover:scale-102 active:scale-98 min-h-[44px] min-w-[44px]',
     
     // Variant and size styles
     variantStyles[variant],

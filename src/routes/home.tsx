@@ -1,22 +1,23 @@
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { Trophy, Users, BarChart, Zap } from 'lucide-react';
 import { ErrorBoundary } from '../components/ErrorBoundary';
+import { NFLHeroBackground } from '../components/NFLHeroBackground';
 
 function HomePage() {
   return (
     <ErrorBoundary>
-      <div className="min-h-screen bg-gradient-to-br from-navy-900 via-ocean-600 to-sky-400">
-      {/* Hero Section */}
-      <div className="relative overflow-hidden">
+      <div className="min-h-screen page-fade-in">
+      {/* Hero Section with NFL Background */}
+      <NFLHeroBackground>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16">
           <div className="text-center">
             <div className="flex justify-center mb-8">
               <Trophy className="h-24 w-24 text-sunrise-500 animate-pulse" />
             </div>
-            <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 tracking-tight">
+            <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 tracking-tight drop-shadow-lg">
               Pick'em <span className="text-sunrise-500">Pro</span>
             </h1>
-            <p className="text-xl md:text-2xl text-sky-200 mb-8 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-xl md:text-2xl text-sky-100 mb-8 max-w-3xl mx-auto leading-relaxed drop-shadow-md">
               The ultimate NFL pick'em experience. Create leagues, compete with friends, and prove you know football.
             </p>
             
@@ -24,20 +25,20 @@ function HomePage() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Link
                 to="/register"
-                className="bg-sunset-500 hover:bg-sunset-600 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-all duration-300 ease-out shadow-xl hover:shadow-2xl hover:scale-105 hover:-translate-y-1"
+                className="bg-sunset-500 hover:bg-sunset-600 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-all duration-300 ease-out shadow-xl hover:shadow-2xl hover:scale-105 hover:-translate-y-1 backdrop-blur-sm"
               >
                 Get Started Free
               </Link>
               <Link
                 to="/login"
-                className="bg-white/10 hover:bg-white/20 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-all duration-300 ease-out backdrop-blur-sm border border-white/20 hover:border-white/40 hover:scale-105"
+                className="bg-white/15 hover:bg-white/25 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-all duration-300 ease-out backdrop-blur-sm border border-white/30 hover:border-white/50 hover:scale-105 shadow-lg"
               >
                 Sign In
               </Link>
             </div>
           </div>
         </div>
-      </div>
+      </NFLHeroBackground>
 
       {/* Features Section */}
       <div className="py-16 bg-white/5 backdrop-blur-sm">

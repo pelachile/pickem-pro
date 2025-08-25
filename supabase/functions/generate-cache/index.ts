@@ -1,5 +1,132 @@
 import { createClient } from 'npm:@supabase/supabase-js@2'
 
+// NFL Calendar utilities for determining current week, season type, and year
+interface NFLWeekInfo {
+  week: number;
+  seasonType: 'preseason' | 'regular' | 'postseason';
+  seasonYear: number;
+}
+
+function getCurrentNFLWeek(): NFLWeekInfo {
+  const now = new Date();
+  const currentMonth = now.getMonth() + 1; // getMonth() returns 0-11
+  const currentDay = now.getDate();
+  const currentYear = now.getFullYear();
+
+  // NFL season year is the year the season starts (e.g., 2025 season runs Aug 2025 - Feb 2026)
+  let seasonYear: number;
+  let seasonType: 'preseason' | 'regular' | 'postseason';
+  let week: number;
+
+  if (currentMonth >= 8) {
+    // August - December: current year season
+    seasonYear = currentYear;
+  } else {
+    // January - July: previous year season (e.g., Jan 2026 is part of 2025 season)
+    seasonYear = currentYear - 1;
+  }
+
+  // For development/testing: if we're in August 2025, assume preseason week 3
+  if (currentYear === 2025 && currentMonth === 8 && currentDay >= 24) {
+    return {
+      week: 3,
+      seasonType: 'preseason',
+      seasonYear: 2025
+    };
+  }
+
+  // Determine season type and week based on month and day
+  if (currentMonth === 8) {
+    // August: Preseason
+    seasonType = 'preseason';
+    if (currentDay <= 15) {
+      week = 1;
+    } else if (currentDay <= 22) {
+      week = 2;
+    } else {
+      week = 3;
+    }
+  } else if (currentMonth >= 9 || (currentMonth === 1 && currentDay <= 7)) {
+    // September - December or early January: Regular season
+    seasonType = 'regular';
+    
+    if (currentMonth === 9) {
+      // September weeks 1-4
+      if (currentDay <= 7) week = 1;
+      else if (currentDay <= 14) week = 2;
+      else if (currentDay <= 21) week = 3;
+      else week = 4;
+    } else if (currentMonth === 10) {
+      // October weeks 5-8
+      if (currentDay <= 7) week = 5;
+      else if (currentDay <= 14) week = 6;
+      else if (currentDay <= 21) week = 7;
+      else week = 8;
+    } else if (currentMonth === 11) {
+      // November weeks 9-12
+      if (currentDay <= 7) week = 9;
+      else if (currentDay <= 14) week = 10;
+      else if (currentDay <= 21) week = 11;
+      else week = 12;
+    } else if (currentMonth === 12) {
+      // December weeks 13-17
+      if (currentDay <= 7) week = 13;
+      else if (currentDay <= 14) week = 14;
+      else if (currentDay <= 21) week = 15;
+      else if (currentDay <= 28) week = 16;
+      else week = 17;
+    } else {
+      // Early January week 18
+      week = 18;
+    }
+  } else {
+    // January (after week 18) - February: Postseason
+    seasonType = 'postseason';
+    
+    if (currentMonth === 1) {
+      if (currentDay <= 14) week = 1; // Wild Card
+      else if (currentDay <= 21) week = 2; // Divisional
+      else if (currentDay <= 28) week = 3; // Conference Championships
+      else week = 4; // Pro Bowl week
+    } else {
+      // February
+      if (currentDay <= 14) week = 4; // Super Bowl
+      else week = 1; // Offseason/Draft prep
+    }
+  }
+
+  return {
+    week,
+    seasonType,
+    seasonYear
+  };
+}
+
+// ESPN API utility functions
+function getESPNSeasonType(seasonType: string): string {
+  switch (seasonType) {
+    case 'preseason': return '1';
+    case 'regular': return '2';
+    case 'postseason': return '3';
+    default: return '2';
+  }
+}
+
+function getESPNWeekNumber(week: number, seasonType: string): number {
+  if (seasonType === 'preseason') {
+    // ESPN preseason week mapping
+    switch (week) {
+      case 1: return 1;
+      case 2: return 2;
+      case 3: return 4; // This is the key fix for ESPN mapping!
+      default: return week;
+    }
+  }
+  
+  // Regular season and postseason map directly
+  return week;
+}
+
 // Types matching your existing frontend types
 interface Team {
   id: number
@@ -125,48 +252,128 @@ function transformTeam(dbTeam: any): Team {
   }
 }
 
-// Transform database game to frontend format
-function transformGame(dbGame: any, teams: Map<number, any>): Game {
-  const homeTeam = teams.get(dbGame.home_team_id)
-  const awayTeam = teams.get(dbGame.away_team_id)
+// Transform ESPN game data to our cache format
+function transformESPNGame(espnEvent: any, teams: Map<string, any>, currentNFLWeek: NFLWeekInfo): Game {
+  const competition = espnEvent.competitions?.[0]
+  const homeCompetitor = competition?.competitors?.find((c: any) => c.homeAway === 'home')
+  const awayCompetitor = competition?.competitors?.find((c: any) => c.homeAway === 'away')
+  
+  // Find teams by ESPN ID
+  const homeTeam = teams.get(homeCompetitor?.team?.id)
+  const awayTeam = teams.get(awayCompetitor?.team?.id)
   
   if (!homeTeam || !awayTeam) {
-    throw new Error(`Missing team data for game ${dbGame.id}`)
+    console.warn(`Missing team data for ESPN game ${espnEvent.id}. Home: ${homeCompetitor?.team?.id}, Away: ${awayCompetitor?.team?.id}`)
+    // Create fallback team data from ESPN
+    const fallbackHome = homeTeam || {
+      id: 0,
+      espn_id: homeCompetitor?.team?.id || '',
+      name: homeCompetitor?.team?.displayName || 'Unknown',
+      location: homeCompetitor?.team?.location || 'Unknown',
+      display_name: homeCompetitor?.team?.displayName || 'Unknown',
+      abbreviation: homeCompetitor?.team?.abbreviation || 'UNK',
+      primary_color: homeCompetitor?.team?.color || '000000',
+      secondary_color: homeCompetitor?.team?.alternateColor || '000000',
+      logo_url: homeCompetitor?.team?.logo || ''
+    }
+    const fallbackAway = awayTeam || {
+      id: 0,
+      espn_id: awayCompetitor?.team?.id || '',
+      name: awayCompetitor?.team?.displayName || 'Unknown',
+      location: awayCompetitor?.team?.location || 'Unknown',
+      display_name: awayCompetitor?.team?.displayName || 'Unknown',
+      abbreviation: awayCompetitor?.team?.abbreviation || 'UNK',
+      primary_color: awayCompetitor?.team?.color || '000000',
+      secondary_color: awayCompetitor?.team?.alternateColor || '000000',
+      logo_url: awayCompetitor?.team?.logo || ''
+    }
+    
+    return createGameFromESPNData(espnEvent, fallbackHome, fallbackAway, currentNFLWeek)
   }
   
+  return createGameFromESPNData(espnEvent, homeTeam, awayTeam, currentNFLWeek)
+}
+
+// Helper function to create game object from ESPN data
+function createGameFromESPNData(espnEvent: any, homeTeam: any, awayTeam: any, currentNFLWeek: NFLWeekInfo): Game {
+  const competition = espnEvent.competitions?.[0]
+  const homeCompetitor = competition?.competitors?.find((c: any) => c.homeAway === 'home')
+  const awayCompetitor = competition?.competitors?.find((c: any) => c.homeAway === 'away')
+  
   return {
-    id: dbGame.id,
-    espn_id: dbGame.espn_id,
-    week: dbGame.week,
-    season_year: dbGame.season_year,
-    season_type: dbGame.season_type,
-    date: dbGame.game_date,
+    id: `espn-${espnEvent.id}`,
+    espn_id: espnEvent.id,
+    week: currentNFLWeek.week,
+    season_year: currentNFLWeek.seasonYear,
+    season_type: currentNFLWeek.seasonType,
+    date: espnEvent.date,
     home_team: {
-      id: homeTeam.id,
-      espn_id: homeTeam.espn_id,
-      name: homeTeam.name,
-      location: homeTeam.location,
-      display_name: homeTeam.display_name,
-      abbreviation: homeTeam.abbreviation,
-      color: cleanHexColor(homeTeam.primary_color),
-      alternate_color: cleanHexColor(homeTeam.secondary_color),
-      logo_url: homeTeam.logo_url || ''
+      id: homeTeam.id || 0,
+      espn_id: homeTeam.espn_id || homeCompetitor?.team?.id || '',
+      name: homeTeam.name || homeCompetitor?.team?.displayName || 'Unknown',
+      location: homeTeam.location || homeCompetitor?.team?.location || 'Unknown',
+      display_name: homeTeam.display_name || homeCompetitor?.team?.displayName || 'Unknown',
+      abbreviation: homeTeam.abbreviation || homeCompetitor?.team?.abbreviation || 'UNK',
+      color: cleanHexColor(homeTeam.primary_color || homeCompetitor?.team?.color),
+      alternate_color: cleanHexColor(homeTeam.secondary_color || homeCompetitor?.team?.alternateColor),
+      logo_url: homeTeam.logo_url || homeCompetitor?.team?.logo || ''
     },
     away_team: {
-      id: awayTeam.id,
-      espn_id: awayTeam.espn_id,
-      name: awayTeam.name,
-      location: awayTeam.location,
-      display_name: awayTeam.display_name,
-      abbreviation: awayTeam.abbreviation,
-      color: cleanHexColor(awayTeam.primary_color),
-      alternate_color: cleanHexColor(awayTeam.secondary_color),
-      logo_url: awayTeam.logo_url || ''
+      id: awayTeam.id || 0,
+      espn_id: awayTeam.espn_id || awayCompetitor?.team?.id || '',
+      name: awayTeam.name || awayCompetitor?.team?.displayName || 'Unknown',
+      location: awayTeam.location || awayCompetitor?.team?.location || 'Unknown',
+      display_name: awayTeam.display_name || awayCompetitor?.team?.displayName || 'Unknown',
+      abbreviation: awayTeam.abbreviation || awayCompetitor?.team?.abbreviation || 'UNK',
+      color: cleanHexColor(awayTeam.primary_color || awayCompetitor?.team?.color),
+      alternate_color: cleanHexColor(awayTeam.secondary_color || awayCompetitor?.team?.alternateColor),
+      logo_url: awayTeam.logo_url || awayCompetitor?.team?.logo || ''
     },
-    home_score: dbGame.home_score,
-    away_score: dbGame.away_score,
-    status: dbGame.status,
-    status_detail: dbGame.game_status_detail
+    home_score: homeCompetitor?.score ? parseInt(homeCompetitor.score) : undefined,
+    away_score: awayCompetitor?.score ? parseInt(awayCompetitor.score) : undefined,
+    status: espnEvent.status?.type?.name || 'scheduled',
+    status_detail: espnEvent.status?.type?.detail || ''
+  }
+}
+
+// Fetch games from ESPN API for current week
+async function fetchESPNGames(currentNFLWeek: NFLWeekInfo): Promise<any[]> {
+  const espnWeek = getESPNWeekNumber(currentNFLWeek.week, currentNFLWeek.seasonType)
+  const seasonType = getESPNSeasonType(currentNFLWeek.seasonType)
+  
+  const espnUrl = `https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?week=${espnWeek}&seasontype=${seasonType}&year=${currentNFLWeek.seasonYear}`
+  
+  
+  // Call ESPN API with timeout
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort(), 10000) // 10 second timeout
+  
+  try {
+    const response = await fetch(espnUrl, {
+      method: 'GET',
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (compatible; PickEmApp/1.0)',
+        'Accept': 'application/json',
+      },
+      signal: controller.signal
+    })
+    
+    clearTimeout(timeoutId)
+    
+    if (!response.ok) {
+      throw new Error(`ESPN API failed: ${response.status} ${response.statusText}`)
+    }
+    
+    const data = await response.json()
+    
+    return data.events || []
+    
+  } catch (error) {
+    clearTimeout(timeoutId)
+    if (error.name === 'AbortError') {
+      throw new Error('ESPN API request timed out')
+    }
+    throw error
   }
 }
 
@@ -219,12 +426,11 @@ async function uploadToStorage(supabase: any, fileName: string, data: any) {
   }
 }
 
-// Main cache generation function
+// Main cache generation function - now uses ESPN API for live game data
 async function generateCache(supabase: any) {
   try {
-    console.log('Starting cache generation...')
     
-    // Fetch all teams
+    // Fetch all teams from database (teams remain in DB)
     const { data: dbTeams, error: teamsError } = await supabase
       .from('teams')
       .select('*')
@@ -233,25 +439,28 @@ async function generateCache(supabase: any) {
     
     if (teamsError) throw teamsError
     
-    // Transform teams
+    // Transform teams and create ESPN ID mapping
     const teams = dbTeams.map(transformTeam)
-    const teamMap = new Map(dbTeams.map((t: any) => [t.id, t]))
+    const espnTeamMap = new Map(dbTeams.map((t: any) => [t.espn_id, t]))
     
-    // Fetch current season games
-    const currentYear = new Date().getFullYear()
-    const { data: dbGames, error: gamesError } = await supabase
-      .from('games')
-      .select('*')
-      .eq('season_year', currentYear)
-      .eq('season_type', 'regular')
-      .order('game_date')
     
-    if (gamesError) throw gamesError
+    // Get current NFL week info
+    const currentNFLWeek = getCurrentNFLWeek()
     
-    // Transform games
-    const games = dbGames.map((game: any) => transformGame(game, teamMap))
+    // Fetch current week games from ESPN API (LIVE DATA)
+    const espnEvents = await fetchESPNGames(currentNFLWeek)
     
-    // Organize games by week
+    if (espnEvents.length === 0) {
+      console.warn('No games found from ESPN API - this may indicate an API issue or off-season')
+    }
+    
+    // Transform ESPN games to our cache format
+    const games = espnEvents.map((event: any) => 
+      transformESPNGame(event, espnTeamMap, currentNFLWeek)
+    )
+    
+    
+    // Organize games by week (currently just current week, but structure supports multiple)
     const gamesByWeek: Record<number, Game[]> = {}
     const availableWeeks: number[] = []
     
@@ -271,7 +480,7 @@ async function generateCache(supabase: any) {
         export_date: new Date().toISOString(),
         total_teams: teams.length,
         total_games: games.length,
-        current_season: currentYear,
+        current_season: currentNFLWeek.seasonYear,
         weeks_available: availableWeeks,
         cache_version: generateCacheVersion()
       },
@@ -292,7 +501,6 @@ async function generateCache(supabase: any) {
     // Also upload as current version (for backwards compatibility)
     const currentResult = await uploadToStorage(supabase, 'teams-and-schedule.json', cacheData)
     
-    console.log(`Cache generated successfully: ${fileName}`)
     
     return {
       cache_version: cacheData.meta.cache_version,
@@ -300,6 +508,8 @@ async function generateCache(supabase: any) {
       teams_count: teams.length,
       games_count: games.length,
       weeks_available: availableWeeks,
+      espn_source: true,
+      current_nfl_week: currentNFLWeek,
       versioned_url: uploadResult.url,
       current_url: currentResult.url,
       file_size: uploadResult.size
@@ -340,7 +550,6 @@ Deno.serve(async (req) => {
       // Handle GET requests or invalid JSON
     }
     
-    console.log('Starting cache generation...', body)
     
     const result = await generateCache(supabase)
     

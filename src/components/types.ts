@@ -58,6 +58,9 @@ export interface StatusBadgeProps {
   text?: string;
   className?: string;
   children?: ReactNode;
+  'aria-label'?: string;
+  role?: string;
+  id?: string;
 }
 
 export interface UserAvatarProps {
@@ -68,6 +71,10 @@ export interface UserAvatarProps {
   };
   size?: Size;
   className?: string;
+  'aria-label'?: string;
+  role?: string;
+  tabIndex?: number;
+  onClick?: () => void;
 }
 
 export interface ButtonProps {
@@ -79,6 +86,10 @@ export interface ButtonProps {
   className?: string;
   onClick?: () => void;
   type?: 'button' | 'submit' | 'reset';
+  'aria-label'?: string;
+  'aria-describedby'?: string;
+  'aria-pressed'?: boolean;
+  id?: string;
 }
 
 export interface CardProps {
@@ -87,6 +98,10 @@ export interface CardProps {
   glass?: boolean;
   hover?: boolean;
   padding?: Size;
+  role?: string;
+  'aria-labelledby'?: string;
+  'aria-describedby'?: string;
+  id?: string;
 }
 
 // Game-related types for GameCard (simplified)
@@ -149,6 +164,7 @@ export interface GameCardProps {
   showStats?: boolean;
   enableRefresh?: boolean;
   className?: string;
+  deadlineWarning?: string; // Warning message for approaching deadlines
   onPickTeam?: (teamId: number) => void;
   onRefresh?: () => void;
 }

@@ -1,5 +1,5 @@
-import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
-import { useState, useMemo } from 'react';
+import { createFileRoute, Link } from '@tanstack/react-router';
+import { useMemo } from 'react';
 import {
     Trophy,
     BarChart,
@@ -9,17 +9,14 @@ import {
 import { GameCard } from '../../components/ui/GameCard';
 import type { Status } from '../../components/types';
 import ContentWrapper from '../../components/layout/ContentWrapper';
-import AnimatedContent from '../../components/layout/AnimatedContent';
-import { useSchedule, useTeams } from '../../hooks/useNflData';
+import { useEnhancedGames } from '../../hooks/useSmartGames';
 import { CacheClearButton } from '../../components/CacheClearButton';
 
 function DashboardContent() {
-    const navigate = useNavigate();
-    const [userPicks] = useState<Record<number, number>>({});
+    // Dashboard is now display-only - no navigation or picking functionality
 
-    // Get live data from TanStack Query
-    const { allGames, isLoading: scheduleLoading, error: scheduleError } = useSchedule();
-    const { data: teams, isLoading: teamsLoading } = useTeams();
+    // Get enhanced games data from smart games system
+    const { data: gamesData, isLoading: gamesLoading, error: gamesError } = useEnhancedGames();
 
     // Team win-loss records (dummy data for display)
     const teamRecords: Record<string, string> = {
@@ -31,33 +28,35 @@ function DashboardContent() {
         'DET': '10-1', 'GB': '8-3', 'BAL': '9-2', 'BUF': '8-3'
     };
 
-    // Convert live schedule data to the format expected by GameCard
+    // Convert enhanced games data to the format expected by GameCard
     const games = useMemo(() => {
-        if (!allGames) return [];
+        if (!gamesData?.games) return [];
         
-        return allGames.map((scheduleGame) => ({
-            id: scheduleGame.id,
-            status: (scheduleGame.status === 'final' ? 'final' : scheduleGame.status === 'live' ? 'live' : 'scheduled') as Status,
+        return gamesData.games.map((game) => ({
+            id: game.id,
+            status: (game.status === 'final' ? 'final' : game.status === 'in_progress' ? 'live' : 'scheduled') as Status,
             homeTeam: {
-                id: scheduleGame.home_team.id,
-                name: scheduleGame.home_team.display_name,
-                abbreviation: scheduleGame.home_team.abbreviation,
-                color: scheduleGame.home_team.color,
-                logo_url: scheduleGame.home_team.logo_url,
-                record: teamRecords[scheduleGame.home_team.abbreviation] || '6-5',
+                id: game.home_team_id,
+                name: game.home_team?.display_name || game.home_team?.name || 'Home Team',
+                abbreviation: game.home_team?.abbreviation || 'HOM',
+                color: game.home_team?.primary_color || '#1E3A8A',
+                logo_url: game.home_team?.logo_url || '',
+                record: teamRecords[game.home_team?.abbreviation || ''] || '6-5',
             },
             awayTeam: {
-                id: scheduleGame.away_team.id,
-                name: scheduleGame.away_team.display_name,
-                abbreviation: scheduleGame.away_team.abbreviation,
-                color: scheduleGame.away_team.color,
-                logo_url: scheduleGame.away_team.logo_url,
-                record: teamRecords[scheduleGame.away_team.abbreviation] || '6-5',
+                id: game.away_team_id,
+                name: game.away_team?.display_name || game.away_team?.name || 'Away Team',
+                abbreviation: game.away_team?.abbreviation || 'AWY',
+                color: game.away_team?.primary_color || '#DC2626',
+                logo_url: game.away_team?.logo_url || '',
+                record: teamRecords[game.away_team?.abbreviation || ''] || '6-5',
             },
-            gameTime: scheduleGame.date,
-            venue: 'TBD', // Venue info not in current API structure
+            homeScore: game.home_score,
+            awayScore: game.away_score,
+            gameTime: game.date,
+            venue: game.venue_name || 'TBD',
         }));
-    }, [allGames, teamRecords]);
+    }, [gamesData?.games, teamRecords]);
 
     // Group games by date with smart sequential layout logic
     const gamesByDate = useMemo(() => {
@@ -100,13 +99,10 @@ function DashboardContent() {
         }
     };
 
-    const handlePickTeam = (_gameId: number, _teamId: number) => {
-        // Navigate to make picks page when user tries to pick
-        navigate({ to: '/make-picks' });
-    };
+    // Removed handlePickTeam - dashboard is now display-only
 
     // Show loading state
-    if (scheduleLoading || teamsLoading) {
+    if (gamesLoading) {
         return (
             <ContentWrapper 
                 title="Dashboard" 
@@ -123,15 +119,15 @@ function DashboardContent() {
     }
 
     // Show error state
-    if (scheduleError) {
+    if (gamesError) {
         return (
             <ContentWrapper 
                 title="Dashboard" 
                 subtitle="Error loading NFL data"
             >
                 <div className="bg-red-500/20 border border-red-500/30 rounded-xl p-6 text-center">
-                    <p className="text-red-400 font-medium">Failed to load NFL schedule</p>
-                    <p className="text-red-300/80 text-sm mt-2">{scheduleError.message}</p>
+                    <p className="text-red-400 font-medium">Failed to load NFL games</p>
+                    <p className="text-red-300/80 text-sm mt-2">{gamesError.message}</p>
                     <button 
                         onClick={() => window.location.reload()}
                         className="mt-4 px-4 py-2 bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 rounded-lg text-red-300 transition-colors"
@@ -146,157 +142,184 @@ function DashboardContent() {
     return (
         <ContentWrapper 
             title="Dashboard" 
-            subtitle="Welcome back! Here's what's happening with your picks."
+            subtitle="Welcome back! Track your performance and view upcoming games."
         >
             {/* Temporary Cache Clear Button */}
             <div className="mb-4 flex justify-end">
                 <CacheClearButton />
             </div>
 
-            {/* Quick Stats Cards with staggered animation */}
-            <div className="relative isolate grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <AnimatedContent animation="scale" delay={75}>
-                    <div className="relative bg-navy-900/50 border border-white/10 rounded-xl p-6 hover:bg-navy-900/60 hover:border-white/20 transition-all duration-300 ease-out hover:-translate-y-2 hover:shadow-2xl glass-transition">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm text-white/60">This Week</p>
-                                <p className="text-2xl font-bold text-white">12-4</p>
-                                <p className="text-xs text-sky-400">75% accuracy</p>
-                            </div>
-                            <Trophy className="h-8 w-8 text-sunset-500" />
+            {/* Performance Stats Overview */}
+            <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div className="group relative bg-white/[0.05] border border-white/10 rounded-xl p-6 hover:bg-white/[0.08] hover:border-white/20">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="text-sm text-white/60 mb-1">This Week</p>
+                            <p className="text-2xl font-bold text-white mb-1">12-4</p>
+                            <p className="text-xs text-sky-400 font-medium">75% accuracy</p>
+                        </div>
+                        <div className="p-2 bg-sunset-500/20 rounded-lg group-hover:bg-sunset-500/30">
+                            <Trophy className="h-6 w-6 text-sunset-500" />
                         </div>
                     </div>
-                </AnimatedContent>
+                </div>
 
-                <AnimatedContent animation="scale" delay={150}>
-                    <div className="relative bg-navy-900/50 border border-white/10 rounded-xl p-6 hover:bg-navy-900/60 hover:border-white/20 transition-all duration-300 ease-out hover:-translate-y-2 hover:shadow-2xl glass-transition">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm text-white/60">Season Record</p>
-                                <p className="text-2xl font-bold text-white">84-52</p>
-                                <p className="text-xs text-sky-400">61.8% accuracy</p>
-                            </div>
-                            <BarChart className="h-8 w-8 text-sunset-500" />
+                <div className="group relative bg-white/[0.05] border border-white/10 rounded-xl p-6 hover:bg-white/[0.08] hover:border-white/20">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="text-sm text-white/60 mb-1">Season Record</p>
+                            <p className="text-2xl font-bold text-white mb-1">84-52</p>
+                            <p className="text-xs text-sky-400 font-medium">61.8% accuracy</p>
+                        </div>
+                        <div className="p-2 bg-sunrise-500/20 rounded-lg group-hover:bg-sunrise-500/30">
+                            <BarChart className="h-6 w-6 text-sunrise-500" />
                         </div>
                     </div>
-                </AnimatedContent>
+                </div>
 
-                <AnimatedContent animation="scale" delay={225}>
-                    <div className="relative bg-navy-900/50 border border-white/10 rounded-xl p-6 hover:bg-navy-900/60 hover:border-white/20 transition-all duration-300 ease-out hover:-translate-y-2 hover:shadow-2xl glass-transition">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm text-white/60">League Rank</p>
-                                <p className="text-2xl font-bold text-white">#3</p>
-                                <p className="text-xs text-sky-400">of 12 members</p>
-                            </div>
-                            <PieChart className="h-8 w-8 text-sunset-500" />
+                <div className="group relative bg-white/[0.05] border border-white/10 rounded-xl p-6 hover:bg-white/[0.08] hover:border-white/20">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="text-sm text-white/60 mb-1">League Rank</p>
+                            <p className="text-2xl font-bold text-white mb-1">#3</p>
+                            <p className="text-xs text-sky-400 font-medium">of 12 members</p>
+                        </div>
+                        <div className="p-2 bg-sky-400/20 rounded-lg group-hover:bg-sky-400/30">
+                            <PieChart className="h-6 w-6 text-sky-400" />
                         </div>
                     </div>
-                </AnimatedContent>
+                </div>
 
-                <AnimatedContent animation="scale" delay={300}>
-                    <div className="relative bg-navy-900/50 border border-white/10 rounded-xl p-6 hover:bg-navy-900/60 hover:border-white/20 transition-all duration-300 ease-out hover:-translate-y-2 hover:shadow-2xl glass-transition">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm text-white/60">Active Leagues</p>
-                                <p className="text-2xl font-bold text-white">3</p>
-                                <p className="text-xs text-sky-400">2 pending picks</p>
-                            </div>
-                            <List className="h-8 w-8 text-sunset-500" />
+                <div className="group relative bg-white/[0.05] border border-white/10 rounded-xl p-6 hover:bg-white/[0.08] hover:border-white/20">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <p className="text-sm text-white/60 mb-1">Active Leagues</p>
+                            <p className="text-2xl font-bold text-white mb-1">3</p>
+                            <p className="text-xs text-sky-400 font-medium">2 pending picks</p>
+                        </div>
+                        <div className="p-2 bg-ocean-600/20 rounded-lg group-hover:bg-ocean-600/30">
+                            <List className="h-6 w-6 text-ocean-300" />
                         </div>
                     </div>
-                </AnimatedContent>
+                </div>
             </div>
 
-            {/* League Actions with animation */}
-            <AnimatedContent animation="slideUp" delay={150}>
+            {/* League Actions */}
+            <div className="relative z-20">
                 <div className="bg-white/[0.03] backdrop-blur-lg border border-white/10 rounded-xl p-6 mb-8 glass-transition">
                     <h2 className="text-xl font-semibold text-white mb-4">League Management</h2>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <Link
                             to="/create-league"
-                            className="group relative bg-gradient-to-r from-sunset-500 to-sunrise-500 hover:from-sunset-600 hover:to-sunrise-600 text-white p-6 rounded-xl transition-all duration-300 ease-out hover:scale-105 hover:shadow-2xl hover:-translate-y-1 flex items-center justify-between"
+                            className="group relative bg-gradient-to-r from-sunset-500 to-sunrise-500 hover:from-sunset-600 hover:to-sunrise-600 text-white p-6 rounded-xl flex items-center justify-between"
                         >
                             <div>
                                 <h3 className="text-lg font-semibold mb-2">Create League</h3>
                                 <p className="text-white/80 text-sm">Start your own pick'em league</p>
                             </div>
-                            <Trophy className="h-8 w-8 text-white/80 group-hover:text-white transition-all duration-300 group-hover:scale-110" />
+                            <Trophy className="h-8 w-8 text-white/80 group-hover:text-white" />
                         </Link>
                         <Link
                             to="/join-league"
-                            className="group relative bg-white/[0.05] hover:bg-white/[0.08] border border-white/10 hover:border-white/20 text-white p-6 rounded-xl transition-all duration-300 ease-out hover:scale-105 hover:shadow-2xl hover:-translate-y-1 flex items-center justify-between"
+                            className="group relative bg-white/[0.05] hover:bg-white/[0.08] border border-white/10 hover:border-white/20 text-white p-6 rounded-xl flex items-center justify-between"
                         >
                             <div>
                                 <h3 className="text-lg font-semibold mb-2">Join League</h3>
                                 <p className="text-white/60 text-sm">Enter an existing league</p>
                             </div>
-                            <List className="h-8 w-8 text-white/60 group-hover:text-white transition-all duration-300 group-hover:scale-110" />
+                            <List className="h-8 w-8 text-white/60 group-hover:text-white" />
                         </Link>
                     </div>
                 </div>
-            </AnimatedContent>
+            </div>
 
             {/* Header with Make Picks Link */}
-            <AnimatedContent animation="slideUp" delay={225}>
+            <div>
                 <div className="flex items-center justify-between mb-8">
                     <div>
-                        <h2 className="text-2xl font-bold text-white mb-1">NFL Schedule</h2>
+                        <h2 className="text-2xl font-bold text-white mb-1">NFL Schedule Overview</h2>
+                        <p className="text-sm text-white/60 mb-2">View game information and team matchups</p>
                         <div className="w-16 h-1 bg-gradient-to-r from-sky-400 to-sunset-500 rounded-full" />
                     </div>
                     <Link 
                         to="/make-picks" 
-                        className="text-sky-400 hover:text-sky-300 text-sm font-medium transition-all duration-300 ease-out flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 hover:scale-105 hover:shadow-lg"
+                        className="group text-sky-400 hover:text-sky-300 text-sm font-medium transition-all duration-200 ease-out flex items-center gap-2 px-6 py-3 rounded-lg bg-gradient-to-r from-sky-500/20 to-sunset-500/20 hover:from-sky-500/30 hover:to-sunset-500/30 border border-sky-400/30 hover:border-sky-400/50 hover:scale-105 hover:shadow-xl shadow-lg backdrop-blur-sm"
                     >
-                        Make picks →
+                        <span>Make picks</span>
+                        <span className="group-hover:translate-x-0.5 transition-transform duration-200">→</span>
                     </Link>
                 </div>
-            </AnimatedContent>
+            </div>
 
-            {/* Games with smart sequential layout logic and staggered animation */}
+            {/* Games display-only - informational view */}
             <div className="space-y-8">
-                {gamesByDate.map(({ date, games: dateGames, gameCount }, index) => (
-                    <AnimatedContent key={date} animation="slideUp" delay={index * 75}>
+                {gamesByDate.map(({ date, games: dateGames, gameCount }) => (
+                    <div key={date}>
                         <div>
-                            {/* Date Header */}
-                            <div className="mb-4">
-                                <h2 className="text-xl font-semibold text-white mb-1">
-                                    {new Date(date).toLocaleDateString('en-US', {
-                                        weekday: 'long',
-                                        month: 'long',
-                                        day: 'numeric',
-                                    })}
-                                </h2>
-                                <div className="w-16 h-1 bg-gradient-to-r from-sky-400 to-sunset-500 rounded-full" />
+                            {/* Enhanced Date Header with Game Count */}
+                            <div className="mb-6">
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <h2 className="text-xl font-semibold text-white mb-1">
+                                            {new Date(date).toLocaleDateString('en-US', {
+                                                weekday: 'long',
+                                                month: 'long',
+                                                day: 'numeric',
+                                            })}
+                                        </h2>
+                                        <div className="w-16 h-1 bg-gradient-to-r from-sky-400 to-sunset-500 rounded-full" />
+                                    </div>
+                                    <div className="text-sm text-white/60 bg-white/5 px-3 py-1.5 rounded-full border border-white/10">
+                                        {dateGames.length} {dateGames.length === 1 ? 'game' : 'games'}
+                                    </div>
+                                </div>
                             </div>
 
                             {/* Smart Grid Layout Based on Game Count */}
                             <div className={`grid ${getGridClass(gameCount)} gap-4`}>
                                 {dateGames.map((game) => (
-                                    <GameCard
-                                        key={game.id}
-                                        game={game}
-                                        userPickTeamId={userPicks[game.id] || null}
-                                        layout={
-                                            gameCount === 1 
-                                                ? 'full' // Single game: full width with horizontal layout
-                                                : gameCount === 2
-                                                ? 'wide' // Two games: wide layout
-                                                : 'default' // 3+ games: default vertical layout
-                                        }
-                                        showPicks={true}
-                                        onPickTeam={(teamId) => handlePickTeam(game.id, teamId)}
-                                        className="h-full w-full" // Remove width constraints
-                                    />
+                                    <div key={game.id} className="relative group">
+                                        <GameCard
+                                            game={game}
+                                            userPickTeamId={null}
+                                            layout={
+                                                gameCount === 1 
+                                                    ? 'full' // Single game: full width with horizontal layout
+                                                    : gameCount === 2
+                                                    ? 'wide' // Two games: wide layout
+                                                    : 'default' // 3+ games: default vertical layout
+                                            }
+                                            showPicks={false}
+                                            onPickTeam={undefined}
+                                            className="h-full w-full transition-all duration-200 hover:shadow-lg" 
+                                        />
+                                        
+                                        {/* Placeholder areas for future stats - shown on hover */}
+                                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-xl pointer-events-none">
+                                            {/* Future stats overlay areas */}
+                                            <div className="absolute bottom-2 left-2 right-2 flex justify-between items-end">
+                                                {/* Left side - Community pick percentages */}
+                                                <div className="bg-white/10 backdrop-blur-sm rounded-lg px-2 py-1 text-xs text-white/80 border border-white/20">
+                                                    <div className="text-[10px] text-white/60 mb-0.5">Community</div>
+                                                    <div className="font-semibold">Coming soon</div>
+                                                </div>
+                                                
+                                                {/* Right side - Betting lines */}
+                                                <div className="bg-white/10 backdrop-blur-sm rounded-lg px-2 py-1 text-xs text-white/80 border border-white/20">
+                                                    <div className="text-[10px] text-white/60 mb-0.5">Spread</div>
+                                                    <div className="font-semibold">Coming soon</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 ))}
                             </div>
                         </div>
-                    </AnimatedContent>
+                    </div>
                 ))}
             </div>
 
             {/* Recent Activity - Moved to secondary position */}
-            <AnimatedContent animation="slideUp" delay={300}>
                 <div className="bg-white/[0.03] backdrop-blur-lg border border-white/10 rounded-xl p-6 mt-8 glass-transition">
                     <h2 className="text-xl font-semibold text-white mb-4">Recent Activity</h2>
                     <div className="space-y-4">
@@ -329,7 +352,6 @@ function DashboardContent() {
                         </div>
                     </div>
                 </div>
-            </AnimatedContent>
         </ContentWrapper>
     );
 }

@@ -1,5 +1,8 @@
 import type { ReactNode } from 'react';
 
+// Re-export InputProps from Input component
+export type { InputProps } from './components/Input';
+
 // Base types
 export type Status = 
   | 'live' 

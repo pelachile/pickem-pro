@@ -3,7 +3,6 @@ import { Link, useNavigate } from '@tanstack/react-router';
 import { Card, CardContent, Button, Input } from '../ui';
 import { Mail, Lock, Trophy } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
-import AnimatedContent from '../layout/AnimatedContent';
 
 interface LoginFormData {
   email: string;
@@ -94,7 +93,7 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 page-fade-in">
       {/* Background decorative elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-1/4 -left-20 w-96 h-96 bg-ocean-500/20 rounded-full blur-3xl"></div>
@@ -104,9 +103,9 @@ const Login: React.FC = () => {
 
       <div className="relative max-w-md w-full space-y-8">
         {/* Header with staggered animation */}
-        <AnimatedContent animation="scale" className="text-center">
+        <div className="text-center">
           <div className="flex items-center justify-center gap-3 mb-6">
-            <div className="p-3 bg-white/10 backdrop-blur-sm rounded-full border border-white/20 glass-transition hover:bg-white/20 hover:scale-110 transition-all duration-300">
+            <div className="p-3 bg-white/10 backdrop-blur-sm rounded-full border border-white/20 glass-transition hover:bg-white/20 transition-all duration-200">
               <Trophy className="h-8 w-8 text-sky-400" />
             </div>
             <h1 className="text-3xl font-bold text-white">
@@ -119,11 +118,11 @@ const Login: React.FC = () => {
           <p className="text-sky-200">
             Sign in to your account to continue
           </p>
-        </AnimatedContent>
+        </div>
 
-        {/* Login Form with animation */}
-        <AnimatedContent animation="slideUp" delay={150}>
-          <Card glass className="bg-white/[0.03] backdrop-blur-lg border-white/10 hover:bg-white/[0.04] transition-all duration-400 glass-transition">
+        {/* Login Form */}
+        <div>
+          <Card glass className="bg-white/[0.03] backdrop-blur-lg border-white/10 hover:bg-white/[0.04] transition-all duration-200 glass-transition">
             <CardContent className="p-8">
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* General Error */}
@@ -196,26 +195,23 @@ const Login: React.FC = () => {
             </form>
             </CardContent>
           </Card>
-        </AnimatedContent>
+        </div>
 
-        {/* Sign Up Link with animation */}
-        <AnimatedContent animation="fade" delay={225}>
-          <div className="text-center">
-            <p className="text-sky-200">
-              Don't have an account?{' '}
-              <Link
-                to="/register"
-                className="font-medium text-sky-400 hover:text-sunrise-500 transition-all duration-300 hover:scale-105 inline-block"
-              >
-                Create one now
-              </Link>
-            </p>
-          </div>
-        </AnimatedContent>
+        {/* Sign Up Link */}
+        <div className="text-center">
+          <p className="text-sky-200">
+            Don't have an account?{' '}
+            <Link
+              to="/register"
+              className="font-medium text-sky-400 hover:text-sunrise-500 transition-colors duration-200"
+            >
+              Create one now
+            </Link>
+          </p>
+        </div>
 
-        {/* Social Login (Optional) with animation */}
-        <AnimatedContent animation="slideUp" delay={300}>
-          <div className="text-center">
+        {/* Social Login (Optional) */}
+        <div className="text-center">
             <div className="relative">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-white/20"></div>
@@ -252,8 +248,7 @@ const Login: React.FC = () => {
               Facebook
             </Button>
           </div>
-          </div>
-        </AnimatedContent>
+        </div>
       </div>
     </div>
   );

@@ -55,7 +55,7 @@ async function processPicksForGame(supabase: any, game: GameResult): Promise<{ u
       // Handle tie game - mark all picks as incorrect for simplicity
       // You might want to handle ties differently based on your league rules
       const { error } = await supabase
-        .from('user_picks')
+        .from('picks')
         .update({ 
           is_correct: false,
           updated_at: new Date().toISOString()
@@ -67,7 +67,7 @@ async function processPicksForGame(supabase: any, game: GameResult): Promise<{ u
         errors.push(`Failed to update picks for tie game ${game.id}: ${error.message}`)
       } else {
         const { count } = await supabase
-          .from('user_picks')
+          .from('picks')
           .select('*', { count: 'exact', head: true })
           .eq('game_id', game.id)
           .eq('is_correct', false)
@@ -78,7 +78,7 @@ async function processPicksForGame(supabase: any, game: GameResult): Promise<{ u
     } else if (winningTeamId !== null) {
       // Update picks based on winning team
       const { error } = await supabase
-        .from('user_picks')
+        .from('picks')
         .update({ 
           is_correct: supabase.raw(`picked_team_id = ${winningTeamId}`),
           updated_at: new Date().toISOString()
@@ -91,7 +91,7 @@ async function processPicksForGame(supabase: any, game: GameResult): Promise<{ u
       } else {
         // Count updated picks
         const { count } = await supabase
-          .from('user_picks')
+          .from('picks')
           .select('*', { count: 'exact', head: true })
           .eq('game_id', game.id)
           .not('is_correct', 'is', null)
@@ -118,7 +118,7 @@ async function recalculateStandings(supabase: any, gameIds: string[]): Promise<{
   try {
     // Get all leagues that have picks for these games
     const { data: affectedLeagues, error: leaguesError } = await supabase
-      .from('user_picks')
+      .from('picks')
       .select('league_id')
       .in('game_id', gameIds)
       .not('is_correct', 'is', null)

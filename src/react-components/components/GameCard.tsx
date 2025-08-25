@@ -184,19 +184,21 @@ const TeamRow: React.FC<{
   return (
     <div 
       className={cn(
-        'rounded-lg border transition-all duration-300 group relative',
-        'bg-white/[0.03] backdrop-blur-lg border-white/10',
+        'rounded-lg border transition-all duration-200 group relative glass-card-subtle',
         isUserPick && 'ring-2 ring-sky-400/50 bg-sky-400/10 border-sky-400/30',
-        isWinner && 'bg-sunrise-gold/15 border-sunrise-gold/40 shadow-sunrise-gold/20',
-        showPicks && 'cursor-pointer hover:bg-white/[0.05] hover:border-white/20',
-        !isUserPick && showPicks && 'hover:ring-1 hover:ring-white/20',
+        isWinner && 'bg-sunrise-gold/15 border-sunrise-gold/40 shadow-glow-sunrise',
+        showPicks && 'cursor-pointer hover:bg-white/[0.05] hover:border-white/20 hover-lift',
+        !isUserPick && showPicks && 'hover:ring-1 hover:ring-white/20 focus-ring',
         // Dynamic padding based on layout
-        layout === 'full' ? 'p-4' : layout === 'wide' ? 'p-3.5' : 'p-3'
+        layout === 'full' ? 'p-4' : layout === 'wide' ? 'p-3.5' : 'p-3',
+        // Accessibility improvements
+        'touch-target'
       )}
       style={teamColorStyles}
-      role={showPicks ? "button" : undefined}
+      role={showPicks ? "button" : "group"}
       tabIndex={showPicks ? 0 : -1}
-      aria-label={`${team.name} ${isHome ? 'home' : 'away'} team${isUserPick ? ' - selected' : ''}`}
+      aria-label={`${team.name} ${isHome ? 'home' : 'away'} team${isUserPick ? ' - your current pick' : showPicks ? ' - click to select' : ''}`}
+      aria-describedby={`team-${team.id}-record`}
       onClick={() => showPicks && onPickTeam && !(layout === 'full' || layout === 'wide') && onPickTeam(team.id)}
       onKeyDown={(e) => {
         if (showPicks && onPickTeam && !(layout === 'full' || layout === 'wide') && (e.key === 'Enter' || e.key === ' ')) {
