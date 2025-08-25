@@ -241,7 +241,6 @@ function updateCacheWithESPNData(cacheData: CacheData, espnGames: any[]): CacheD
     }
   }
 }
-}
 
 Deno.serve(async (req) => {
   let supabase: any
