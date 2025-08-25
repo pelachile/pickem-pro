@@ -33,12 +33,6 @@ function DashboardContent() {
     const games = useMemo(() => {
         if (!allGames) return [];
         
-        // Debug logging to see the data structure
-        if (allGames.length > 0) {
-            console.log('First game data:', allGames[0]);
-            console.log('Home score:', allGames[0].home_score, 'Away score:', allGames[0].away_score);
-        }
-        
         return allGames.map((scheduleGame) => ({
             id: parseInt(scheduleGame.id.toString()),
             status: (scheduleGame.status === 'final' ? 'final' : scheduleGame.status === 'live' ? 'live' : 'scheduled') as Status,
