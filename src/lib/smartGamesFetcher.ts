@@ -113,7 +113,8 @@ export async function fetchGamesFromCache(week: number, year: number): Promise<G
       }
       
       // Filter games by week and year if needed
-      const filteredGames = games.filter(game => {
+      // During dead periods, skip filtering since cache already contains the correct games
+      const filteredGames = isDeadPeriod ? games : games.filter(game => {
         const gameWeek = game.week || parseInt(String(game.id).substring(0,1)) || week
         const gameYear = game.season_year || year
         return gameWeek === week && gameYear === year
