@@ -1,5 +1,107 @@
 import { createClient } from 'npm:@supabase/supabase-js@2'
 
+// NFL Calendar utilities for determining current week, season type, and year
+interface NFLWeekInfo {
+  week: number;
+  seasonType: 'preseason' | 'regular' | 'postseason';
+  seasonYear: number;
+}
+
+function getCurrentNFLWeek(): NFLWeekInfo {
+  const now = new Date();
+  const currentMonth = now.getMonth() + 1; // getMonth() returns 0-11
+  const currentDay = now.getDate();
+  const currentYear = now.getFullYear();
+
+  // NFL season year is the year the season starts (e.g., 2025 season runs Aug 2025 - Feb 2026)
+  let seasonYear: number;
+  let seasonType: 'preseason' | 'regular' | 'postseason';
+  let week: number;
+
+  if (currentMonth >= 8) {
+    // August - December: current year season
+    seasonYear = currentYear;
+  } else {
+    // January - July: previous year season (e.g., Jan 2026 is part of 2025 season)
+    seasonYear = currentYear - 1;
+  }
+
+  // For development/testing: if we're in August 2025, assume preseason week 3
+  if (currentYear === 2025 && currentMonth === 8 && currentDay >= 24) {
+    return {
+      week: 3,
+      seasonType: 'preseason',
+      seasonYear: 2025
+    };
+  }
+
+  // Determine season type and week based on month and day
+  if (currentMonth === 8) {
+    // August: Preseason
+    seasonType = 'preseason';
+    if (currentDay <= 15) {
+      week = 1;
+    } else if (currentDay <= 22) {
+      week = 2;
+    } else {
+      week = 3;
+    }
+  } else if (currentMonth >= 9 || (currentMonth === 1 && currentDay <= 7)) {
+    // September - December or early January: Regular season
+    seasonType = 'regular';
+    
+    if (currentMonth === 9) {
+      // September weeks 1-4
+      if (currentDay <= 7) week = 1;
+      else if (currentDay <= 14) week = 2;
+      else if (currentDay <= 21) week = 3;
+      else week = 4;
+    } else if (currentMonth === 10) {
+      // October weeks 5-8
+      if (currentDay <= 7) week = 5;
+      else if (currentDay <= 14) week = 6;
+      else if (currentDay <= 21) week = 7;
+      else week = 8;
+    } else if (currentMonth === 11) {
+      // November weeks 9-12
+      if (currentDay <= 7) week = 9;
+      else if (currentDay <= 14) week = 10;
+      else if (currentDay <= 21) week = 11;
+      else week = 12;
+    } else if (currentMonth === 12) {
+      // December weeks 13-17
+      if (currentDay <= 7) week = 13;
+      else if (currentDay <= 14) week = 14;
+      else if (currentDay <= 21) week = 15;
+      else if (currentDay <= 28) week = 16;
+      else week = 17;
+    } else {
+      // Early January week 18
+      week = 18;
+    }
+  } else {
+    // January (after week 18) - February: Postseason
+    seasonType = 'postseason';
+    
+    if (currentMonth === 1) {
+      if (currentDay <= 14) week = 1; // Wild Card
+      else if (currentDay <= 21) week = 2; // Divisional
+      else if (currentDay <= 28) week = 3; // Conference Championships
+      else week = 4; // Pro Bowl week
+    } else {
+      // February
+      if (currentDay <= 14) week = 4; // Super Bowl
+      else week = 1; // Offseason/Draft prep
+    }
+  }
+
+  return {
+    week,
+    seasonType,
+    seasonYear
+  };
+}
+
 // Types matching your existing frontend types
 interface Team {
   id: number
@@ -165,7 +267,7 @@ function transformGame(dbGame: any, teams: Map<number, any>): Game {
     },
     home_score: dbGame.home_score,
     away_score: dbGame.away_score,
-    status: dbGame.status,
+    status: dbGame.game_status,
     status_detail: dbGame.game_status_detail
   }
 }
@@ -237,13 +339,16 @@ async function generateCache(supabase: any) {
     const teams = dbTeams.map(transformTeam)
     const teamMap = new Map(dbTeams.map((t: any) => [t.id, t]))
     
-    // Fetch current season games
-    const currentYear = new Date().getFullYear()
+    // Get current NFL week info
+    const currentNFLWeek = getCurrentNFLWeek()
+    console.log(`Generating cache for: ${currentNFLWeek.seasonType} week ${currentNFLWeek.week}, ${currentNFLWeek.seasonYear} season`)
+    
+    // Fetch current season games based on current NFL calendar
     const { data: dbGames, error: gamesError } = await supabase
       .from('games')
       .select('*')
-      .eq('season_year', currentYear)
-      .eq('season_type', 'regular')
+      .eq('season_year', currentNFLWeek.seasonYear)
+      .eq('week', currentNFLWeek.week)
       .order('game_date')
     
     if (gamesError) throw gamesError
@@ -271,7 +376,7 @@ async function generateCache(supabase: any) {
         export_date: new Date().toISOString(),
         total_teams: teams.length,
         total_games: games.length,
-        current_season: currentYear,
+        current_season: currentNFLWeek.seasonYear,
         weeks_available: availableWeeks,
         cache_version: generateCacheVersion()
       },

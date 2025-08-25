@@ -6,6 +6,7 @@ import ContentWrapper from '../../components/layout/ContentWrapper';
 import { useSchedule, useTeams } from '../../hooks/useNflData';
 import { usePicksWithDeadlines, useSubmitPicks } from '../../hooks/usePicks';
 import type { PickSubmission } from '../../types/picks';
+import { getCurrentNFLWeek, getNFLWeekDescription } from '../../lib/nflCalendar';
 
 function MakePicksContent() {
     const [userPicks, setUserPicks] = useState<Record<string, number>>({});
@@ -14,11 +15,27 @@ function MakePicksContent() {
     
     // For now, we'll use a real league ID - in a real app this would come from route params or context
     const leagueId = '0208f571-d6b7-4f33-90f9-608c3dbcef72'; // TODO: Get from actual league context (using BFG league)
-    const currentWeek = 1; // TODO: Get from current NFL week
+    
+    // Get current NFL week dynamically based on date
+    const currentNFLWeek = getCurrentNFLWeek();
+    const currentWeek = currentNFLWeek.week;
+    const weekDescription = getNFLWeekDescription(currentNFLWeek);
 
-    // Get live data from TanStack Query
-    const { allGames, isLoading: scheduleLoading, error: scheduleError } = useSchedule();
+    // Get live data from TanStack Query  
+    const { gamesByWeek, isLoading: scheduleLoading, error: scheduleError } = useSchedule();
     const { isLoading: teamsLoading } = useTeams();
+    
+    // Get games for current week only
+    const currentWeekGames = gamesByWeek[currentWeek] || [];
+    
+    // Debug logging
+    console.log('Make-picks debug:', {
+        currentWeek,
+        weekDescription,
+        totalWeeksAvailable: Object.keys(gamesByWeek),
+        currentWeekGamesCount: currentWeekGames.length,
+        firstGame: currentWeekGames[0]
+    });
     
     // Get picks data and game deadlines
     const {
@@ -44,9 +61,9 @@ function MakePicksContent() {
 
     // Convert live schedule data to the format expected by GameCard
     const games = useMemo(() => {
-        if (!allGames) return [];
+        if (!currentWeekGames || currentWeekGames.length === 0) return [];
         
-        return allGames.map((scheduleGame) => {
+        return currentWeekGames.map((scheduleGame) => {
             // Map various status formats to our Status type
             let gameStatus: Status = 'scheduled';
             if (scheduleGame.status === 'final' || scheduleGame.status === 'STATUS_FINAL' || scheduleGame.status === 'completed') {
@@ -74,13 +91,13 @@ function MakePicksContent() {
                     logo_url: scheduleGame.away_team?.logo_url || '',
                     record: teamRecords[scheduleGame.away_team?.abbreviation] || '6-5',
                 },
-                homeScore: scheduleGame.home_score,
-                awayScore: scheduleGame.away_score,
-                gameTime: scheduleGame.date,
+                homeScore: scheduleGame.home_team?.score || scheduleGame.home_score,
+                awayScore: scheduleGame.away_team?.score || scheduleGame.away_score,
+                gameTime: scheduleGame.date || scheduleGame.game_date,
                 venue: scheduleGame.venue_name || 'TBD',
             };
         });
-    }, [allGames, teamRecords]);
+    }, [currentWeekGames, teamRecords]);
 
     // Initialize user picks with existing picks
     useEffect(() => {
@@ -233,7 +250,7 @@ function MakePicksContent() {
     return (
         <ContentWrapper 
             title="Make Your Picks" 
-            subtitle={`Week ${currentWeek} - Select the winners for this week's games`}
+            subtitle={`${weekDescription} - Select the winners for this week's games`}
         >
             {/* Success Message */}
             {showSuccessMessage && (
