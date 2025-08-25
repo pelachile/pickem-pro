@@ -155,6 +155,7 @@ const TeamRow: React.FC<{
   compact?: boolean;
   layout?: 'default' | 'wide' | 'full';
   showPicks?: boolean;
+  hasScores?: boolean;
   onPickTeam?: (teamId: number) => void;
 }> = ({ 
   team, 
@@ -164,7 +165,8 @@ const TeamRow: React.FC<{
   isHome, 
   compact = false, 
   layout = 'default',
-  showPicks = false, 
+  showPicks = false,
+  hasScores = false,
   onPickTeam 
 }) => {
   // Convert team color hex to RGB for CSS custom properties
@@ -232,9 +234,9 @@ const TeamRow: React.FC<{
             layout === 'full' ? 'mb-4' : 'mb-3.5'
           )}>
             <div className={cn(
-              'font-bold text-white',
+              'font-bold',
               layout === 'full' ? 'text-4xl' : 'text-3xl',
-              isWinner && 'text-sunrise-gold'
+              isWinner ? 'text-green-400' : hasScores ? 'text-red-400' : 'text-white'
             )}>
               {score}
             </div>
@@ -261,9 +263,9 @@ const TeamRow: React.FC<{
           
           {typeof score !== 'undefined' && (
             <div className={cn(
-              'font-bold text-white',
+              'font-bold',
               compact ? 'text-lg' : 'text-xl',
-              isWinner && 'text-sunrise-gold'
+              isWinner ? 'text-green-400' : hasScores ? 'text-red-400' : 'text-white'
             )}>
               {score}
             </div>
@@ -582,6 +584,7 @@ export const GameCard: React.FC<GameCardProps> = ({
             layout="default" // Force default layout on mobile
             compact={compact}
             showPicks={showPicks}
+            hasScores={hasScores}
             onPickTeam={onPickTeam}
           />
           
@@ -600,6 +603,7 @@ export const GameCard: React.FC<GameCardProps> = ({
             layout="default" // Force default layout on mobile
             compact={compact}
             showPicks={showPicks}
+            hasScores={hasScores}
             onPickTeam={onPickTeam}
           />
         </div>
@@ -646,6 +650,7 @@ export const GameCard: React.FC<GameCardProps> = ({
                   layout={layout}
                   compact={layout === 'full' ? false : compact}
                   showPicks={showPicks}
+                  hasScores={hasScores}
                   onPickTeam={onPickTeam}
                 />
               </div>
@@ -676,6 +681,7 @@ export const GameCard: React.FC<GameCardProps> = ({
                   layout={layout}
                   compact={layout === 'full' ? false : compact}
                   showPicks={showPicks}
+                  hasScores={hasScores}
                   onPickTeam={onPickTeam}
                 />
               </div>
@@ -694,6 +700,7 @@ export const GameCard: React.FC<GameCardProps> = ({
               layout={layout}
               compact={compact}
               showPicks={showPicks}
+              hasScores={hasScores}
               onPickTeam={onPickTeam}
             />
             
@@ -712,6 +719,7 @@ export const GameCard: React.FC<GameCardProps> = ({
               layout={layout}
               compact={compact}
               showPicks={showPicks}
+              hasScores={hasScores}
               onPickTeam={onPickTeam}
             />
           </>
