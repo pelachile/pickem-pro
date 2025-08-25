@@ -91,6 +91,7 @@ create-schema.sql
 .serena/
 .playwright-mcp/
 .tanstack/
+.mcp.json
 
 # Documentation and planning files (security hardening)
 *.md
