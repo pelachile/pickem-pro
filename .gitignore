@@ -100,3 +100,10 @@ docs/
 implementation/
 migration/
 guides/
+
+# Playwright testing and authentication (security critical)
+playwright/
+test-results/
+playwright-report/
+*.auth
+.auth/
