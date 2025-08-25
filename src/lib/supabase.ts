@@ -6,6 +6,12 @@ import type { Database } from '../types/supabase-generated';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
+// Debug: Log environment variables
+console.log('VITE_SUPABASE_URL:', import.meta.env.VITE_SUPABASE_URL);
+console.log('Mode:', import.meta.env.MODE);
+console.log('DEV:', import.meta.env.DEV);
+console.log('PROD:', import.meta.env.PROD);
+
 if (!supabaseUrl) {
   throw new Error('Missing VITE_SUPABASE_URL environment variable');
 }

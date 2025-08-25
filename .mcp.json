@@ -6,22 +6,21 @@
         "-y",
         "@supabase/mcp-server-supabase@latest",
         "--read-only",
-        "--project-ref=<project-ref>",
-        "--supabase_url"
+        "--project-ref=fdmfbbximcinucuxhknk"
       ],
       "env": {
-        "SUPABASE_ACCESS_TOKEN": "<personal-access-token>"
+        "SUPABASE_ACCESS_TOKEN": "sbp_4a6f7ca3a4fd8d259e395c6ce5d9b1bfe601205b"
       }
     },
     "selfhosted-supabase": {
       "command": "node",
       "args": [
         "/Users/cory/selfhosted-supabase-mcp/dist/index.js",
-        "--url=http://127.0.0.1:54321",
-        "--anon-key=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0",
-        "--service-key=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU",
-        "--db-url=postgresql://postgres:postgres@127.0.0.1:54322/postgres",
-        "--jwt-secret=super-secret-jwt-token-with-at-least-32-characters-long"
+        "--url=https://fdmfbbximcinucuxhknk.supabase.co",
+        "--anon-key=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkbWZiYnhpbWNpbnVjdXhoa25rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU2MTA5NjEsImV4cCI6MjA3MTE4Njk2MX0.BfvDZES1jdH7JXc3ClYkLGTZbSaFhncGJne5lPuI1lg",
+        "--service-key=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkbWZiYnhpbWNpbnVjdXhoa25rIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MjA3MTE4Njk2MSwiaWF0IjoxNzU1NjEwOTYxfQ.pApJ6gcfmCUWr6QjEWDNvNEMbGQxFSkIUPyxMp2WLJI",
+        "--db-url=postgresql://postgres.fdmfbbximcinucuxhknk:PicksAppSucks4ever!!@aws-0-us-west-1.pooler.supabase.com:6543/postgres",
+        "--jwt-secret=your-jwt-secret-at-least-32-characters-long"
       ]
     }
   }
