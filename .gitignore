@@ -91,3 +91,12 @@ create-schema.sql
 .serena/
 .playwright-mcp/
 .tanstack/
+
+# Documentation and planning files (security hardening)
+*.md
+!README.md
+planning/
+docs/
+implementation/
+migration/
+guides/
