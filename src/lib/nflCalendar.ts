@@ -6,6 +6,10 @@ export interface NFLWeekInfo {
   week: number;
   seasonType: 'preseason' | 'regular' | 'postseason';
   seasonYear: number;
+  isDeadPeriod?: boolean;
+  displayWeek?: number;
+  displaySeasonType?: 'preseason' | 'regular' | 'postseason';
+  deadPeriodReason?: string;
 }
 
 /**
@@ -91,12 +95,39 @@ export function getCurrentNFLWeek(): NFLWeekInfo {
     }
   }
 
-  // For development/testing: if we're in August 2025, assume preseason week 3
-  if (currentYear === 2025 && currentMonth === 8 && currentDay >= 24) {
+  // For development/testing: Enhanced logic for August 2025
+  if (currentYear === 2025 && currentMonth === 8) {
+    if (currentDay >= 25 && currentDay <= 31) {
+      // Dead period between preseason and regular season (Aug 25-31)
+      return {
+        week: 1, // Next regular season week
+        seasonType: 'regular',
+        seasonYear: 2025,
+        isDeadPeriod: true,
+        displayWeek: 3, // Show last completed preseason week
+        displaySeasonType: 'preseason',
+        deadPeriodReason: 'Between preseason and regular season'
+      };
+    } else if (currentDay >= 21) {
+      // Preseason week 3
+      return {
+        week: 3,
+        seasonType: 'preseason',
+        seasonYear: 2025
+      };
+    }
+  }
+
+  // Check for dead period between preseason and regular season (Aug 25 - Sep 3)
+  if ((currentMonth === 8 && currentDay >= 25) || (currentMonth === 9 && currentDay <= 3)) {
     return {
-      week: 3,
-      seasonType: 'preseason',
-      seasonYear: 2025
+      week: 1, // Next regular season week
+      seasonType: 'regular',
+      seasonYear: seasonYear,
+      isDeadPeriod: true,
+      displayWeek: 3, // Show last completed preseason week
+      displaySeasonType: 'preseason',
+      deadPeriodReason: 'Between preseason and regular season'
     };
   }
 

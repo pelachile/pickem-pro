@@ -28,35 +28,10 @@ function DashboardContent() {
         'DET': '10-1', 'GB': '8-3', 'BAL': '9-2', 'BUF': '8-3'
     };
 
-    // Convert enhanced games data to the format expected by GameCard
+    // Use the enhanced games directly - they're already in the correct format
     const games = useMemo(() => {
-        if (!gamesData?.games) return [];
-        
-        return gamesData.games.map((game) => ({
-            id: game.id,
-            status: (game.status === 'final' ? 'final' : game.status === 'in_progress' ? 'live' : 'scheduled') as Status,
-            homeTeam: {
-                id: game.home_team_id,
-                name: game.home_team?.display_name || game.home_team?.name || 'Home Team',
-                abbreviation: game.home_team?.abbreviation || 'HOM',
-                color: game.home_team?.primary_color || '#1E3A8A',
-                logo_url: game.home_team?.logo_url || '',
-                record: teamRecords[game.home_team?.abbreviation || ''] || '6-5',
-            },
-            awayTeam: {
-                id: game.away_team_id,
-                name: game.away_team?.display_name || game.away_team?.name || 'Away Team',
-                abbreviation: game.away_team?.abbreviation || 'AWY',
-                color: game.away_team?.primary_color || '#DC2626',
-                logo_url: game.away_team?.logo_url || '',
-                record: teamRecords[game.away_team?.abbreviation || ''] || '6-5',
-            },
-            homeScore: game.home_score,
-            awayScore: game.away_score,
-            gameTime: game.date,
-            venue: game.venue_name || 'TBD',
-        }));
-    }, [gamesData?.games, teamRecords]);
+        return gamesData?.games || [];
+    }, [gamesData?.games]);
 
     // Group games by date with smart sequential layout logic
     const gamesByDate = useMemo(() => {

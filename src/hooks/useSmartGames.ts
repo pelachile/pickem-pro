@@ -8,7 +8,9 @@ import { useDbTeams } from './useDbTeams'
 // Smart hook that fetches games intelligently based on context
 export function useGames(week?: number, year?: number) {
   const currentNFLWeek = getCurrentNFLWeek()
-  const targetWeek = week ?? currentNFLWeek.week
+  // During dead periods, use display week (last completed week) when no specific week is requested
+  const defaultWeek = currentNFLWeek.isDeadPeriod ? currentNFLWeek.displayWeek! : currentNFLWeek.week
+  const targetWeek = week ?? defaultWeek
   const targetYear = year ?? currentNFLWeek.seasonYear
   
   const isCurrentWeek = targetWeek === currentNFLWeek.week && targetYear === currentNFLWeek.seasonYear
@@ -60,13 +62,17 @@ export function useEnhancedGames(week?: number, year?: number) {
     // If game already has complete team data (from cache), use it
     if (game.home_team && game.away_team && game.home_team.display_name) {
       // Transform to component Game format for cache data
+      const homeScore = typeof game.home_score === 'string' ? parseInt(game.home_score, 10) : game.home_score;
+      const awayScore = typeof game.away_score === 'string' ? parseInt(game.away_score, 10) : game.away_score;
+      
+      
       return {
         id: game.id,
         status: game.status as any, // Convert status format
         homeTeam: game.home_team,
         awayTeam: game.away_team,
-        homeScore: game.home_score,
-        awayScore: game.away_score,
+        homeScore,
+        awayScore,
         gameTime: game.date,
         venue: game.venue_name, // Map venue_name to venue
         week: game.week,
@@ -91,8 +97,8 @@ export function useEnhancedGames(week?: number, year?: number) {
       status: game.status as any, // Convert status format if needed
       homeTeam: homeTeam,
       awayTeam: awayTeam,
-      homeScore: game.home_score,
-      awayScore: game.away_score,
+      homeScore: typeof game.home_score === 'string' ? parseInt(game.home_score, 10) : game.home_score,
+      awayScore: typeof game.away_score === 'string' ? parseInt(game.away_score, 10) : game.away_score,
       gameTime: game.date,
       venue: game.venue_name, // Map venue_name to venue
       week: game.week,

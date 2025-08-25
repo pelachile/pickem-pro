@@ -28,7 +28,7 @@ function MakePicksContent() {
         isLoading: gamesLoading, 
         error: gamesError,
         data: smartGameData
-    } = useGamesByDate(currentWeek);
+    } = useGamesByDate(); // Let the hook determine the correct week
     const { isLoading: teamsLoading } = useTeams();
     
     const currentWeekGames = smartGameData?.games || [];
@@ -71,47 +71,14 @@ function MakePicksContent() {
     const gamesGroupedByDate = useMemo(() => {
         return sortedDates.map(date => {
             const dateGames = gamesByDate[date] || [];
-            const transformedGames = dateGames.map((gameData) => {
-                let gameStatus: Status = 'scheduled';
-                if (gameData.status === 'final' || gameData.status === 'STATUS_FINAL' || gameData.status === 'completed') {
-                    gameStatus = 'final';
-                } else if (gameData.status === 'in_progress' || gameData.status === 'STATUS_IN_PROGRESS' || gameData.status === 'live') {
-                    gameStatus = 'live';
-                }
-                
-                return {
-                    id: typeof gameData.id === 'string' ? parseInt(gameData.id, 10) || Math.random() * 1000000 : gameData.id || Math.random() * 1000000,
-                    status: gameStatus,
-                    homeTeam: {
-                        id: typeof gameData.home_team?.id === 'string' ? parseInt(gameData.home_team.id, 10) : gameData.home_team?.id || gameData.home_team_id,
-                        name: gameData.home_team?.display_name || gameData.home_team?.name || `${gameData.home_team?.location} ${gameData.home_team?.name}` || 'Home Team',
-                        abbreviation: gameData.home_team?.abbreviation || 'HOM',
-                        color: gameData.home_team?.color ? `#${gameData.home_team.color}` : '#000000',
-                        logo_url: gameData.home_team?.logo_url || '',
-                        record: teamRecords[gameData.home_team?.abbreviation] || '6-5',
-                    },
-                    awayTeam: {
-                        id: typeof gameData.away_team?.id === 'string' ? parseInt(gameData.away_team.id, 10) : gameData.away_team?.id || gameData.away_team_id,
-                        name: gameData.away_team?.display_name || gameData.away_team?.name || `${gameData.away_team?.location} ${gameData.away_team?.name}` || 'Away Team',
-                        abbreviation: gameData.away_team?.abbreviation || 'AWY',
-                        color: gameData.away_team?.color ? `#${gameData.away_team.color}` : '#000000',
-                        logo_url: gameData.away_team?.logo_url || '',
-                        record: teamRecords[gameData.away_team?.abbreviation] || '6-5',
-                    },
-                    homeScore: gameData.home_team?.score || gameData.home_score,
-                    awayScore: gameData.away_team?.score || gameData.away_score,
-                    gameTime: gameData.date || gameData.game_date,
-                    venue: gameData.venue_name || 'TBD',
-                };
-            });
             
             return {
                 date,
-                games: transformedGames,
-                gameCount: transformedGames.length,
+                games: dateGames, // Use the enhanced games directly
+                gameCount: dateGames.length,
             };
         });
-    }, [gamesByDate, sortedDates, teamRecords]);
+    }, [gamesByDate, sortedDates]);
 
     const getGridClass = (gameCount: number) => {
         if (gameCount === 1) {

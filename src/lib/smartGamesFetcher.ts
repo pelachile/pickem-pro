@@ -25,8 +25,13 @@ export interface CacheFileData {
 // Determine if we should use cache file or database for a given week/year
 export function shouldUseCacheFile(week: number, year: number): boolean {
   const currentNFLWeek = getCurrentNFLWeek()
-  const currentWeek = currentNFLWeek.week
+  const currentWeek = currentNFLWeek.displayWeek || currentNFLWeek.week
   const currentYear = currentNFLWeek.seasonYear
+  
+  // During dead periods, always use cache for the current NFL context
+  if (currentNFLWeek.isDeadPeriod && year === currentYear) {
+    return true // Dead period - cache handles the display logic
+  }
   
   // Use cache file for:
   // 1. Current week of current season (live/updated data)
@@ -75,11 +80,26 @@ export async function fetchGamesFromCache(week: number, year: number): Promise<G
       
       // Handle different cache formats
       let games: Game[] = []
+      
+      // Check for dead period and use all games if in dead period
+      const currentNFLWeek = getCurrentNFLWeek()
+      const isDeadPeriod = currentNFLWeek.isDeadPeriod || cacheData.meta?.is_dead_period
+      
+      
       if (cacheData.games) {
         // New format: { games: Game[], meta: {...} }
         games = cacheData.games
+      } else if (cacheData.schedule && cacheData.schedule.all_games) {
+        // Current enhanced format: { schedule: { all_games: Game[], by_week: {...} } }
+        if (isDeadPeriod) {
+          // During dead period, use all games (they're already filtered by the backend)
+          games = cacheData.schedule.all_games
+        } else {
+          // Normal period, try to get specific week
+          games = cacheData.schedule.by_week?.[week] || cacheData.schedule.all_games
+        }
       } else if (cacheData.schedule && cacheData.schedule.by_week && cacheData.schedule.by_week[week]) {
-        // Current format: { schedule: { by_week: { [weekNum]: Game[] } } }
+        // Legacy format: { schedule: { by_week: { [weekNum]: Game[] } } }
         games = cacheData.schedule.by_week[week]
       } else if (cacheData.weeks && cacheData.weeks[week]) {
         // Old format: { weeks: { [weekNum]: Game[] } }
@@ -97,6 +117,7 @@ export async function fetchGamesFromCache(week: number, year: number): Promise<G
         const gameYear = game.season_year || year
         return gameWeek === week && gameYear === year
       })
+      
       
       // Transform games to match expected interface (fix status format and date field)
       const transformedGames = filteredGames.map(game => ({
@@ -164,8 +185,11 @@ export async function fetchGamesFromDatabase(week: number, year: number): Promis
 export async function fetchGamesSmartly(week?: number, year?: number): Promise<SmartGameData> {
   // Use current week/year if not specified
   const currentNFLWeek = getCurrentNFLWeek()
+  
+  // Use current week/year if not specified
   const targetWeek = week ?? currentNFLWeek.week
   const targetYear = year ?? currentNFLWeek.seasonYear
+  
   
   const shouldUseCache = shouldUseCacheFile(targetWeek, targetYear)
   
