@@ -449,6 +449,17 @@ export const GameCard: React.FC<GameCardProps> = ({
 }) => {
   // Calculate game state
   const hasScores = typeof game.homeScore !== 'undefined' && typeof game.awayScore !== 'undefined';
+  
+  // Debug logging
+  console.log('GameCard debug:', {
+    gameId: game.id,
+    homeScore: game.homeScore,
+    awayScore: game.awayScore,
+    hasScores,
+    homeScoreType: typeof game.homeScore,
+    awayScoreType: typeof game.awayScore
+  });
+  
   const winningTeam = hasScores 
     ? game.homeScore! > game.awayScore! ? 'home' 
     : game.awayScore! > game.homeScore! ? 'away' 
