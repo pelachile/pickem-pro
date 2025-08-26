@@ -3,6 +3,7 @@ export { Button } from './Button';
 export { Card, CardHeader, CardTitle, CardContent, CardFooter } from './Card';
 export { Input } from './Input';
 export { SearchBar } from './SearchBar';
+export { Toggle } from './Toggle';
 
 // Status and user components
 export { StatusBadge } from './StatusBadge';
