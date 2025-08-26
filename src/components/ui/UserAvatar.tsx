@@ -4,10 +4,21 @@ import type { UserAvatarProps } from '../types';
 
 /**
  * Simple icon component for avatars
- * In a real project, you'd replace this with your icon library (e.g., Heroicons, Lucide, etc.)
+ * Handles both emoji icons and named icons
  */
 const Icon: React.FC<{ name: string; className?: string }> = ({ name, className }) => {
-  // This is a placeholder - replace with your actual icon implementation
+  // Check if it's already an emoji (unicode character)
+  const isEmoji = /[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u.test(name);
+  
+  if (isEmoji) {
+    return (
+      <span className={cn('flex items-center justify-center', className)}>
+        {name}
+      </span>
+    );
+  }
+  
+  // Fallback to iconMap for named icons
   const iconMap: Record<string, string> = {
     users: '👥',
     user: '👤',

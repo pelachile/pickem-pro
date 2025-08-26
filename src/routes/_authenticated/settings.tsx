@@ -22,11 +22,14 @@ import { UserAvatar } from '../../components/ui/UserAvatar';
 import { StatusBadge } from '../../components/ui/StatusBadge';
 import { useUserProfile, useProfileStats } from '../../hooks/useProfile';
 import { useAuth } from '../../hooks/useAuth';
+import { useNotificationToggle } from '../../hooks/useNotifications';
+import { Toggle } from '../../components/ui/Toggle';
 
 function Settings() {
   const { user, signOut } = useAuth();
   const { data: profileResponse, isLoading: profileLoading } = useUserProfile(user?.id);
   const { data: statsResponse, isLoading: statsLoading } = useProfileStats();
+  const { preferences, isLoading: notificationsLoading, togglePreference } = useNotificationToggle();
 
   const profile = profileResponse?.data;
   const stats = statsResponse?.data;
@@ -196,9 +199,12 @@ function Settings() {
                     <p className="font-medium text-white">Email Notifications</p>
                     <p className="text-white/60 text-sm">Receive updates about your picks and leagues</p>
                   </div>
-                  <button className="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent bg-sky-400 transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-sky-400/50 focus:ring-offset-2 focus:ring-offset-navy-900">
-                    <span className="pointer-events-none inline-block size-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out translate-x-5"></span>
-                  </button>
+                  <Toggle
+                    enabled={preferences?.email_notifications ?? true}
+                    onChange={(enabled) => togglePreference('email_notifications', enabled)}
+                    disabled={notificationsLoading}
+                    aria-label="Toggle email notifications"
+                  />
                 </div>
                 
                 <div className="flex items-center justify-between">
@@ -206,9 +212,12 @@ function Settings() {
                     <p className="font-medium text-white">Game Reminders</p>
                     <p className="text-white/60 text-sm">Get notified before pick deadlines</p>
                   </div>
-                  <button className="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent bg-white/20 transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-white/50 focus:ring-offset-2 focus:ring-offset-navy-900">
-                    <span className="pointer-events-none inline-block size-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out translate-x-0"></span>
-                  </button>
+                  <Toggle
+                    enabled={preferences?.game_reminders ?? false}
+                    onChange={(enabled) => togglePreference('game_reminders', enabled)}
+                    disabled={notificationsLoading}
+                    aria-label="Toggle game reminders"
+                  />
                 </div>
                 
                 <div className="flex items-center justify-between">
@@ -216,9 +225,12 @@ function Settings() {
                     <p className="font-medium text-white">Weekly Summaries</p>
                     <p className="text-white/60 text-sm">Weekly recap of your performance</p>
                   </div>
-                  <button className="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent bg-sky-400 transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-sky-400/50 focus:ring-offset-2 focus:ring-offset-navy-900">
-                    <span className="pointer-events-none inline-block size-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out translate-x-5"></span>
-                  </button>
+                  <Toggle
+                    enabled={preferences?.weekly_summaries ?? true}
+                    onChange={(enabled) => togglePreference('weekly_summaries', enabled)}
+                    disabled={notificationsLoading}
+                    aria-label="Toggle weekly summaries"
+                  />
                 </div>
               </div>
             </div>

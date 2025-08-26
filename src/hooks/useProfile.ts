@@ -145,16 +145,29 @@ export function useProfileForm(initialData?: UserProfile) {
   const [touched, setTouched] = React.useState<Record<string, boolean>>({});
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
-  const updateField = (field: string, value: string | boolean) => {
+  // Sync form data when initial data changes
+  React.useEffect(() => {
+    if (initialData) {
+      setFormData({
+        username: initialData.username || '',
+        full_name: initialData.full_name || '',
+        website: initialData.website || '',
+        avatar_icon: initialData.avatar_icon || '👤',
+        avatar_color: initialData.avatar_color || 'ocean-blue',
+      });
+    }
+  }, [initialData]);
+
+  const updateField = React.useCallback((field: string, value: string | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     setTouched(prev => ({ ...prev, [field]: true }));
-  };
+  }, []);
 
-  const markFieldTouched = (field: string) => {
+  const markFieldTouched = React.useCallback((field: string) => {
     setTouched(prev => ({ ...prev, [field]: true }));
-  };
+  }, []);
 
-  const resetForm = (data?: UserProfile) => {
+  const resetForm = React.useCallback((data?: UserProfile) => {
     setFormData({
       username: data?.username || '',
       full_name: data?.full_name || '',
@@ -164,7 +177,7 @@ export function useProfileForm(initialData?: UserProfile) {
     });
     setTouched({});
     setIsSubmitting(false);
-  };
+  }, []);
 
   const getFieldError = (field: string, errors?: Array<{ field: string; message: string }>): string | null => {
     if (!touched[field] || !errors) return null;

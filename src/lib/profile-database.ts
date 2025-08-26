@@ -111,11 +111,19 @@ export const getUserProfile = async (userId?: string): Promise<ApiResponse<UserP
       throw new Error(`Failed to fetch profile: ${error.message}`);
     }
 
+    // Merge database profile with avatar settings from localStorage
+    const avatarSettings = getAvatarSettings(targetUserId);
+    const profileWithAvatar = {
+      ...profile,
+      avatar_icon: avatarSettings.avatar_icon,
+      avatar_color: avatarSettings.avatar_color
+    } as UserProfile;
+
     logDebug('Profile retrieved successfully', { userId: targetUserId });
 
     return {
       success: true,
-      data: profile as UserProfile,
+      data: profileWithAvatar,
       message: 'Profile retrieved successfully'
     };
 
@@ -157,14 +165,12 @@ export const createUserProfile = async (data: CreateProfileRequest): Promise<Api
       }
     }
 
-    // Sanitize input data
+    // Sanitize input data (only include fields that exist in the database)
     const profileData = {
       id: userId,
       username: data.username ? sanitizeString(data.username) : null,
       full_name: data.full_name ? sanitizeString(data.full_name) : null,
       avatar_url: data.avatar_url || null,
-      avatar_icon: data.avatar_icon || null,
-      avatar_color: data.avatar_color || null,
       website: data.website?.trim() || null,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
@@ -183,11 +189,26 @@ export const createUserProfile = async (data: CreateProfileRequest): Promise<Api
       throw new Error(`Failed to create profile: ${error.message}`);
     }
 
+    // Save avatar settings to localStorage
+    if (data.avatar_icon || data.avatar_color) {
+      setAvatarSettings(userId, {
+        avatar_icon: data.avatar_icon || '👤',
+        avatar_color: data.avatar_color || 'ocean-blue'
+      });
+    }
+
     logDebug('Profile created successfully', { userId });
+
+    // Merge database profile with avatar settings for response
+    const profileWithAvatar = {
+      ...profile,
+      avatar_icon: data.avatar_icon || '👤',
+      avatar_color: data.avatar_color || 'ocean-blue'
+    } as UserProfile;
 
     return {
       success: true,
-      data: profile as UserProfile,
+      data: profileWithAvatar,
       message: 'Profile created successfully'
     };
 
@@ -239,8 +260,7 @@ export const updateUserProfile = async (data: UpdateProfileRequest): Promise<Api
       username?: string | null;
       full_name?: string | null;
       website?: string | null;
-      avatar_icon?: string;
-      avatar_color?: string;
+      avatar_url?: string | null;
     }
     const updateData: UpdateData = {
       updated_at: new Date().toISOString()
@@ -255,12 +275,8 @@ export const updateUserProfile = async (data: UpdateProfileRequest): Promise<Api
     if (data.avatar_url !== undefined) {
       updateData.avatar_url = data.avatar_url || null;
     }
-    if (data.avatar_icon !== undefined) {
-      updateData.avatar_icon = data.avatar_icon || null;
-    }
-    if (data.avatar_color !== undefined) {
-      updateData.avatar_color = data.avatar_color || null;
-    }
+    // Note: avatar_icon and avatar_color are handled by the frontend only
+    // and stored in localStorage until database migration adds these fields
     if (data.website !== undefined) {
       updateData.website = data.website?.trim() || null;
     }
@@ -281,9 +297,26 @@ export const updateUserProfile = async (data: UpdateProfileRequest): Promise<Api
 
     logDebug('Profile updated successfully', { userId });
 
+    // Update avatar settings in localStorage
+    if (data.avatar_icon !== undefined || data.avatar_color !== undefined) {
+      const currentAvatarSettings = getAvatarSettings(userId);
+      setAvatarSettings(userId, {
+        avatar_icon: data.avatar_icon !== undefined ? data.avatar_icon : currentAvatarSettings.avatar_icon,
+        avatar_color: data.avatar_color !== undefined ? data.avatar_color : currentAvatarSettings.avatar_color
+      });
+    }
+
+    // Merge database profile with avatar settings for response
+    const avatarSettings = getAvatarSettings(userId);
+    const profileWithAvatar = {
+      ...profile,
+      avatar_icon: data.avatar_icon !== undefined ? data.avatar_icon : avatarSettings.avatar_icon,
+      avatar_color: data.avatar_color !== undefined ? data.avatar_color : avatarSettings.avatar_color
+    } as UserProfile;
+
     return {
       success: true,
-      data: profile as UserProfile,
+      data: profileWithAvatar,
       message: 'Profile updated successfully'
     };
 
@@ -399,8 +432,7 @@ export const getProfileStats = async (): Promise<ApiResponse<any>> => {
     const { data: leagueMemberships, error: leagueError } = await supabase
       .from('league_members')
       .select('id')
-      .eq('user_id', userId)
-      .eq('status', 'active');
+      .eq('user_id', userId);
 
     if (leagueError) {
       throw new Error(`Failed to fetch league stats: ${leagueError.message}`);
@@ -440,6 +472,24 @@ export const getProfileStats = async (): Promise<ApiResponse<any>> => {
   }
 };
 
+// Avatar settings helpers for localStorage
+const getAvatarSettings = (userId: string) => {
+  try {
+    const stored = localStorage.getItem(`avatar_settings_${userId}`);
+    return stored ? JSON.parse(stored) : { avatar_icon: '👤', avatar_color: 'ocean-blue' };
+  } catch {
+    return { avatar_icon: '👤', avatar_color: 'ocean-blue' };
+  }
+};
+
+const setAvatarSettings = (userId: string, settings: { avatar_icon: string; avatar_color: string }) => {
+  try {
+    localStorage.setItem(`avatar_settings_${userId}`, JSON.stringify(settings));
+  } catch {
+    // Silently fail if localStorage is not available
+  }
+};
+
 // Calculate profile completion percentage
 const calculateProfileCompletion = async (userId: string): Promise<number> => {
   try {
@@ -452,12 +502,15 @@ const calculateProfileCompletion = async (userId: string): Promise<number> => {
     let completionScore = 0;
     const totalFields = 5;
 
-    // Check each field
+    // Check each field (only database fields for now)
     if (profile.username) completionScore++;
     if (profile.full_name) completionScore++;
-    if (profile.avatar_icon || profile.avatar_url) completionScore++;
-    if (profile.avatar_color) completionScore++;
+    if (profile.avatar_url) completionScore++; // Only check avatar_url from database
     if (profile.website) completionScore++;
+    
+    // Add localStorage avatar data if available
+    const avatarSettings = getAvatarSettings(userId);
+    if (avatarSettings.avatar_icon && avatarSettings.avatar_icon !== '👤') completionScore++;
 
     return Math.round((completionScore / totalFields) * 100);
   } catch (error) {
@@ -473,5 +526,7 @@ export const profileDatabase = {
   updateUserProfile,
   checkUsernameAvailability,
   generateUsernameSuggestions,
-  getProfileStats
+  getProfileStats,
+  getAvatarSettings,
+  setAvatarSettings
 };

@@ -1,23 +1,22 @@
 // User profile types for the NFL Pick'em application
+// Import the database profile type for consistency
+import type { Database } from './supabase-generated';
 
-export interface UserProfile {
-  id: string; // UUID from auth.users
-  username?: string;
-  full_name?: string;
-  avatar_url?: string;
+// Base profile from database
+type DatabaseProfile = Database['public']['Tables']['profiles']['Row'];
+
+// Extended profile with frontend avatar settings
+export interface UserProfile extends DatabaseProfile {
   avatar_icon?: string;
   avatar_color?: string;
-  website?: string;
-  created_at?: string;
-  updated_at?: string;
 }
 
 export interface CreateProfileRequest {
   username?: string;
   full_name?: string;
   avatar_url?: string;
-  avatar_icon?: string;
-  avatar_color?: string;
+  avatar_icon?: string; // Stored in localStorage
+  avatar_color?: string; // Stored in localStorage
   website?: string;
 }
 
@@ -25,8 +24,8 @@ export interface UpdateProfileRequest {
   username?: string;
   full_name?: string;
   avatar_url?: string;
-  avatar_icon?: string;
-  avatar_color?: string;
+  avatar_icon?: string; // Stored in localStorage
+  avatar_color?: string; // Stored in localStorage
   website?: string;
 }
 
