@@ -120,24 +120,34 @@ export const nflApi = {
     
     const teamRecords = getPreseasonRecords();
     
-    // Enrich team data with win-loss records
+    // Helper function to get local logo path
+    const getLocalLogoPath = (abbreviation: string): string => {
+      // Handle special case for Washington
+      const logoName = abbreviation === 'WAS' ? 'wsh' : abbreviation.toLowerCase();
+      return `/images/teams/${logoName}.png`;
+    };
+    
+    // Enrich team data with win-loss records and local logos
     if (data.teams?.all) {
       data.teams.all = data.teams.all.map((team: any) => ({
         ...team,
         record: teamRecords[team.abbreviation] || '0-0',
+        logo_url: getLocalLogoPath(team.abbreviation),
       }));
     }
-    
+
     // Transform games to match Game interface and enrich team data
     const transformGame = (game: any) => {
       const homeTeam = game.home_team ? {
         ...game.home_team,
         record: teamRecords[game.home_team.abbreviation] || '0-0',
+        logo_url: getLocalLogoPath(game.home_team.abbreviation),
       } : game.home_team;
       
       const awayTeam = game.away_team ? {
         ...game.away_team,
         record: teamRecords[game.away_team.abbreviation] || '0-0',
+        logo_url: getLocalLogoPath(game.away_team.abbreviation),
       } : game.away_team;
       
       return {

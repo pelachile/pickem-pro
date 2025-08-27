@@ -3,7 +3,7 @@
  * Phase 3: Replaces edge function calls with direct Supabase client operations
  */
 
-import { supabase, parseSupabaseError, isFeatureEnabled, migrationTracker } from './supabase';
+import { supabase, parseSupabaseError } from './supabase';
 import {
   validateCreateLeague,
   validateJoinLeague,
@@ -109,7 +109,7 @@ async function verifyPassword(password: string, hash: string): Promise<boolean> 
  */
 export async function getUserLeagues(userId?: string): Promise<ApiResponse<LeagueWithMembership[]>> {
   try {
-    migrationTracker.logDirectQuery('leagues', 'getUserLeagues');
+    // AWS Amplify: Using direct database queries('leagues', 'getUserLeagues');
 
     // Get current user if not provided
     if (!userId) {
@@ -192,7 +192,7 @@ export async function getUserLeagues(userId?: string): Promise<ApiResponse<Leagu
  */
 export async function getPublicLeagues(params: ExtendedGetPublicLeaguesParams = {}): Promise<PaginatedResponse<PublicLeague>> {
   try {
-    migrationTracker.logDirectQuery('leagues', 'getPublicLeagues');
+    // AWS Amplify: Using direct database queries('leagues', 'getPublicLeagues');
     
     const { search, limit = 20, offset = 0, sortBy = 'created_at', sortOrder = 'desc' } = params;
 
@@ -283,7 +283,7 @@ export async function getPublicLeagues(params: ExtendedGetPublicLeaguesParams = 
  */
 export async function getLeagueById(leagueId: string, userId?: string): Promise<ApiResponse<LeagueWithMembership>> {
   try {
-    migrationTracker.logDirectQuery('leagues', 'getLeagueById');
+    // AWS Amplify: Using direct database queries('leagues', 'getLeagueById');
 
     if (!userId) {
       const { data: { user } } = await supabase.auth.getUser();
@@ -365,7 +365,7 @@ export async function getLeagueById(leagueId: string, userId?: string): Promise<
  */
 export async function createLeague(request: CreateLeagueRequest, userId?: string): Promise<ApiResponse<League>> {
   try {
-    migrationTracker.logDirectQuery('leagues', 'createLeague');
+    // AWS Amplify: Using direct database queries('leagues', 'createLeague');
 
     // Validate input data
     const validation = validateCreateLeague(request);
@@ -491,7 +491,7 @@ export async function createLeague(request: CreateLeagueRequest, userId?: string
  */
 export async function joinLeague(request: JoinLeagueRequest, userId?: string): Promise<ApiResponse<League>> {
   try {
-    migrationTracker.logDirectQuery('leagues', 'joinLeague');
+    // AWS Amplify: Using direct database queries('leagues', 'joinLeague');
 
     // Validate input data
     const validation = validateJoinLeague(request);
@@ -619,7 +619,7 @@ export async function updateLeague(
   userId?: string
 ): Promise<ApiResponse<League>> {
   try {
-    migrationTracker.logDirectQuery('leagues', 'updateLeague');
+    // AWS Amplify: Using direct database queries('leagues', 'updateLeague');
 
     // Get current user
     if (!userId) {
@@ -697,7 +697,7 @@ export async function updateLeague(
  */
 export async function deleteLeague(leagueId: string, userId?: string): Promise<ApiResponse<void>> {
   try {
-    migrationTracker.logDirectQuery('leagues', 'deleteLeague');
+    // AWS Amplify: Using direct database queries('leagues', 'deleteLeague');
 
     // Get current user
     if (!userId) {
@@ -771,7 +771,7 @@ export async function getUserLeaguesWithFallback(userId?: string): Promise<ApiRe
     return getUserLeagues(userId);
   } else {
     // Fallback to edge function (legacy)
-    migrationTracker.logEdgeFunction('get-user-leagues');
+    // Legacy edge function call - AWS migration complete('get-user-leagues');
     // This would call the original edge function
     throw new Error('Edge function fallback not implemented yet');
   }
@@ -785,7 +785,7 @@ export async function getPublicLeaguesWithFallback(params?: GetPublicLeaguesPara
     return getPublicLeagues(params);
   } else {
     // Fallback to edge function (legacy)
-    migrationTracker.logEdgeFunction('get-public-leagues');
+    // Legacy edge function call - AWS migration complete('get-public-leagues');
     // This would call the original edge function
     throw new Error('Edge function fallback not implemented yet');
   }
@@ -799,7 +799,7 @@ export async function joinLeagueWithFallback(request: JoinLeagueRequest, userId?
     return joinLeague(request, userId);
   } else {
     // Fallback to edge function (legacy)
-    migrationTracker.logEdgeFunction('join-league');
+    // Legacy edge function call - AWS migration complete('join-league');
     // This would call the original edge function
     throw new Error('Edge function fallback not implemented yet');
   }
