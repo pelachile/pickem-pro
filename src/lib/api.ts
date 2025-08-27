@@ -3,6 +3,7 @@
 
 // Import AWS Amplify for live data
 import { generateClient } from 'aws-amplify/data';
+import { getCurrentUser } from 'aws-amplify/auth';
 import type { Schema } from '../../amplify/data/resource';
 
 // AWS Amplify client for database operations
@@ -36,21 +37,6 @@ import type {
 // API Base URLs
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'http://127.0.0.1:54321';
 const FUNCTIONS_BASE_URL = `${supabaseUrl}/functions/v1`;
-
-// AWS Amplify client for live data (lazy initialization)
-let amplifyClient: ReturnType<typeof generateClient<Schema>> | null = null;
-
-function getAmplifyClient() {
-  if (!amplifyClient) {
-    try {
-      amplifyClient = generateClient<Schema>();
-    } catch (error) {
-      console.error('Error initializing Amplify client:', error);
-      throw error;
-    }
-  }
-  return amplifyClient;
-}
 
 // Helper function to handle API errors
 async function handleApiError(response: Response): Promise<void> {
@@ -211,6 +197,10 @@ export const leagueApi = {
     try {
       const client = getAmplifyClient();
       
+      // Get current authenticated user
+      const user = await getCurrentUser();
+      const userId = user.userId;
+      
       // Generate unique invite code
       const inviteCode = Math.random().toString(36).substring(2, 8).toUpperCase();
       
@@ -224,7 +214,7 @@ export const leagueApi = {
         password_hash: request.password || null, // TODO: Hash password properly
         invite_code: inviteCode,
         status: 'active',
-        created_by: 'current-user-id', // TODO: Get actual user ID
+        created_by: userId,
       });
 
       if (errors) {
@@ -238,7 +228,7 @@ export const leagueApi = {
       // Add creator as admin member
       const { data: member, errors: memberErrors } = await client.models.LeagueMember.create({
         league_id: league?.id || '',
-        user_id: 'current-user-id', // TODO: Get actual user ID  
+        user_id: userId,
         role: 'admin',
       });
 
