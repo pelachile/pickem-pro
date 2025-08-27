@@ -111,6 +111,26 @@ const schema = a.schema({
       allow.owner().to(['read', 'update', 'delete']),
     ]),
 
+  // User Profile system
+  UserProfile: a
+    .model({
+      username: a.string(),
+      full_name: a.string(),
+      avatar_url: a.string(),
+      avatar_icon: a.string().default('👤'), // Emoji icon
+      avatar_color: a.string().default('ocean-blue'), // Color theme
+      website: a.string(),
+      bio: a.string(),
+      is_public: a.boolean().default(true),
+      owner: a.string().required(), // User ID (Amplify default owner field)
+    })
+    .authorization((allow) => [
+      allow.authenticated().to(['create', 'read']),
+      allow.owner().to(['read', 'update', 'delete']),
+      // Public profiles can be read by guests
+      allow.guest().to(['read']),
+    ]),
+
   // Keep existing Todo for now (can remove later)
   Todo: a
     .model({
