@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect } from 'react';
-import { leagueApi } from '../lib/api';
+import { leagueApi } from '../lib/api-minimal';
 import type {
   GetPublicLeaguesParams,
   JoinLeagueRequest,

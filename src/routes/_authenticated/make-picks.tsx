@@ -4,8 +4,9 @@ import { GameCard } from '../../components/ui/GameCard';
 import type { Status } from '../../components/types';
 import ContentWrapper from '../../components/layout/ContentWrapper';
 import { useTeams } from '../../hooks/useNflData';
-import { useGamesByDate } from '../../hooks/useSmartGames';
-import { DataSourceIndicator } from '../../components/dev';
+// import { useGamesByDate } from '../../hooks/useSmartGames'; // Disabled during AWS migration
+import { useEnrichedNflData } from '../../hooks/useLiveData';
+// import { DataSourceIndicator } from '../../components/dev'; // Disabled during AWS migration
 import { usePicksWithDeadlines, useSubmitPicks } from '../../hooks/usePicks';
 import type { PickSubmission } from '../../types/picks';
 import { getCurrentNFLWeek, getNFLWeekDescription } from '../../lib/nflCalendar';
@@ -19,19 +20,44 @@ function MakePicksContent() {
     
     const currentNFLWeek = getCurrentNFLWeek();
     const currentWeek = currentNFLWeek.week;
-    const weekDescription = getNFLWeekDescription(currentNFLWeek);
 
-    const { 
-        gamesByDate, 
-        sortedDates, 
-        dateCount,
-        isLoading: gamesLoading, 
-        error: gamesError,
-        data: smartGameData
-    } = useGamesByDate(); // Let the hook determine the correct week
+    // Use the new enriched NFL data
+    const { data: nflData, isLoading: gamesLoading, getGamesByWeek } = useEnrichedNflData();
     const { isLoading: teamsLoading } = useTeams();
     
-    const currentWeekGames = smartGameData?.games || [];
+    // Get the most recent week with games available (for off-season display)
+    const gamesData = useMemo(() => {
+        if (!nflData) return null;
+        // Get the latest week available in the cache
+        const availableWeeks = nflData.meta.weeks_available;
+        const latestWeek = Math.max(...availableWeeks);
+        const weekGames = getGamesByWeek(latestWeek);
+        
+        // Group games by date
+        const gamesByDate = weekGames.reduce((acc, game) => {
+            const date = new Date(game.date).toDateString();
+            if (!acc[date]) {
+                acc[date] = [];
+            }
+            acc[date].push(game);
+            return acc;
+        }, {} as Record<string, typeof weekGames>);
+        
+        const sortedDates = Object.keys(gamesByDate).sort((a, b) => 
+            new Date(a).getTime() - new Date(b).getTime()
+        );
+        
+        return {
+            games: weekGames,
+            gamesByDate,
+            sortedDates,
+            dateCount: sortedDates.length,
+            week: latestWeek,
+            weekDescription: `Preseason Week ${latestWeek} - Final Results`,
+        };
+    }, [nflData, getGamesByWeek]);
+    
+    const gamesError = null;
     
     const {
         picks: existingPicks,
@@ -43,15 +69,6 @@ function MakePicksContent() {
     
     const submitPicksMutation = useSubmitPicks();
 
-    // Team win-loss records (2024 season final records - will be replaced with live ESPN data during regular season)
-    const teamRecords: Record<string, string> = {
-        'DAL': '2024: 8-3', 'PHI': '2024: 9-2', 'KC': '2024: 10-1', 'LAC': '2024: 6-5',
-        'TB': '2024: 7-4', 'ATL': '2024: 5-6', 'CIN': '2024: 8-3', 'CLE': '2024: 4-7',
-        'MIA': '2024: 7-4', 'IND': '2024: 6-5', 'LV': '2024: 5-6', 'NE': '2024: 3-8',
-        'ARI': '2024: 6-5', 'NO': '2024: 7-4', 'PIT': '2024: 8-3', 'NYJ': '2024: 4-7',
-        'TEN': '2024: 5-6', 'DEN': '2024: 6-5', 'SF': '2024: 9-2', 'SEA': '2024: 7-4',
-        'DET': '2024: 10-1', 'GB': '2024: 8-3', 'BAL': '2024: 9-2', 'BUF': '2024: 8-3'
-    };
 
     useEffect(() => {
         if (existingPicks && existingPicks.length > 0) {
@@ -69,17 +86,6 @@ function MakePicksContent() {
             .map(deadline => deadline.game_id);
     }, [deadlines]);
 
-    const gamesGroupedByDate = useMemo(() => {
-        return sortedDates.map(date => {
-            const dateGames = gamesByDate[date] || [];
-            
-            return {
-                date,
-                games: dateGames, // Use the enhanced games directly
-                gameCount: dateGames.length,
-            };
-        });
-    }, [gamesByDate, sortedDates]);
 
     const getGridClass = (gameCount: number) => {
         if (gameCount === 1) {
@@ -185,8 +191,8 @@ function MakePicksContent() {
 
     return (
         <ContentWrapper 
-            title="Make Your Picks" 
-            subtitle={`${weekDescription} - Select the winners for this week's games`}
+            title="Recent Games" 
+            subtitle={gamesData?.weekDescription || 'Loading...'}
         >
             {showSuccessMessage && (
                 <div className="mb-6 bg-green-500/20 border border-green-500/30 rounded-xl p-4">
@@ -210,40 +216,22 @@ function MakePicksContent() {
                 </div>
             )}
 
-            <div className="mb-6 flex items-center gap-4">
-                <button
-                    onClick={handleSubmitPicks}
-                    disabled={Object.keys(userPicks).length === 0 || submitPicksMutation.isPending}
-                    className="w-full sm:w-auto bg-sky-400 hover:bg-sky-500 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl flex items-center gap-2"
-                >
-                    {submitPicksMutation.isPending && (
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                    )}
-                    {submitPicksMutation.isPending ? 'Submitting...' : `Submit Picks (${Object.keys(userPicks).length}/${currentWeekGames.length})`}
-                </button>
-                
-                {existingPicks && existingPicks.length > 0 && (
-                    <span className="text-white/60 text-sm">
-                        {existingPicks.length} existing pick{existingPicks.length !== 1 ? 's' : ''} loaded
-                    </span>
-                )}
-            </div>
+            {/* Picks submission UI hidden for historical games display */}
 
             <div className="mb-4 flex items-center gap-3">
-                <DataSourceIndicator 
-                    source={smartGameData?.source}
-                    lastUpdated={smartGameData?.lastUpdated}
-                    size="md"
-                />
-                {smartGameData?.games.length && (
+                {/* DataSourceIndicator disabled during AWS migration */}
+                {gamesData?.games && gamesData.games.length > 0 && (
                     <span className="text-white/60 text-sm">
-                        {smartGameData.games.length} games loaded
+                        {gamesData.games.length} games loaded
                     </span>
                 )}
             </div>
 
             <div className="space-y-8">
-                {gamesGroupedByDate.map(({ date, games: dateGames, gameCount }) => (
+                {gamesData?.sortedDates.map((date) => {
+                    const dateGames = gamesData.gamesByDate[date] || [];
+                    const gameCount = dateGames.length;
+                    return (
                     <div key={date}>
                         <div className="mb-4">
                             <h2 className="text-xl font-semibold text-white flex items-center gap-4">
@@ -262,9 +250,9 @@ function MakePicksContent() {
                                 const isExpired = expiredGameIds.includes(gameId);
                                 const deadline = deadlines.find(d => d.game_id === gameId);
                                 
-                                const isGameCompleted = game.status === 'final' || game.status === 'live';
-                                const shouldShowPicks = !isExpired && !isGameCompleted;
-                                const shouldShowStats = isGameCompleted;
+                                const isGameCompleted = game.status === 'STATUS_FINAL' || game.status === 'final' || game.status === 'live';
+                                const shouldShowPicks = false; // No picks for historical games
+                                const shouldShowStats = true; // Always show stats for completed games
                                 
                                 return (
                                     <GameCard
@@ -290,7 +278,8 @@ function MakePicksContent() {
                             })}
                         </div>
                     </div>
-                ))}
+                    );
+                })}
             </div>
 
             {Object.keys(userPicks).length > 0 && (
@@ -298,11 +287,7 @@ function MakePicksContent() {
                     <h3 className="text-lg font-semibold text-white mb-4">Your Picks Summary</h3>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                         {Object.entries(userPicks).map(([gameId, teamId]) => {
-                            let game: ReturnType<typeof normalizeGameData> | null = null;
-                            for (const { games: dateGames } of gamesGroupedByDate) {
-                                game = dateGames.find(g => g.id.toString() === gameId);
-                                if (game) break;
-                            }
+                            const game = gamesData?.games.find(g => g.id.toString() === gameId);
                             
                             const pickedTeam = game?.homeTeam.id === teamId ? game.homeTeam : game?.awayTeam;
                             const isExpired = expiredGameIds.includes(gameId);

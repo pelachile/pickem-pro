@@ -9,14 +9,34 @@ import {
 import { GameCard } from '../../components/ui/GameCard';
 import type { Status } from '../../components/types';
 import ContentWrapper from '../../components/layout/ContentWrapper';
-import { useEnhancedGames } from '../../hooks/useSmartGames';
+// import { useEnhancedGames } from '../../hooks/useSmartGames'; // Disabled during AWS migration
+import { useEnrichedNflData } from '../../hooks/useLiveData';
 import { CacheClearButton } from '../../components/CacheClearButton';
+import { getCurrentNFLWeek } from '../../lib/nflCalendar';
 
 function DashboardContent() {
     // Dashboard is now display-only - no navigation or picking functionality
 
-    // Get enhanced games data from smart games system
-    const { data: gamesData, isLoading: gamesLoading, error: gamesError } = useEnhancedGames();
+    // Get NFL data from the new enriched data system
+    const { data: nflData, isLoading: gamesLoading, error: gamesError, getGamesByWeek } = useEnrichedNflData();
+    
+    // Get the most recent week with games available (for off-season display)
+    const gamesData = useMemo(() => {
+        if (!nflData) return null;
+        
+        // Get the latest week available in the cache
+        const availableWeeks = nflData.meta.weeks_available;
+        const latestWeek = Math.max(...availableWeeks);
+        const weekGames = getGamesByWeek(latestWeek);
+        
+        return {
+            games: weekGames,
+            week: latestWeek,
+            weekDescription: `Preseason Week ${latestWeek}`,
+            source: 'static', // For compatibility
+            lastUpdated: nflData._liveDataMeta.lastUpdate,
+        };
+    }, [nflData, getGamesByWeek]);
 
     // Team win-loss records (2024 season final records - will be replaced with live ESPN data during regular season)
     const teamRecords: Record<string, string> = {
@@ -117,7 +137,7 @@ function DashboardContent() {
     return (
         <ContentWrapper 
             title="Dashboard" 
-            subtitle="Welcome back! Track your performance and view upcoming games."
+            subtitle={`Welcome back! Showing ${gamesData?.weekDescription || 'recent games'} with final scores.`}
         >
             {/* Temporary Cache Clear Button */}
             <div className="mb-4 flex justify-end">
@@ -265,6 +285,7 @@ function DashboardContent() {
                                                     : 'default' // 3+ games: default vertical layout
                                             }
                                             showPicks={false}
+                                            showStats={true}
                                             onPickTeam={undefined}
                                             className="h-full w-full transition-all duration-200 hover:shadow-lg" 
                                         />

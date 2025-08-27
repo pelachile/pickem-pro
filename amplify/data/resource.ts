@@ -1,12 +1,74 @@
 import { type ClientSchema, a, defineData } from '@aws-amplify/backend';
 
-/*== STEP 1 ===============================================================
-The section below creates a Todo database table with a "content" field. Try
-adding a new "isDone" field as a boolean. The authorization rule below
-specifies that any unauthenticated user can "create", "read", "update", 
-and "delete" any "Todo" records.
-=========================================================================*/
+/*== HYBRID DATA ARCHITECTURE ============================================
+Static Data (CDN/JSON): Teams, schedules, venue info - rarely changes
+Dynamic Data (AWS): Live scores, game status, team records - updates every 5 minutes
+
+This schema defines only the dynamic data that changes frequently during games.
+========================================================================*/
 const schema = a.schema({
+  // Live game status and scores (updated every 5 minutes during games)
+  GameStatus: a
+    .model({
+      espn_id: a.string().required(), // Links to static game data
+      home_score: a.integer(),
+      away_score: a.integer(),
+      status: a.enum(['scheduled', 'in_progress', 'final', 'postponed', 'cancelled']),
+      quarter: a.string(), // "1st", "2nd", "3rd", "4th", "OT", "Final"
+      time_remaining: a.string(), // "14:32", "0:00", etc.
+      game_status_detail: a.string(), // "End of 1st Quarter", "Halftime", etc.
+      has_started: a.boolean().default(false),
+      has_finished: a.boolean().default(false),
+      last_updated: a.datetime().required(),
+      season_year: a.integer().required(),
+      week: a.integer().required(),
+    })
+    .authorization((allow) => [
+      allow.guest().to(['read']), // Public read access for game data
+      allow.authenticated().to(['read']), // Authenticated users can read
+      // Only Lambda functions can write (via service role)
+    ])
+    .identifier(['espn_id']), // Use ESPN ID as primary key
+
+  // Team season records (wins/losses updated after each game)
+  TeamRecord: a
+    .model({
+      espn_id: a.string().required(), // Links to static team data
+      season_year: a.integer().required(),
+      wins: a.integer().default(0),
+      losses: a.integer().default(0),
+      ties: a.integer().default(0),
+      win_percentage: a.float(),
+      points_for: a.integer().default(0),
+      points_against: a.integer().default(0),
+      point_differential: a.integer().default(0),
+      streak: a.string(), // "W3", "L1", etc.
+      last_updated: a.datetime().required(),
+    })
+    .authorization((allow) => [
+      allow.guest().to(['read']),
+      allow.authenticated().to(['read']),
+    ])
+    .identifier(['espn_id', 'season_year']), // Composite key
+
+  // Major game events (scoring plays, etc.)
+  GameEvent: a
+    .model({
+      game_espn_id: a.string().required(),
+      event_id: a.string().required(), // ESPN event ID
+      event_type: a.enum(['touchdown', 'field_goal', 'safety', 'two_point', 'quarter_end', 'game_end']),
+      description: a.string().required(),
+      score_change: a.json(), // { home: number, away: number }
+      quarter: a.string(),
+      time_remaining: a.string(),
+      timestamp: a.datetime().required(),
+    })
+    .authorization((allow) => [
+      allow.guest().to(['read']),
+      allow.authenticated().to(['read']),
+    ]),
+
+  // Keep existing Todo for now (can remove later)
   Todo: a
     .model({
       content: a.string(),
