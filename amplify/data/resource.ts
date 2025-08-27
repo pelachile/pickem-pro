@@ -73,7 +73,7 @@ const schema = a.schema({
     .model({
       name: a.string().required(),
       description: a.string(),
-      created_by: a.string().required(), // User ID
+      owner: a.string().required(), // User ID (Amplify default owner field)
       entry_fee: a.integer(),
       max_members: a.integer().required(),
       is_private: a.boolean(),
@@ -89,7 +89,7 @@ const schema = a.schema({
   LeagueMember: a
     .model({
       league_id: a.string().required(),
-      user_id: a.string().required(),
+      owner: a.string().required(), // User ID (Amplify default owner field)
       role: a.enum(['admin', 'member']),
     })
     .authorization((allow) => [
@@ -100,7 +100,7 @@ const schema = a.schema({
   LeagueInvite: a
     .model({
       league_id: a.string().required(),
-      created_by: a.string().required(),
+      owner: a.string().required(), // User ID (Amplify default owner field)
       invite_code: a.string().required(),
       expires_at: a.datetime(),
       max_uses: a.integer(),

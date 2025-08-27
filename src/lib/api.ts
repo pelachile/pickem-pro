@@ -214,7 +214,7 @@ export const leagueApi = {
         password_hash: request.password || null, // TODO: Hash password properly
         invite_code: inviteCode,
         status: 'active',
-        created_by: userId,
+        owner: userId,
       });
 
       if (errors) {
@@ -228,7 +228,7 @@ export const leagueApi = {
       // Add creator as admin member
       const { data: member, errors: memberErrors } = await client.models.LeagueMember.create({
         league_id: league?.id || '',
-        user_id: userId,
+        owner: userId,
         role: 'admin',
       });
 

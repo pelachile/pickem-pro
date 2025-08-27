@@ -28,9 +28,9 @@
   "data": {
     "url": "https://udmgxtsejfai3ax3ayayzftbuu.appsync-api.us-east-2.amazonaws.com/graphql",
     "aws_region": "us-east-2",
-    "default_authorization_type": "AWS_IAM",
+    "default_authorization_type": "AMAZON_COGNITO_USER_POOLS",
     "authorization_types": [
-      "AMAZON_COGNITO_USER_POOLS"
+      "AWS_IAM"
     ],
     "model_introspection": {
       "version": 1,
@@ -468,8 +468,8 @@
               "isRequired": false,
               "attributes": []
             },
-            "created_by": {
-              "name": "created_by",
+            "owner": {
+              "name": "owner",
               "isArray": false,
               "type": "String",
               "isRequired": true,
@@ -592,8 +592,8 @@
               "isRequired": true,
               "attributes": []
             },
-            "user_id": {
-              "name": "user_id",
+            "owner": {
+              "name": "owner",
               "isArray": false,
               "type": "String",
               "isRequired": true,
@@ -680,8 +680,8 @@
               "isRequired": true,
               "attributes": []
             },
-            "created_by": {
-              "name": "created_by",
+            "owner": {
+              "name": "owner",
               "isArray": false,
               "type": "String",
               "isRequired": true,
