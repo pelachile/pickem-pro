@@ -318,32 +318,75 @@ export const leagueApi = {
 
   // Get user's leagues
   async getUserLeagues(): Promise<GetUserLeaguesResponse> {
-    // Feature flag: Use direct database queries or edge functions
-    if (shouldUseDirectDB('getUserLeagues')) {
-      // AWS Amplify: Using direct database queries('leagues', 'getUserLeagues');
+    try {
+      const client = getAmplifyClient();
       
-      const result = await directDB.getUserLeagues();
+      // Get current authenticated user
+      const user = await getCurrentUser();
+      const userId = user.userId;
       
-      if (result.success && result.data) {
-        // Transform LeagueWithMembership to UserLeague format
-        const userLeagues = result.data.map((league) => ({
-          ...league,
-          userRole: league.user_role,
-          joinedAt: league.joined_at,
-          has_password: !!league.password_hash,
-          season_year: new Date().getFullYear(), // Default to current year
-        }));
-        
-        return {
-          success: true,
-          data: userLeagues,
-        };
-      } else {
+      // Query leagues where the user is the owner
+      const { data: ownedLeagues, errors: ownedLeaguesErrors } = await client.models.League.list({
+        filter: {
+          owner: {
+            eq: userId
+          }
+        }
+      });
+      
+      if (ownedLeaguesErrors) {
+        console.error('Error fetching owned leagues:', ownedLeaguesErrors);
         return {
           success: false,
-          error: result.error || 'Failed to get user leagues',
+          error: 'Failed to fetch your leagues: ' + ownedLeaguesErrors.map(e => e.message).join(', '),
         };
       }
+      
+      // Query league memberships for this user  
+      const { data: memberships, errors: membershipErrors } = await client.models.LeagueMember.list({
+        filter: {
+          owner: {
+            eq: userId
+          }
+        }
+      });
+      
+      if (membershipErrors) {
+        console.error('Error fetching league memberships:', membershipErrors);
+        // Continue even if memberships fail - user may only have owned leagues
+      }
+      
+      // Transform owned leagues to user league format
+      const userLeagues = (ownedLeagues || []).map((league) => ({
+        id: league.id || '',
+        name: league.name || '',
+        description: league.description || null,
+        entry_fee: league.entry_fee || 0,
+        max_members: league.max_members || 0,
+        is_private: league.is_private || false,
+        invite_code: league.invite_code || '',
+        status: league.status || 'active',
+        owner: league.owner || '',
+        created_at: league.createdAt || new Date().toISOString(),
+        updated_at: league.updatedAt || new Date().toISOString(),
+        userRole: 'admin' as const, // Owner is always admin
+        joinedAt: league.createdAt || new Date().toISOString(),
+        has_password: !!league.password_hash,
+        season_year: new Date().getFullYear(),
+        current_members: 1, // At least the owner
+        winRate: 0, // TODO: Calculate from picks
+      }));
+      
+      return {
+        success: true,
+        data: userLeagues,
+      };
+    } catch (error) {
+      console.error('getUserLeagues error:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to fetch user leagues',
+      };
     }
     
     // Legacy edge function approach
