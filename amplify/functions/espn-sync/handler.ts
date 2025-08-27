@@ -10,10 +10,18 @@ import type { ScheduledHandler } from 'aws-lambda';
 import type { Schema } from '../../data/resource';
 import { Amplify } from 'aws-amplify';
 import { generateClient } from 'aws-amplify/data';
-import outputs from '../../storage/amplify_outputs.json';
 
-// Configure Amplify
-Amplify.configure(outputs);
+// Configure Amplify with environment variables (will be populated during deployment)
+Amplify.configure({
+  API: {
+    GraphQL: {
+      endpoint: process.env.AMPLIFY_DATA_GRAPHQL_ENDPOINT || '',
+      region: process.env.AWS_REGION || 'us-east-1',
+      defaultAuthMode: 'iam'
+    }
+  }
+});
+
 const client = generateClient<Schema>();
 
 interface ESPNGame {
