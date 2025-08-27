@@ -1,9 +1,4 @@
 version: 1
-backend:
-  phases:
-    build:
-      commands:
-        - npx ampx generate outputs --app-id dz577n3x9rkbm --branch $AWS_BRANCH
 frontend:
   phases:
     preBuild:
