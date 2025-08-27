@@ -104,6 +104,8 @@ export const nflApi = {
     // Calculate preseason records from cache data
     const calculatePreseasonRecords = (): Record<string, string> => {
       const records: Record<string, { wins: number; losses: number }> = {};
+      let gamesProcessed = 0;
+      let cowboysGames: any[] = [];
       
       // Initialize all teams with 0-0
       if (data.teams?.all) {
@@ -113,14 +115,49 @@ export const nflApi = {
       }
       
       // Count wins/losses from all preseason games
+      // Check both all_games and by_week to ensure we get all data
+      const allPreseasonGames: any[] = [];
+      
+      // First try all_games if available
       if (data.schedule?.all_games) {
         data.schedule.all_games.forEach((game: any) => {
-          if (game.season_type === 'preseason' && game.status === 'STATUS_FINAL' && 
+          if (game.season_type === 'preseason') {
+            allPreseasonGames.push(game);
+          }
+        });
+      }
+      
+      // If no all_games or very few games, try by_week
+      if (allPreseasonGames.length < 10 && data.schedule?.by_week) {
+        Object.values(data.schedule.by_week).forEach((weekGames: any) => {
+          if (Array.isArray(weekGames)) {
+            weekGames.forEach((game: any) => {
+              if (game.season_type === 'preseason') {
+                allPreseasonGames.push(game);
+              }
+            });
+          }
+        });
+      }
+      
+      allPreseasonGames.forEach((game: any) => {
+          if (game.status === 'STATUS_FINAL' && 
               game.home_team && game.away_team && 
               typeof game.home_score === 'number' && typeof game.away_score === 'number') {
             
             const homeAbbr = game.home_team.abbreviation;
             const awayAbbr = game.away_team.abbreviation;
+            
+            // Debug: Track Cowboys games specifically
+            if (homeAbbr === 'DAL' || awayAbbr === 'DAL') {
+              cowboysGames.push({
+                id: game.id,
+                home: `${homeAbbr} ${game.home_score}`,
+                away: `${awayAbbr} ${game.away_score}`,
+                week: game.week,
+                winner: game.home_score > game.away_score ? homeAbbr : awayAbbr
+              });
+            }
             
             if (records[homeAbbr] && records[awayAbbr]) {
               if (game.home_score > game.away_score) {
@@ -131,10 +168,20 @@ export const nflApi = {
                 records[homeAbbr].losses++;
               }
               // Ties are ignored in preseason
+              gamesProcessed++;
             }
           }
         });
       }
+      
+      // Debug logging for Cowboys specifically
+      console.log('Preseason Records Calculation Debug:');
+      console.log('- Data source: all_games =', data.schedule?.all_games?.length || 0, 'games');
+      console.log('- Data source: by_week =', Object.keys(data.schedule?.by_week || {}).length, 'weeks');
+      console.log('- Total preseason games found:', allPreseasonGames.length);
+      console.log('- Total preseason games processed:', gamesProcessed);
+      console.log('- Cowboys games found:', cowboysGames);
+      console.log('- Cowboys final record:', records['DAL']);
       
       // Convert to string format
       const teamRecords: Record<string, string> = {};
