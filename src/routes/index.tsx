@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../components/auth';
 
 function IndexRedirect() {
   const { user, isLoading, isInitialized } = useAuth();

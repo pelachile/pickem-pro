@@ -1,6 +1,6 @@
 import { createFileRoute, Outlet, useNavigate } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../components/auth';
 import AuthenticatedLayout from '../components/layout/AuthenticatedLayout';
 import { RouteErrorBoundary } from '../components/RouteErrorBoundary';
 

@@ -21,7 +21,7 @@ import { Button } from '../../components/ui/Button';
 import { UserAvatar } from '../../components/ui/UserAvatar';
 import { StatusBadge } from '../../components/ui/StatusBadge';
 import { useUserProfile, useProfileStats } from '../../hooks/useProfile';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '../../components/auth';
 import { useNotificationToggle } from '../../hooks/useNotifications';
 import { Toggle } from '../../components/ui/Toggle';
 

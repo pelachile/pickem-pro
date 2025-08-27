@@ -22,5 +22,8 @@ export * from './utils';
 // Types - TypeScript definitions
 export * from './types';
 
+// Authentication Components - Custom auth components using Amplify headless APIs
+export * from './auth';
+
 // Tailwind Theme Configuration  
 // Note: tailwind-theme.js is a plain JS file, import directly when needed

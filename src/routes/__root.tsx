@@ -1,7 +1,7 @@
 import { createRootRoute, Link, Outlet } from '@tanstack/react-router';
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
 import { Trophy } from 'lucide-react';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../components/auth';
 import { RouteErrorBoundary } from '../components/RouteErrorBoundary';
 
 function RootComponent() {

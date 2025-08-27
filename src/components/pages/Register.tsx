@@ -9,7 +9,7 @@ import {
   CheckCircle 
 } from 'lucide-react';
 import { cn } from '../utils';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '../auth';
 
 interface RegisterFormData {
   firstName: string;

@@ -24,7 +24,7 @@ import {
   useDebouncedUsernameCheck,
   useProfileForm 
 } from '../../hooks/useProfile';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '../../components/auth';
 import type { AvatarIcon, AvatarColor, ProfileFormData } from '../../types/profile';
 
 // Available avatar options

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { Card, CardContent, Button, Input } from '../ui';
 import { Mail, Lock, Trophy } from 'lucide-react';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '../auth';
 
 interface LoginFormData {
   email: string;

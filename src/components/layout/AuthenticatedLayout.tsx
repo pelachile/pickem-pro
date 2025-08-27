@@ -15,7 +15,7 @@ import {
     Loader2,
     AlertCircle,
 } from 'lucide-react';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '../auth';
 import { useUserProfile } from '../../hooks/useProfile';
 import { useUserLeagues } from '../../hooks/useLeague';
 import { UserAvatar } from '../ui/UserAvatar';
