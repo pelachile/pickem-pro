@@ -28,6 +28,11 @@ import { Route as AuthenticatedDashboardRouteImport } from './routes/_authentica
 import { Route as AuthenticatedCreateLeagueRouteImport } from './routes/_authenticated/create-league'
 import { Route as AuthenticatedLeagueLeagueIdRouteImport } from './routes/_authenticated/league.$leagueId'
 import { Route as AuthenticatedLeagueManageLeagueIdRouteImport } from './routes/_authenticated/league-manage.$leagueId'
+import { Route as AuthenticatedFantasyWideReceiversRouteImport } from './routes/_authenticated/fantasy.wide-receivers'
+import { Route as AuthenticatedFantasyTightendsRouteImport } from './routes/_authenticated/fantasy.tightends'
+import { Route as AuthenticatedFantasyRunningBacksRouteImport } from './routes/_authenticated/fantasy.running-backs'
+import { Route as AuthenticatedFantasyQuarterbacksRouteImport } from './routes/_authenticated/fantasy.quarterbacks'
+import { Route as AuthenticatedFantasyDefenseKickersRouteImport } from './routes/_authenticated/fantasy.defense-kickers'
 
 const RegisterRoute = RegisterRouteImport.update({
   id: '/register',
@@ -127,6 +132,36 @@ const AuthenticatedLeagueManageLeagueIdRoute =
     path: '/league-manage/$leagueId',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedFantasyWideReceiversRoute =
+  AuthenticatedFantasyWideReceiversRouteImport.update({
+    id: '/fantasy/wide-receivers',
+    path: '/fantasy/wide-receivers',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFantasyTightendsRoute =
+  AuthenticatedFantasyTightendsRouteImport.update({
+    id: '/fantasy/tightends',
+    path: '/fantasy/tightends',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFantasyRunningBacksRoute =
+  AuthenticatedFantasyRunningBacksRouteImport.update({
+    id: '/fantasy/running-backs',
+    path: '/fantasy/running-backs',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFantasyQuarterbacksRoute =
+  AuthenticatedFantasyQuarterbacksRouteImport.update({
+    id: '/fantasy/quarterbacks',
+    path: '/fantasy/quarterbacks',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedFantasyDefenseKickersRoute =
+  AuthenticatedFantasyDefenseKickersRouteImport.update({
+    id: '/fantasy/defense-kickers',
+    path: '/fantasy/defense-kickers',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -145,6 +180,11 @@ export interface FileRoutesByFullPath {
   '/settings': typeof AuthenticatedSettingsRoute
   '/stats': typeof AuthenticatedStatsRoute
   '/test-venues': typeof AuthenticatedTestVenuesRoute
+  '/fantasy/defense-kickers': typeof AuthenticatedFantasyDefenseKickersRoute
+  '/fantasy/quarterbacks': typeof AuthenticatedFantasyQuarterbacksRoute
+  '/fantasy/running-backs': typeof AuthenticatedFantasyRunningBacksRoute
+  '/fantasy/tightends': typeof AuthenticatedFantasyTightendsRoute
+  '/fantasy/wide-receivers': typeof AuthenticatedFantasyWideReceiversRoute
   '/league-manage/$leagueId': typeof AuthenticatedLeagueManageLeagueIdRoute
   '/league/$leagueId': typeof AuthenticatedLeagueLeagueIdRoute
 }
@@ -165,6 +205,11 @@ export interface FileRoutesByTo {
   '/settings': typeof AuthenticatedSettingsRoute
   '/stats': typeof AuthenticatedStatsRoute
   '/test-venues': typeof AuthenticatedTestVenuesRoute
+  '/fantasy/defense-kickers': typeof AuthenticatedFantasyDefenseKickersRoute
+  '/fantasy/quarterbacks': typeof AuthenticatedFantasyQuarterbacksRoute
+  '/fantasy/running-backs': typeof AuthenticatedFantasyRunningBacksRoute
+  '/fantasy/tightends': typeof AuthenticatedFantasyTightendsRoute
+  '/fantasy/wide-receivers': typeof AuthenticatedFantasyWideReceiversRoute
   '/league-manage/$leagueId': typeof AuthenticatedLeagueManageLeagueIdRoute
   '/league/$leagueId': typeof AuthenticatedLeagueLeagueIdRoute
 }
@@ -187,6 +232,11 @@ export interface FileRoutesById {
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/stats': typeof AuthenticatedStatsRoute
   '/_authenticated/test-venues': typeof AuthenticatedTestVenuesRoute
+  '/_authenticated/fantasy/defense-kickers': typeof AuthenticatedFantasyDefenseKickersRoute
+  '/_authenticated/fantasy/quarterbacks': typeof AuthenticatedFantasyQuarterbacksRoute
+  '/_authenticated/fantasy/running-backs': typeof AuthenticatedFantasyRunningBacksRoute
+  '/_authenticated/fantasy/tightends': typeof AuthenticatedFantasyTightendsRoute
+  '/_authenticated/fantasy/wide-receivers': typeof AuthenticatedFantasyWideReceiversRoute
   '/_authenticated/league-manage/$leagueId': typeof AuthenticatedLeagueManageLeagueIdRoute
   '/_authenticated/league/$leagueId': typeof AuthenticatedLeagueLeagueIdRoute
 }
@@ -209,6 +259,11 @@ export interface FileRouteTypes {
     | '/settings'
     | '/stats'
     | '/test-venues'
+    | '/fantasy/defense-kickers'
+    | '/fantasy/quarterbacks'
+    | '/fantasy/running-backs'
+    | '/fantasy/tightends'
+    | '/fantasy/wide-receivers'
     | '/league-manage/$leagueId'
     | '/league/$leagueId'
   fileRoutesByTo: FileRoutesByTo
@@ -229,6 +284,11 @@ export interface FileRouteTypes {
     | '/settings'
     | '/stats'
     | '/test-venues'
+    | '/fantasy/defense-kickers'
+    | '/fantasy/quarterbacks'
+    | '/fantasy/running-backs'
+    | '/fantasy/tightends'
+    | '/fantasy/wide-receivers'
     | '/league-manage/$leagueId'
     | '/league/$leagueId'
   id:
@@ -250,6 +310,11 @@ export interface FileRouteTypes {
     | '/_authenticated/settings'
     | '/_authenticated/stats'
     | '/_authenticated/test-venues'
+    | '/_authenticated/fantasy/defense-kickers'
+    | '/_authenticated/fantasy/quarterbacks'
+    | '/_authenticated/fantasy/running-backs'
+    | '/_authenticated/fantasy/tightends'
+    | '/_authenticated/fantasy/wide-receivers'
     | '/_authenticated/league-manage/$leagueId'
     | '/_authenticated/league/$leagueId'
   fileRoutesById: FileRoutesById
@@ -398,6 +463,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedLeagueManageLeagueIdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/fantasy/wide-receivers': {
+      id: '/_authenticated/fantasy/wide-receivers'
+      path: '/fantasy/wide-receivers'
+      fullPath: '/fantasy/wide-receivers'
+      preLoaderRoute: typeof AuthenticatedFantasyWideReceiversRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/fantasy/tightends': {
+      id: '/_authenticated/fantasy/tightends'
+      path: '/fantasy/tightends'
+      fullPath: '/fantasy/tightends'
+      preLoaderRoute: typeof AuthenticatedFantasyTightendsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/fantasy/running-backs': {
+      id: '/_authenticated/fantasy/running-backs'
+      path: '/fantasy/running-backs'
+      fullPath: '/fantasy/running-backs'
+      preLoaderRoute: typeof AuthenticatedFantasyRunningBacksRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/fantasy/quarterbacks': {
+      id: '/_authenticated/fantasy/quarterbacks'
+      path: '/fantasy/quarterbacks'
+      fullPath: '/fantasy/quarterbacks'
+      preLoaderRoute: typeof AuthenticatedFantasyQuarterbacksRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/fantasy/defense-kickers': {
+      id: '/_authenticated/fantasy/defense-kickers'
+      path: '/fantasy/defense-kickers'
+      fullPath: '/fantasy/defense-kickers'
+      preLoaderRoute: typeof AuthenticatedFantasyDefenseKickersRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
   }
 }
 
@@ -413,6 +513,11 @@ interface AuthenticatedRouteChildren {
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedStatsRoute: typeof AuthenticatedStatsRoute
   AuthenticatedTestVenuesRoute: typeof AuthenticatedTestVenuesRoute
+  AuthenticatedFantasyDefenseKickersRoute: typeof AuthenticatedFantasyDefenseKickersRoute
+  AuthenticatedFantasyQuarterbacksRoute: typeof AuthenticatedFantasyQuarterbacksRoute
+  AuthenticatedFantasyRunningBacksRoute: typeof AuthenticatedFantasyRunningBacksRoute
+  AuthenticatedFantasyTightendsRoute: typeof AuthenticatedFantasyTightendsRoute
+  AuthenticatedFantasyWideReceiversRoute: typeof AuthenticatedFantasyWideReceiversRoute
   AuthenticatedLeagueManageLeagueIdRoute: typeof AuthenticatedLeagueManageLeagueIdRoute
   AuthenticatedLeagueLeagueIdRoute: typeof AuthenticatedLeagueLeagueIdRoute
 }
@@ -429,6 +534,13 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedStatsRoute: AuthenticatedStatsRoute,
   AuthenticatedTestVenuesRoute: AuthenticatedTestVenuesRoute,
+  AuthenticatedFantasyDefenseKickersRoute:
+    AuthenticatedFantasyDefenseKickersRoute,
+  AuthenticatedFantasyQuarterbacksRoute: AuthenticatedFantasyQuarterbacksRoute,
+  AuthenticatedFantasyRunningBacksRoute: AuthenticatedFantasyRunningBacksRoute,
+  AuthenticatedFantasyTightendsRoute: AuthenticatedFantasyTightendsRoute,
+  AuthenticatedFantasyWideReceiversRoute:
+    AuthenticatedFantasyWideReceiversRoute,
   AuthenticatedLeagueManageLeagueIdRoute:
     AuthenticatedLeagueManageLeagueIdRoute,
   AuthenticatedLeagueLeagueIdRoute: AuthenticatedLeagueLeagueIdRoute,

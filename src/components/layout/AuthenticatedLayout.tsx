@@ -14,6 +14,12 @@ import {
     Settings,
     Loader2,
     AlertCircle,
+    Target,
+    Zap,
+    User,
+    Shield,
+    ChevronDown,
+    ChevronRight,
 } from 'lucide-react';
 import { useAuth } from '../auth';
 import { useUserProfile } from '../../hooks/useProfile';
@@ -38,6 +44,15 @@ const navigation = [
     { name: 'Stats', href: '/stats', icon: PieChart },
 ];
 
+// Fantasy Football navigation items
+const fantasyNavigation = [
+    { name: 'Quarterbacks', href: '/fantasy/quarterbacks', icon: Target },
+    { name: 'Wide Receivers', href: '/fantasy/wide-receivers', icon: Zap },
+    { name: 'Running Backs', href: '/fantasy/running-backs', icon: User },
+    { name: 'Tight Ends', href: '/fantasy/tightends', icon: Users },
+    { name: 'Defense & Kickers', href: '/fantasy/defense-kickers', icon: Shield },
+];
+
 
 function classNames(...classes: string[]) {
     return classes.filter(Boolean).join(' ');
@@ -45,6 +60,7 @@ function classNames(...classes: string[]) {
 
 export default function AuthenticatedLayout({ children }: AuthenticatedLayoutProps) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [fantasyExpanded, setFantasyExpanded] = useState(false);
     const { user, signOut } = useAuth();
     const router = useRouter();
     const location = useLocation();
@@ -75,6 +91,14 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
     const isCurrentPage = (href: string) => {
         return location.pathname === href;
     };
+
+    // Detect if we're on a Fantasy Football route and auto-expand
+    const isFantasyRoute = location.pathname.startsWith('/fantasy');
+    React.useEffect(() => {
+        if (isFantasyRoute) {
+            setFantasyExpanded(true);
+        }
+    }, [isFantasyRoute]);
 
     const Sidebar = () => (
         <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-navy-900/95 backdrop-blur-lg border-r border-sky-400/20 px-6">
@@ -146,6 +170,55 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
                                 </Link>
                             </li>
                         </ul>
+                    </li>
+
+                    {/* Fantasy Football Section */}
+                    <li>
+                        <div className="mb-3">
+                            <button
+                                onClick={() => setFantasyExpanded(!fantasyExpanded)}
+                                className="w-full flex items-center justify-between text-xs font-semibold text-white/60 uppercase tracking-wider hover:text-white/80 transition-colors duration-200"
+                            >
+                                <span>Fantasy Football</span>
+                                {fantasyExpanded ? (
+                                    <ChevronDown className="h-3 w-3" />
+                                ) : (
+                                    <ChevronRight className="h-3 w-3" />
+                                )}
+                            </button>
+                        </div>
+                        
+                        {fantasyExpanded && (
+                            <ul role="list" className="-mx-2 space-y-1 mb-4">
+                                {fantasyNavigation.map((item) => {
+                                    const current = isCurrentPage(item.href);
+                                    return (
+                                        <li key={item.name}>
+                                            <Link
+                                                to={item.href}
+                                                className={classNames(
+                                                    current
+                                                        ? 'bg-sky-400/20 text-sky-400 border-l-2 border-sky-400'
+                                                        : 'text-white/80 hover:bg-white/10 hover:text-sky-400 border-l-2 border-transparent hover:border-sky-400/50',
+                                                    'group flex gap-x-3 rounded-r-md p-2 text-sm font-medium transition-all duration-200 ease-out',
+                                                )}
+                                            >
+                                                <item.icon
+                                                    aria-hidden="true"
+                                                    className={classNames(
+                                                        current
+                                                            ? 'text-sky-400'
+                                                            : 'text-white/60 group-hover:text-sky-400',
+                                                        'size-4 shrink-0 transition-colors duration-200',
+                                                    )}
+                                                />
+                                                <span className="text-xs">{item.name}</span>
+                                            </Link>
+                                        </li>
+                                    );
+                                })}
+                            </ul>
+                        )}
                     </li>
 
                     {/* My Leagues Section */}
