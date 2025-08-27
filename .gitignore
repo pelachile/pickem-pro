@@ -58,8 +58,8 @@ pids
 .pnp/
 .pnp.js
 
-# Team images (large files - should be served from CDN)
-public/images/teams/
+# Team images - now included in git for AWS deployment
+# public/images/teams/
 
 # Test and backup directories
 playwright-report/
