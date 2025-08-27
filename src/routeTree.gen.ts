@@ -18,7 +18,6 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedTestVenuesRouteImport } from './routes/_authenticated/test-venues'
 import { Route as AuthenticatedStatsRouteImport } from './routes/_authenticated/stats'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
-import { Route as AuthenticatedProfileRefactoredRouteImport } from './routes/_authenticated/profile-refactored'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as AuthenticatedMakePicksRouteImport } from './routes/_authenticated/make-picks'
 import { Route as AuthenticatedLeaguesRouteImport } from './routes/_authenticated/leagues'
@@ -74,12 +73,6 @@ const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
-const AuthenticatedProfileRefactoredRoute =
-  AuthenticatedProfileRefactoredRouteImport.update({
-    id: '/profile-refactored',
-    path: '/profile-refactored',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
 const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
@@ -149,7 +142,6 @@ export interface FileRoutesByFullPath {
   '/leagues': typeof AuthenticatedLeaguesRoute
   '/make-picks': typeof AuthenticatedMakePicksRoute
   '/profile': typeof AuthenticatedProfileRoute
-  '/profile-refactored': typeof AuthenticatedProfileRefactoredRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/stats': typeof AuthenticatedStatsRoute
   '/test-venues': typeof AuthenticatedTestVenuesRoute
@@ -170,7 +162,6 @@ export interface FileRoutesByTo {
   '/leagues': typeof AuthenticatedLeaguesRoute
   '/make-picks': typeof AuthenticatedMakePicksRoute
   '/profile': typeof AuthenticatedProfileRoute
-  '/profile-refactored': typeof AuthenticatedProfileRefactoredRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/stats': typeof AuthenticatedStatsRoute
   '/test-venues': typeof AuthenticatedTestVenuesRoute
@@ -193,7 +184,6 @@ export interface FileRoutesById {
   '/_authenticated/leagues': typeof AuthenticatedLeaguesRoute
   '/_authenticated/make-picks': typeof AuthenticatedMakePicksRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
-  '/_authenticated/profile-refactored': typeof AuthenticatedProfileRefactoredRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/stats': typeof AuthenticatedStatsRoute
   '/_authenticated/test-venues': typeof AuthenticatedTestVenuesRoute
@@ -216,7 +206,6 @@ export interface FileRouteTypes {
     | '/leagues'
     | '/make-picks'
     | '/profile'
-    | '/profile-refactored'
     | '/settings'
     | '/stats'
     | '/test-venues'
@@ -237,7 +226,6 @@ export interface FileRouteTypes {
     | '/leagues'
     | '/make-picks'
     | '/profile'
-    | '/profile-refactored'
     | '/settings'
     | '/stats'
     | '/test-venues'
@@ -259,7 +247,6 @@ export interface FileRouteTypes {
     | '/_authenticated/leagues'
     | '/_authenticated/make-picks'
     | '/_authenticated/profile'
-    | '/_authenticated/profile-refactored'
     | '/_authenticated/settings'
     | '/_authenticated/stats'
     | '/_authenticated/test-venues'
@@ -339,13 +326,6 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof AuthenticatedSettingsRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/profile-refactored': {
-      id: '/_authenticated/profile-refactored'
-      path: '/profile-refactored'
-      fullPath: '/profile-refactored'
-      preLoaderRoute: typeof AuthenticatedProfileRefactoredRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/profile': {
@@ -430,7 +410,6 @@ interface AuthenticatedRouteChildren {
   AuthenticatedLeaguesRoute: typeof AuthenticatedLeaguesRoute
   AuthenticatedMakePicksRoute: typeof AuthenticatedMakePicksRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
-  AuthenticatedProfileRefactoredRoute: typeof AuthenticatedProfileRefactoredRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedStatsRoute: typeof AuthenticatedStatsRoute
   AuthenticatedTestVenuesRoute: typeof AuthenticatedTestVenuesRoute
@@ -447,7 +426,6 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedLeaguesRoute: AuthenticatedLeaguesRoute,
   AuthenticatedMakePicksRoute: AuthenticatedMakePicksRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
-  AuthenticatedProfileRefactoredRoute: AuthenticatedProfileRefactoredRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedStatsRoute: AuthenticatedStatsRoute,
   AuthenticatedTestVenuesRoute: AuthenticatedTestVenuesRoute,

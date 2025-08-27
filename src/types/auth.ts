@@ -1,15 +1,15 @@
-// User interface for our application
+// User interface for our application - AWS Amplify compatible
 export interface User {
   id: string;
   email: string;
   firstName?: string;
   lastName?: string;
   displayName?: string;
-  // Supabase specific fields  
-  email_confirmed_at?: string;
+  // AWS Amplify compatible fields
+  emailVerified?: boolean;
   phone?: string;
-  created_at?: string;
-  updated_at?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 // Authentication context interface
@@ -51,11 +51,11 @@ export interface AuthErrorResponse {
   code?: string;
 }
 
-// User metadata interface for Supabase
+// User metadata interface for AWS Amplify
 export interface UserMetadata {
-  first_name?: string;
-  last_name?: string;
-  display_name?: string;
+  given_name?: string;
+  family_name?: string;
+  name?: string;
   firstName?: string;
   lastName?: string;
   displayName?: string;
@@ -64,11 +64,5 @@ export interface UserMetadata {
 // Basic auth error type
 export interface AuthError {
   message: string;
-  status?: number;
+  name?: string;
 }
-
-// Supabase user type (re-exported from Supabase)
-export type { User as SupabaseUser } from '@supabase/supabase-js';
-
-// Supabase session type (re-exported from Supabase)  
-export type { Session } from '@supabase/supabase-js';

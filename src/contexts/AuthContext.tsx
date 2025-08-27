@@ -1,32 +1,32 @@
 import React, { createContext, useState, useEffect, useCallback, useMemo } from 'react';
-import { supabase } from '../lib/supabase';
-import type { AuthError, Session, User as SupabaseUser } from '@supabase/supabase-js';
-import { isAuthError } from '../types/errors';
+import { 
+  signIn as amplifySignIn,
+  signUp as amplifySignUp, 
+  signOut as amplifySignOut,
+  getCurrentUser,
+  fetchAuthSession,
+  confirmSignUp as amplifyConfirmSignUp,
+  resendSignUpCode,
+  resetPassword as amplifyResetPassword,
+  confirmResetPassword as amplifyConfirmResetPassword,
+  type AuthUser
+} from 'aws-amplify/auth';
+import { Hub } from 'aws-amplify/utils';
 
-// User interface for our application
+// User interface for our application - AWS Amplify compatible
 interface User {
   id: string;
   email: string;
   firstName?: string;
   lastName?: string;
   displayName?: string;
-  email_confirmed_at?: string;
+  emailVerified?: boolean;
   phone?: string;
-  created_at?: string;
-  updated_at?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
-// User metadata interface for Supabase
-interface UserMetadata {
-  first_name?: string;
-  last_name?: string;
-  display_name?: string;
-  firstName?: string;
-  lastName?: string;
-  displayName?: string;
-}
-
-// Sign up response interface
+// Sign up response interface - AWS Amplify compatible
 interface SignUpResponse {
   isSignUpComplete: boolean;
   nextStep?: {
@@ -34,7 +34,7 @@ interface SignUpResponse {
   };
 }
 
-// Split state and actions for better performance
+// Auth state interface
 interface AuthState {
   user: User | null;
   isLoading: boolean;
@@ -42,6 +42,7 @@ interface AuthState {
   isInitialized: boolean;
 }
 
+// Auth actions interface
 interface AuthActions {
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (
@@ -49,7 +50,7 @@ interface AuthActions {
     password: string,
     firstName?: string,
     lastName?: string
-  ) => Promise<{ isSignUpComplete: boolean; nextStep?: unknown }>;
+  ) => Promise<SignUpResponse>;
   signOut: () => Promise<void>;
   confirmSignUp: (email: string, code: string) => Promise<void>;
   resendConfirmationCode: (email: string) => Promise<void>;
@@ -66,57 +67,43 @@ interface AuthContextType extends AuthState, AuthActions {}
 
 // Utility functions
 const getAuthErrorMessage = (error: unknown): string => {
-  if (isAuthError(error)) {
-    switch (error.status) {
-      case 400:
-        if (error.message.includes('Invalid login credentials')) {
-          return 'Invalid email or password. Please check your credentials and try again.';
-        }
-        if (error.message.includes('Email not confirmed')) {
-          return 'Please check your email and click the confirmation link before signing in.';
-        }
-        if (error.message.includes('Password should be at least')) {
-          return 'Password must be at least 6 characters long.';
-        }
-        if (error.message.includes('User already registered')) {
-          return 'An account with this email already exists. Please sign in instead.';
-        }
-        break;
-      case 422:
-        if (error.message.includes('Email rate limit exceeded')) {
-          return 'Too many requests. Please wait a moment before trying again.';
-        }
-        break;
-      case 429:
+  if (error && typeof error === 'object' && 'name' in error) {
+    const authError = error as { name: string; message?: string };
+    
+    switch (authError.name) {
+      case 'UserAlreadyExistsException':
+        return 'An account with this email already exists. Please sign in instead.';
+      case 'UsernameExistsException':
+        return 'An account with this email already exists. Please sign in instead.';
+      case 'InvalidPasswordException':
+        return 'Password must be at least 8 characters and include uppercase, lowercase, numbers, and symbols.';
+      case 'InvalidParameterException':
+        return 'Please check your input and try again.';
+      case 'NotAuthorizedException':
+        return 'Invalid email or password. Please check your credentials and try again.';
+      case 'UserNotConfirmedException':
+        return 'Please check your email and confirm your account before signing in.';
+      case 'CodeMismatchException':
+        return 'Invalid verification code. Please check the code and try again.';
+      case 'ExpiredCodeException':
+        return 'Verification code has expired. Please request a new code.';
+      case 'TooManyRequestsException':
         return 'Too many requests. Please wait a moment before trying again.';
-      case 500:
-        return 'Server error. Please try again later.';
+      case 'LimitExceededException':
+        return 'Too many attempts. Please wait before trying again.';
+      case 'UserNotFoundException':
+        return 'No account found with this email address.';
+      default:
+        return authError.message || 'An unexpected error occurred. Please try again.';
     }
   }
 
-  // Check for Error instance
   if (error instanceof Error) {
-    if (error.message.includes('Invalid email')) {
-      return 'Please enter a valid email address.';
-    }
-    
-    if (error.message.includes('weak password')) {
-      return 'Password is too weak. Please choose a stronger password.';
-    }
-    
     return error.message;
   }
-  
-  // Check for object with message property
-  if (typeof error === 'object' && error !== null && 'message' in error) {
-    const message = String((error as { message: unknown }).message);
-    if (message.includes('Invalid email')) {
-      return 'Please enter a valid email address.';
-    }
-    if (message.includes('weak password')) {
-      return 'Password is too weak. Please choose a stronger password.';
-    }
-    return message;
+
+  if (typeof error === 'string') {
+    return error;
   }
 
   return 'An unexpected error occurred. Please try again.';
@@ -127,6 +114,40 @@ const formatDisplayName = (firstName?: string, lastName?: string): string => {
     return `${firstName} ${lastName}`;
   }
   return firstName || lastName || '';
+};
+
+// Helper function to convert AWS Amplify user to our User interface
+const mapAmplifyUser = async (amplifyUser: AuthUser): Promise<User> => {
+  try {
+    // Get user attributes
+    const session = await fetchAuthSession();
+    const idToken = session.tokens?.idToken;
+    
+    // Extract user attributes from the token payload
+    const userAttributes = idToken?.payload || {};
+    
+    const firstName = userAttributes.given_name as string || userAttributes.first_name as string;
+    const lastName = userAttributes.family_name as string || userAttributes.last_name as string;
+    const displayName = userAttributes.name as string || formatDisplayName(firstName, lastName);
+    
+    return {
+      id: amplifyUser.userId,
+      email: userAttributes.email as string || '',
+      firstName,
+      lastName,
+      displayName,
+      emailVerified: userAttributes.email_verified as boolean,
+      phone: userAttributes.phone_number as string,
+      createdAt: userAttributes.created_at as string,
+      updatedAt: userAttributes.updated_at as string,
+    };
+  } catch (error) {
+    // Fallback if we can't get detailed user info
+    return {
+      id: amplifyUser.userId,
+      email: amplifyUser.username || '',
+    };
+  }
 };
 
 // Create separate contexts for state and actions
@@ -143,176 +164,169 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
-  const [session, setSession] = useState<Session | null>(null);
 
-  const isAuthenticated = !!user && !!session;
-
-  // Helper function to convert Supabase user to our User interface
-  const mapSupabaseUser = (supabaseUser: SupabaseUser, userMetadata?: UserMetadata): User => {
-    const firstName = userMetadata?.first_name || userMetadata?.firstName;
-    const lastName = userMetadata?.last_name || userMetadata?.lastName;
-    const displayName = userMetadata?.display_name || userMetadata?.displayName || formatDisplayName(firstName, lastName);
-
-    return {
-      id: supabaseUser.id,
-      email: supabaseUser.email || '',
-      firstName,
-      lastName,
-      displayName,
-      email_confirmed_at: supabaseUser.email_confirmed_at,
-      phone: supabaseUser.phone,
-      created_at: supabaseUser.created_at,
-      updated_at: supabaseUser.updated_at,
-    };
-  };
+  const isAuthenticated = !!user;
 
   // Initialize auth state and listen for auth changes
   useEffect(() => {
-    // Get initial session
-    const getInitialSession = async () => {
+    let isMounted = true;
+
+    // Get initial auth state
+    const initializeAuth = async () => {
       setIsLoading(true);
       try {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        if (error) {
-          // Error getting session
-        } else if (session?.user) {
-          setSession(session);
-          setUser(mapSupabaseUser(session.user, session.user.user_metadata));
+        const currentUser = await getCurrentUser();
+        if (currentUser && isMounted) {
+          const mappedUser = await mapAmplifyUser(currentUser);
+          setUser(mappedUser);
         }
       } catch (error) {
-        // Error initializing auth
+        // User not authenticated - this is expected
+        if (isMounted) {
+          setUser(null);
+        }
       } finally {
-        setIsLoading(false);
-        setIsInitialized(true);
+        if (isMounted) {
+          setIsLoading(false);
+          setIsInitialized(true);
+        }
       }
     };
 
-    getInitialSession();
+    initializeAuth();
 
-    // Listen for auth state changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        setSession(session);
-        
-        if (session?.user) {
-          setUser(mapSupabaseUser(session.user, session.user.user_metadata));
-        } else {
+    // Listen for auth events using Hub
+    const hubListenerCancel = Hub.listen('auth', async (data) => {
+      if (!isMounted) return;
+
+      const { event } = data.payload;
+      
+      switch (event) {
+        case 'signedIn':
+          setIsLoading(true);
+          try {
+            const currentUser = await getCurrentUser();
+            if (currentUser) {
+              const mappedUser = await mapAmplifyUser(currentUser);
+              setUser(mappedUser);
+            }
+          } catch (error) {
+            setUser(null);
+          } finally {
+            setIsLoading(false);
+          }
+          break;
+
+        case 'signedOut':
           setUser(null);
-        }
-        
-        setIsLoading(false);
+          setIsLoading(false);
+          break;
+
+        case 'signInWithRedirect':
+        case 'signInWithRedirect_failure':
+        case 'customOAuthState':
+          // Handle these events if needed for social login
+          break;
+
+        default:
+          break;
       }
-    );
+    });
 
     return () => {
-      subscription.unsubscribe();
+      isMounted = false;
+      hubListenerCancel();
     };
   }, []);
 
-  // Helper function to handle auth errors
-  const handleAuthError = (error: AuthError | Error) => {
-    const friendlyMessage = getAuthErrorMessage(error);
-    throw new Error(friendlyMessage);
-  };
-
-  // Memoize authentication functions to prevent recreation on every render
+  // Authentication functions
   const handleSignIn = useCallback(async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+      const { isSignedIn } = await amplifySignIn({
+        username: email,
+        password: password,
       });
       
-      if (error) {
-        handleAuthError(error);
+      if (isSignedIn) {
+        // User state will be updated via Hub listener
       }
-      
-      // User state will be updated via the auth state change listener
     } catch (error) {
       setIsLoading(false);
-      throw error;
+      const friendlyMessage = getAuthErrorMessage(error);
+      throw new Error(friendlyMessage);
     }
   }, []);
 
-  const handleSignUp = useCallback(async (email: string, password: string, firstName?: string, lastName?: string) => {
+  const handleSignUp = useCallback(async (
+    email: string, 
+    password: string, 
+    firstName?: string, 
+    lastName?: string
+  ): Promise<SignUpResponse> => {
     setIsLoading(true);
     try {
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
+      const { isSignUpComplete, nextStep } = await amplifySignUp({
+        username: email,
+        password: password,
         options: {
-          emailRedirectTo: `${window.location.origin}/login`,
-          data: {
-            first_name: firstName,
-            last_name: lastName,
-            display_name: firstName && lastName ? `${firstName} ${lastName}` : firstName,
+          userAttributes: {
+            email: email,
+            given_name: firstName || '',
+            family_name: lastName || '',
+            name: formatDisplayName(firstName, lastName),
           },
         },
       });
-      
-      if (error) {
-        handleAuthError(error);
-      }
-      
-      // For email confirmation (link-based), user is created but not confirmed
-      const isSignUpComplete = !!data.user && data.user.email_confirmed_at;
-      
+
       return {
         isSignUpComplete,
-        nextStep: isSignUpComplete ? undefined : { signUpStep: 'CHECK_EMAIL' },
-      } as SignUpResponse;
+        nextStep: nextStep ? { signUpStep: nextStep.signUpStep } : undefined,
+      };
     } catch (error) {
+      const friendlyMessage = getAuthErrorMessage(error);
+      throw new Error(friendlyMessage);
+    } finally {
       setIsLoading(false);
-      throw error;
     }
   }, []);
 
   const handleSignOut = useCallback(async () => {
     setIsLoading(true);
     try {
-      const { error } = await supabase.auth.signOut();
-      if (error) {
-        handleAuthError(error);
-      }
-      // User state will be cleared via the auth state change listener
+      await amplifySignOut();
+      // User state will be cleared via Hub listener
     } catch (error) {
       setIsLoading(false);
-      throw error;
+      const friendlyMessage = getAuthErrorMessage(error);
+      throw new Error(friendlyMessage);
     }
   }, []);
 
   const handleConfirmSignUp = useCallback(async (email: string, code: string) => {
     setIsLoading(true);
     try {
-      const { data, error } = await supabase.auth.verifyOtp({
-        email,
-        token: code,
-        type: 'signup',
+      await amplifyConfirmSignUp({
+        username: email,
+        confirmationCode: code,
       });
-      
-      if (error) {
-        handleAuthError(error);
-      }
-      
-      // User state will be updated via the auth state change listener
+      // User state will be updated via Hub listener after confirmation
     } catch (error) {
       setIsLoading(false);
-      throw error;
+      const friendlyMessage = getAuthErrorMessage(error);
+      throw new Error(friendlyMessage);
     }
   }, []);
 
   const handleResendConfirmationCode = useCallback(async (email: string) => {
     setIsLoading(true);
     try {
-      const { error } = await supabase.auth.resend({
-        type: 'signup',
-        email,
+      await resendSignUpCode({
+        username: email,
       });
-      
-      if (error) {
-        handleAuthError(error);
-      }
+    } catch (error) {
+      const friendlyMessage = getAuthErrorMessage(error);
+      throw new Error(friendlyMessage);
     } finally {
       setIsLoading(false);
     }
@@ -321,42 +335,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const handleResetPassword = useCallback(async (email: string) => {
     setIsLoading(true);
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`,
+      await amplifyResetPassword({
+        username: email,
       });
-      
-      if (error) {
-        handleAuthError(error);
-      }
+    } catch (error) {
+      const friendlyMessage = getAuthErrorMessage(error);
+      throw new Error(friendlyMessage);
     } finally {
       setIsLoading(false);
     }
   }, []);
 
-  const handleConfirmResetPassword = useCallback(async (email: string, code: string, newPassword: string) => {
+  const handleConfirmResetPassword = useCallback(async (
+    email: string, 
+    code: string, 
+    newPassword: string
+  ) => {
     setIsLoading(true);
     try {
-      const { error } = await supabase.auth.verifyOtp({
-        email,
-        token: code,
-        type: 'recovery',
+      await amplifyConfirmResetPassword({
+        username: email,
+        confirmationCode: code,
+        newPassword: newPassword,
       });
-      
-      if (error) {
-        handleAuthError(error);
-      }
-      
-      // Update the password
-      const { error: updateError } = await supabase.auth.updateUser({
-        password: newPassword,
-      });
-      
-      if (updateError) {
-        handleAuthError(updateError);
-      }
+      // User might need to sign in again after password reset
     } catch (error) {
       setIsLoading(false);
-      throw error;
+      const friendlyMessage = getAuthErrorMessage(error);
+      throw new Error(friendlyMessage);
     }
   }, []);
 

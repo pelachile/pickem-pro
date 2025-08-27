@@ -114,7 +114,7 @@ function Settings() {
                 <div className="text-right">
                   <p className="text-white/60 text-sm">Member since</p>
                   <p className="text-white text-sm">
-                    {user?.created_at ? new Date(user.created_at).toLocaleDateString() : 'Unknown'}
+                    {user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'Unknown'}
                   </p>
                 </div>
               </div>
@@ -311,8 +311,8 @@ function Settings() {
                 <div className="flex justify-between">
                   <span className="text-white/60">Email Status</span>
                   <StatusBadge 
-                    status={user?.email_confirmed_at ? "active" : "pending"} 
-                    text={user?.email_confirmed_at ? "Verified" : "Unverified"}
+                    status={user?.emailVerified ? "active" : "pending"} 
+                    text={user?.emailVerified ? "Verified" : "Unverified"}
                     size="sm" 
                   />
                 </div>

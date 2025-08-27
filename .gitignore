@@ -108,3 +108,7 @@ test-results/
 playwright-report/
 *.auth
 .auth/
+
+# amplify
+amplify_outputs*
+amplifyconfiguration*

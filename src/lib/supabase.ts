@@ -1,348 +1,131 @@
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import type { User } from '@supabase/supabase-js';
-import type { Database } from '../types/supabase-generated';
+// TEMPORARY STUB FILE - Phase 1 AWS Amplify Migration
+// This file provides stubs to prevent build errors while migrating to AWS Amplify
+// TODO: Replace with AWS Amplify implementations in Phase 2
 
-// Validate environment variables
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-
-
-if (!supabaseUrl) {
-  throw new Error('Missing VITE_SUPABASE_URL environment variable');
+// Temporary type stubs
+export interface User {
+  id: string;
+  email?: string;
+  user_metadata?: Record<string, any>;
+  app_metadata?: Record<string, any>;
 }
 
-if (!supabaseAnonKey) {
-  throw new Error('Missing VITE_SUPABASE_ANON_KEY environment variable');
+export interface Database {
+  public: {
+    Tables: Record<string, any>;
+  };
 }
 
-// Create typed Supabase client
-export const supabase: SupabaseClient<Database> = createClient<Database>(
-  supabaseUrl,
-  supabaseAnonKey,
-  {
-    auth: {
-      autoRefreshToken: true,
-      persistSession: true,
-      detectSessionInUrl: true,
-      storage: typeof window !== 'undefined' ? window.localStorage : undefined,
-    },
-    global: {
-      headers: {
-        'X-Client-Info': 'picks-app-frontend/1.0.0',
-      },
-    },
-    db: {
-      schema: 'public',
-    },
-    realtime: {
-      params: {
-        eventsPerSecond: 10,
-      },
-    },
-  }
-);
+// Temporary client stub that throws informative errors
+export const supabase = {
+  auth: {
+    getUser: () => Promise.resolve({ data: { user: null }, error: new Error('Supabase removed - use AWS Amplify') }),
+    signIn: () => Promise.resolve({ error: new Error('Supabase removed - use AWS Amplify') }),
+    signOut: () => Promise.resolve({ error: new Error('Supabase removed - use AWS Amplify') }),
+    signUp: () => Promise.resolve({ error: new Error('Supabase removed - use AWS Amplify') }),
+  },
+  from: () => ({
+    select: () => ({
+      eq: () => Promise.resolve({ data: null, error: new Error('Supabase removed - use AWS Amplify') }),
+      neq: () => Promise.resolve({ data: null, error: new Error('Supabase removed - use AWS Amplify') }),
+      in: () => Promise.resolve({ data: null, error: new Error('Supabase removed - use AWS Amplify') }),
+      single: () => Promise.resolve({ data: null, error: new Error('Supabase removed - use AWS Amplify') }),
+    }),
+    insert: () => Promise.resolve({ data: null, error: new Error('Supabase removed - use AWS Amplify') }),
+    update: () => Promise.resolve({ data: null, error: new Error('Supabase removed - use AWS Amplify') }),
+    delete: () => Promise.resolve({ data: null, error: new Error('Supabase removed - use AWS Amplify') }),
+  }),
+  functions: {
+    invoke: () => Promise.resolve({ data: null, error: new Error('Supabase removed - use AWS Amplify') }),
+  },
+  channel: () => ({
+    on: () => ({
+      subscribe: () => ({ unsubscribe: () => {} }),
+    }),
+  }),
+};
 
-// =====================================
-// Type-safe helper functions
-// =====================================
-
-/**
- * Get the current authenticated user
- * @returns Promise<User | null>
- */
+// Stub helper functions
 export async function getCurrentUser(): Promise<User | null> {
-  const { data: { user }, error } = await supabase.auth.getUser();
-  if (error) {
-    return null;
-  }
-  return user;
+  console.warn('getCurrentUser: Supabase removed - implement with AWS Amplify');
+  return null;
 }
 
-/**
- * Get the current user's ID
- * @returns Promise<string | null>
- */
 export async function getCurrentUserId(): Promise<string | null> {
-  const { data: { user } } = await supabase.auth.getUser();
-  return user?.id ?? null;
+  console.warn('getCurrentUserId: Supabase removed - implement with AWS Amplify');
+  return null;
 }
 
-/**
- * Check if user is authenticated
- * @returns Promise<boolean>
- */
 export async function isAuthenticated(): Promise<boolean> {
-  const userId = await getCurrentUserId();
-  return userId !== null;
+  console.warn('isAuthenticated: Supabase removed - implement with AWS Amplify');
+  return false;
 }
 
-// =====================================
-// Database query helpers
-// =====================================
-
-/**
- * Type-safe wrapper for database queries with automatic error handling
- */
+// Stub DatabaseQueryBuilder
 export class DatabaseQueryBuilder {
   static async execute<T>(
     queryPromise: Promise<{ data: T; error: any }>
   ): Promise<{ data: T | null; error: string | null }> {
-    try {
-      const { data, error } = await queryPromise;
-      
-      if (error) {
-        return {
-          data: null,
-          error: error.message || 'Database query failed',
-        };
-      }
-      
-      return { data, error: null };
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
-      return {
-        data: null,
-        error: errorMessage,
-      };
-    }
+    console.warn('DatabaseQueryBuilder: Supabase removed - implement with AWS Amplify');
+    return {
+      data: null,
+      error: 'Supabase removed - implement with AWS Amplify',
+    };
   }
 }
 
-// =====================================
-// Real-time subscription helpers
-// =====================================
-
-/**
- * Create a real-time subscription with proper typing
- * @param table - Table name to subscribe to
- * @param callback - Callback function for changes
- * @param filter - Optional filter for the subscription
- */
+// Stub realtime subscription
 export function createRealtimeSubscription<T extends keyof Database['public']['Tables']>(
   table: T,
   callback: (payload: any) => void,
   filter?: string
 ) {
-  let subscription = supabase
-    .channel(`${table}_changes`)
-    .on(
-      'postgres_changes',
-      {
-        event: '*',
-        schema: 'public',
-        table: table as string,
-        filter,
-      },
-      callback
-    )
-    .subscribe();
-
+  console.warn('createRealtimeSubscription: Supabase removed - implement with AWS Amplify');
   return {
-    subscription,
-    unsubscribe: () => subscription.unsubscribe(),
+    subscription: { unsubscribe: () => {} },
+    unsubscribe: () => {},
   };
 }
 
-// =====================================
-// Error handling utilities
-// =====================================
-
-/**
- * Parse Supabase error into user-friendly message
- * @param error - Supabase error object
- * @returns User-friendly error message
- */
+// Stub error parsing
 export function parseSupabaseError(error: unknown): string {
-  if (!error) return 'Unknown error occurred';
-  
-  // Type-safe error checking
-  if (typeof error === 'object' && error !== null && 'code' in error) {
-    const errorWithCode = error as { code?: string; message?: string };
-    
-    // Handle specific error codes
-    switch (errorWithCode.code) {
-      case 'PGRST116':
-        return 'No data found or access denied';
-      case 'PGRST301':
-        return 'Invalid request parameters';
-      case '42501':
-        return 'Permission denied - check your access rights';
-      case '23505':
-        return 'This data already exists';
-      case '23503':
-        return 'Referenced data does not exist';
-      case '23514':
-        return 'Invalid data format';
-      default:
-        return errorWithCode.message || 'Database operation failed';
-    }
-  }
-  
-  // Handle Error instances
-  if (error instanceof Error) {
-    return error.message;
-  }
-  
-  // Handle string errors
-  if (typeof error === 'string') {
-    return error;
-  }
-  
-  return 'Database operation failed';
+  console.warn('parseSupabaseError: Supabase removed - implement with AWS Amplify');
+  return 'Supabase removed - implement with AWS Amplify';
 }
 
-// =====================================
-// Feature flag helpers for migration
-// =====================================
-
-/**
- * Check if a specific feature flag is enabled
- * This will be used during the gradual migration
- */
+// Stub feature flags
 export function isFeatureEnabled(flag: string): boolean {
-  // During development, you can override feature flags
-  if (import.meta.env.DEV) {
-    const override = import.meta.env[`VITE_FEATURE_${flag.toUpperCase()}`];
-    if (override !== undefined) {
-      return override === 'true';
-    }
-  }
-  
-  // Default feature flags during migration
-  const defaultFlags: Record<string, boolean> = {
-    use_direct_league_queries: true,  // Phase 3: Enable direct league queries
-    use_direct_member_queries: false, // Phase 3: Enable direct member queries
-    use_direct_pick_queries: true,    // Phase 3: Enable direct pick queries ✅
-    use_realtime_subscriptions: false, // Phase 3: Enable real-time features
-    enable_optimistic_updates: false,  // Phase 4: Enable optimistic updates
-  };
-  
-  return defaultFlags[flag] ?? false;
+  console.warn('isFeatureEnabled: Supabase removed - implement with AWS Amplify');
+  return false;
 }
 
-// =====================================
-// Legacy edge function helpers
-// (These will be deprecated after migration)
-// =====================================
-
-/**
- * Call a Supabase Edge Function with proper error handling
- * @param functionName - Name of the edge function
- * @param payload - Data to send to the function
- * @returns Promise with typed response
- */
+// Stub edge function calls
 export async function callEdgeFunction<T = any>(
   functionName: string,
   payload?: any
 ): Promise<{ data: T | null; error: string | null }> {
-  try {
-    const { data, error } = await supabase.functions.invoke(functionName, {
-      body: payload,
-    });
-    
-    if (error) {
-      return {
-        data: null,
-        error: error.message || `Failed to call ${functionName}`,
-      };
-    }
-    
-    // Handle function response format
-    if (data && typeof data === 'object' && 'success' in data) {
-      if (data.success) {
-        return { data: data.data || data, error: null };
-      } else {
-        return {
-          data: null,
-          error: data.error || `${functionName} operation failed`,
-        };
-      }
-    }
-    
-    return { data, error: null };
-  } catch (err) {
-    const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
-    return {
-      data: null,
-      error: errorMessage,
-    };
-  }
+  console.warn('callEdgeFunction: Supabase removed - implement with AWS Amplify');
+  return {
+    data: null,
+    error: 'Supabase removed - implement with AWS Amplify',
+  };
 }
 
-// =====================================
-// Migration status tracking
-// =====================================
-
-/**
- * Track migration status and feature flag usage
- */
+// Stub migration tracker
 export const migrationTracker = {
-  /**
-   * Log when a direct query is used instead of edge function
-   */
   logDirectQuery: (table: string, operation: string) => {
-    // Migration logging removed for production
+    console.warn('migrationTracker.logDirectQuery: Supabase removed');
   },
-  
-  /**
-   * Log when an edge function is still being used
-   */
   logEdgeFunction: (functionName: string) => {
-    // Migration logging removed for production
+    console.warn('migrationTracker.logEdgeFunction: Supabase removed');
   },
-  
-  /**
-   * Log real-time subscription usage
-   */
   logRealtime: (table: string, event: string) => {
-    // Migration logging removed for production
+    console.warn('migrationTracker.logRealtime: Supabase removed');
   },
 };
 
-// Export the typed client as default
 export default supabase;
 
-// =====================================
-// Type exports for convenience
-// =====================================
-export type { Database } from '../types/supabase-generated';
-export type TypedSupabaseClient = SupabaseClient<Database>;
-
-/**
- * =================
- * Migration Notes:
- * =================
- * 
- * Phase 1 (Current): 
- * - Added full TypeScript support
- * - Created helper functions for database operations
- * - Set up feature flag system for gradual migration
- * - Added real-time subscription helpers
- * 
- * Phase 2 (Next):
- * - Enable direct database queries with feature flags
- * - Implement RLS policies
- * - Add comprehensive error handling
- * 
- * Phase 3 (Implementation):
- * - Replace edge function calls with direct queries
- * - Enable real-time subscriptions
- * - Add optimistic updates
- * 
- * Usage Examples:
- * 
- * // Direct typed query (Phase 3+)
- * const { data: leagues, error } = await supabase
- *   .from('leagues')
- *   .select('*')
- *   .eq('is_private', false);
- * 
- * // Edge function call (Current - will be deprecated)
- * const { data, error } = await callEdgeFunction('get-user-leagues');
- * 
- * // Real-time subscription (Phase 3+)
- * const { unsubscribe } = createRealtimeSubscription(
- *   'leagues',
- *   (payload) => handleLeagueUpdate(payload)
- * );
- */
+// Type exports (stubs)
+export type { Database };
+export type TypedSupabaseClient = typeof supabase;
