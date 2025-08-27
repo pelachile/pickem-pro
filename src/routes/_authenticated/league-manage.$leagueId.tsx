@@ -555,7 +555,7 @@ function LeagueManagementContent() {
             </button>
           </div>
 
-          {league.userRole === 'owner' && (
+          {(league.userRole === 'owner' || league.userRole === 'admin') && (
             <button
               type="button"
               onClick={() => setShowDeleteModal(true)}

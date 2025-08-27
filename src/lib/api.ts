@@ -369,7 +369,7 @@ export const leagueApi = {
         owner: league.owner || '',
         created_at: league.createdAt || new Date().toISOString(),
         updated_at: league.updatedAt || new Date().toISOString(),
-        userRole: 'admin' as const, // Owner is always admin
+        userRole: 'owner' as const, // Creator is the owner
         joinedAt: league.createdAt || new Date().toISOString(),
         has_password: !!league.password_hash,
         season_year: new Date().getFullYear(),
@@ -457,41 +457,74 @@ export const leagueApi = {
 
   // Delete league
   async deleteLeague(leagueId: string): Promise<DeleteLeagueResponse> {
-    // Feature flag: Use direct database queries or edge functions
-    if (shouldUseDirectDB('deleteLeague')) {
-      // AWS Amplify: Using direct database queries('leagues', 'deleteLeague');
+    try {
+      const client = getAmplifyClient();
+      const user = await getCurrentUser();
+      const userId = user.userId;
       
-      const result = await directDB.deleteLeague(leagueId);
+      // First, check if the user owns the league
+      const { data: league, errors: fetchErrors } = await client.models.League.get({ id: leagueId });
       
-      if (result.success) {
-        return {
-          success: true,
-          message: 'League deleted successfully',
-        };
-      } else {
+      if (fetchErrors || !league) {
         return {
           success: false,
-          message: result.error || 'Failed to delete league',
+          message: 'League not found',
         };
       }
+      
+      // Check if the user is the owner
+      if (league.owner !== userId) {
+        return {
+          success: false,
+          message: 'You are not authorized to delete this league',
+        };
+      }
+      
+      // Delete all league members first (due to foreign key constraints)
+      const { data: members } = await client.models.LeagueMember.list({
+        filter: { league_id: { eq: leagueId } }
+      });
+      
+      if (members) {
+        for (const member of members) {
+          await client.models.LeagueMember.delete({ id: member.id });
+        }
+      }
+      
+      // Delete all league invites
+      const { data: invites } = await client.models.LeagueInvite.list({
+        filter: { league_id: { eq: leagueId } }
+      });
+      
+      if (invites) {
+        for (const invite of invites) {
+          await client.models.LeagueInvite.delete({ id: invite.id });
+        }
+      }
+      
+      // Finally, delete the league
+      const { errors: deleteErrors } = await client.models.League.delete({ id: leagueId });
+      
+      if (deleteErrors) {
+        console.error('Error deleting league:', deleteErrors);
+        return {
+          success: false,
+          message: 'Failed to delete league',
+        };
+      }
+      
+      return {
+        success: true,
+        message: 'League deleted successfully',
+      };
+      
+    } catch (error) {
+      console.error('Error deleting league:', error);
+      return {
+        success: false,
+        message: error instanceof Error ? error.message : 'Failed to delete league',
+      };
     }
-    
-    // Legacy edge function approach
-    // Legacy edge function call - AWS migration complete('delete-league');
-    
-    const headers = await getAuthHeaders();
-    
-    const response = await fetch(`${FUNCTIONS_BASE_URL}/delete-league`, {
-      method: 'DELETE',
-      headers,
-      body: JSON.stringify({ leagueId }),
-    });
-    
-    if (!response.ok) {
-      await handleApiError(response);
-    }
-    
-    return response.json();
   },
 };
 
