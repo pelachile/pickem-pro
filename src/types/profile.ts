@@ -1,14 +1,19 @@
 // User profile types for the NFL Pick'em application
-// Import the database profile type for consistency
-import type { Database } from './supabase-generated';
+// AWS Amplify implementation
 
-// Base profile from database
-type DatabaseProfile = Database['public']['Tables']['profiles']['Row'];
-
-// Extended profile with frontend avatar settings
-export interface UserProfile extends DatabaseProfile {
-  avatar_icon?: string;
-  avatar_color?: string;
+// Base profile interface matching AWS Amplify UserProfile model
+export interface UserProfile {
+  id: string; // User ID for compatibility
+  username?: string | null;
+  full_name?: string | null;
+  avatar_url?: string | null;
+  avatar_icon?: string; // Stored in database now
+  avatar_color?: string; // Stored in database now
+  website?: string | null;
+  bio?: string | null;
+  is_public?: boolean;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface CreateProfileRequest {

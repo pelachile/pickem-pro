@@ -27,7 +27,7 @@ import { Toggle } from '../../components/ui/Toggle';
 
 function Settings() {
   const { user, signOut } = useAuth();
-  const { data: profileResponse, isLoading: profileLoading } = useUserProfile(user?.id);
+  const { data: profileResponse, isLoading: profileLoading } = useUserProfile(user?.userId || user?.id);
   const { data: statsResponse, isLoading: statsLoading } = useProfileStats();
   const { preferences, isLoading: notificationsLoading, togglePreference } = useNotificationToggle();
 
@@ -305,7 +305,7 @@ function Settings() {
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between">
                   <span className="text-white/60">User ID</span>
-                  <span className="text-white font-mono text-xs">{user?.id.slice(0, 8)}...</span>
+                  <span className="text-white font-mono text-xs">{user?.userId?.slice(0, 8) || user?.id?.slice(0, 8) || 'N/A'}...</span>
                 </div>
                 
                 <div className="flex justify-between">
