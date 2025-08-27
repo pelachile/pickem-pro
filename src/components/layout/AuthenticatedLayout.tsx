@@ -66,7 +66,7 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
     const location = useLocation();
     
     // Fetch user profile for enhanced display
-    const { data: profileResponse } = useUserProfile(user?.id);
+    const { data: profileResponse } = useUserProfile(user?.userId || user?.id);
     const profile = profileResponse?.data;
 
     // Fetch user's leagues using the proper hook with user-specific caching
@@ -74,7 +74,7 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
         data: leaguesData, 
         isLoading: leaguesLoading, 
         error: leaguesError 
-    } = useUserLeagues(user?.id);
+    } = useUserLeagues(user?.userId || user?.id);
 
     const userLeagues = leaguesData?.data || [];
     const hasLeaguesError = leaguesError || (leaguesData && !leaguesData.success);
