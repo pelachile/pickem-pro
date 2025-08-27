@@ -27,14 +27,14 @@ export const Card: React.FC<CardProps> = ({
   padding = 'md',
   ...props
 }) => {
-  // Glass effect styles - standardized glass morphism implementation
+  // Glass effect styles - standardized glass morphism implementation with better readability
   const glassStyles = glass 
-    ? 'backdrop-blur-lg bg-navy-900/40 border border-white/15 shadow-xl' 
-    : 'bg-navy-900/60 border border-white/10 shadow-sm';
+    ? 'backdrop-blur-lg bg-navy-900/60 border border-white/20 shadow-xl' 
+    : 'bg-navy-900/80 border border-white/15 shadow-sm';
 
   // Hover effect styles with improved accessibility
   const hoverStyles = hover 
-    ? 'transition-all duration-300 ease-in-out hover:bg-navy-900/50 hover:border-white/25 hover:shadow-2xl focus-within:bg-navy-900/50 focus-within:border-white/25' 
+    ? 'transition-all duration-300 ease-in-out hover:bg-navy-900/70 hover:border-white/30 hover:shadow-2xl focus-within:bg-navy-900/70 focus-within:border-white/30' 
     : 'transition-colors duration-200';
 
   // Padding styles mapping

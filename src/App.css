@@ -15,6 +15,31 @@
   --color-navy-900: #062440;
   --color-navy-950: #041e32;
   
+  /* Sky Blue color scale - Fantasy UI primary color */
+  --color-sky-blue-50: #F0F8FF;
+  --color-sky-blue-100: #E1F1FE;
+  --color-sky-blue-200: #C3E3FD;
+  --color-sky-blue-300: #87B9F5;
+  --color-sky-blue-400: #6BA8F3;
+  --color-sky-blue-500: #4F96F1;
+  --color-sky-blue-600: #3485EF;
+  --color-sky-blue-700: #2563EB;
+  --color-sky-blue-800: #1D4ED8;
+  --color-sky-blue-900: #1E40AF;
+  --color-sky-blue: #87B9F5;
+  
+  /* Cyan color scale for accents */
+  --color-cyan-50: #ecfeff;
+  --color-cyan-100: #cffafe;
+  --color-cyan-200: #a5f3fc;
+  --color-cyan-300: #67e8f9;
+  --color-cyan-400: #22d3ee;
+  --color-cyan-500: #06b6d4;
+  --color-cyan-600: #0891b2;
+  --color-cyan-700: #0e7490;
+  --color-cyan-800: #155e75;
+  --color-cyan-900: #164e63;
+  
   /* Ocean color scale */
   --color-ocean-50: #ecfeff;
   --color-ocean-100: #cffafe;
@@ -66,6 +91,13 @@
   --color-sunrise-800: #b45309;
   --color-sunrise-900: #92400e;
   --color-sunrise-950: #78350f;
+  
+  /* High Contrast Text Colors for Dark Backgrounds - WCAG AA Compliant */
+  --color-text-high-contrast: #ffffff;
+  --color-text-medium-contrast: #e5e7eb;  /* gray-200 */
+  --color-text-low-contrast: #d1d5db;     /* gray-300 */
+  --color-text-accent: #67e8f9;           /* cyan-300 */
+  --color-text-accent-bright: #22d3ee;    /* cyan-400 */
 
   /* Custom animations */
   --animate-pulse-fast: pulse-fast 1.5s ease-in-out infinite;
@@ -470,4 +502,9 @@ button:active, .btn:active, [role="button"]:active, a:active {
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
+}
+
+/* Text shadow utilities */
+.text-shadow-sm {
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }

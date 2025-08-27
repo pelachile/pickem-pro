@@ -25,5 +25,8 @@ export * from './types';
 // Authentication Components - Custom auth components using Amplify headless APIs
 export * from './auth';
 
+// Fantasy Football Components - Player data display and analysis
+export * from './fantasy';
+
 // Tailwind Theme Configuration  
 // Note: tailwind-theme.js is a plain JS file, import directly when needed
