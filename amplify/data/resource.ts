@@ -68,6 +68,49 @@ const schema = a.schema({
       allow.authenticated().to(['read']),
     ]),
 
+  // League system tables
+  League: a
+    .model({
+      name: a.string().required(),
+      description: a.string(),
+      created_by: a.string().required(), // User ID
+      entry_fee: a.integer(),
+      max_members: a.integer().required(),
+      is_private: a.boolean(),
+      password_hash: a.string(),
+      invite_code: a.string().required(),
+      status: a.enum(['active', 'inactive', 'completed']),
+    })
+    .authorization((allow) => [
+      allow.authenticated().to(['create', 'read']),
+      allow.owner().to(['read', 'update', 'delete']),
+    ]),
+
+  LeagueMember: a
+    .model({
+      league_id: a.string().required(),
+      user_id: a.string().required(),
+      role: a.enum(['admin', 'member']),
+    })
+    .authorization((allow) => [
+      allow.authenticated().to(['create', 'read']),
+      allow.owner().to(['read', 'delete']),
+    ]),
+
+  LeagueInvite: a
+    .model({
+      league_id: a.string().required(),
+      created_by: a.string().required(),
+      invite_code: a.string().required(),
+      expires_at: a.datetime(),
+      max_uses: a.integer(),
+      uses_count: a.integer(),
+    })
+    .authorization((allow) => [
+      allow.authenticated().to(['create', 'read']),
+      allow.owner().to(['read', 'update', 'delete']),
+    ]),
+
   // Keep existing Todo for now (can remove later)
   Todo: a
     .model({

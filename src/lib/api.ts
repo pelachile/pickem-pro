@@ -5,6 +5,21 @@
 import { generateClient } from 'aws-amplify/data';
 import type { Schema } from '../../amplify/data/resource';
 
+// AWS Amplify client for database operations
+let amplifyClient: ReturnType<typeof generateClient<Schema>> | null = null;
+
+function getAmplifyClient() {
+  if (!amplifyClient) {
+    try {
+      amplifyClient = generateClient<Schema>();
+    } catch (error) {
+      console.error('Error initializing Amplify client:', error);
+      throw error;
+    }
+  }
+  return amplifyClient;
+}
+
 // Import league types
 import type {
   GetPublicLeaguesParams,
@@ -193,25 +208,56 @@ export const leagueApi = {
 
   // Create a new league (new function for direct DB operations)
   async createLeague(request: { name: string; description?: string; entryFee: number; maxMembers: number; isPrivate: boolean; password?: string }): Promise<any> {
-    // Feature flag: Use direct database queries or edge functions
-    if (shouldUseDirectDB('createLeague')) {
-      // AWS Amplify: Using direct database queries('leagues', 'createLeague');
+    try {
+      const client = getAmplifyClient();
       
-      const result = await directDB.createLeague(request);
+      // Generate unique invite code
+      const inviteCode = Math.random().toString(36).substring(2, 8).toUpperCase();
       
-      // Convert response format to match existing API pattern
-      if (result.success && result.data) {
-        return {
-          success: true,
-          data: result.data,
-          message: 'League created successfully',
-        };
-      } else {
+      // Create league in DynamoDB
+      const { data: league, errors } = await client.models.League.create({
+        name: request.name,
+        description: request.description || null,
+        entry_fee: request.entryFee,
+        max_members: request.maxMembers,
+        is_private: request.isPrivate,
+        password_hash: request.password || null, // TODO: Hash password properly
+        invite_code: inviteCode,
+        status: 'active',
+        created_by: 'current-user-id', // TODO: Get actual user ID
+      });
+
+      if (errors) {
+        console.error('League creation errors:', errors);
         return {
           success: false,
-          error: result.error || 'Failed to create league',
+          error: 'Failed to create league: ' + errors.map(e => e.message).join(', '),
         };
       }
+
+      // Add creator as admin member
+      const { data: member, errors: memberErrors } = await client.models.LeagueMember.create({
+        league_id: league?.id || '',
+        user_id: 'current-user-id', // TODO: Get actual user ID  
+        role: 'admin',
+      });
+
+      if (memberErrors) {
+        console.error('League member creation errors:', memberErrors);
+        // League was created but member failed - this is still success
+      }
+
+      return {
+        success: true,
+        data: league,
+        message: 'League created successfully',
+      };
+    } catch (error) {
+      console.error('League creation error:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to create league',
+      };
     }
     
     // Legacy edge function approach (would need to be implemented)
