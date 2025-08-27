@@ -141,38 +141,37 @@ export const nflApi = {
       }
       
       allPreseasonGames.forEach((game: any) => {
-          if (game.status === 'STATUS_FINAL' && 
-              game.home_team && game.away_team && 
-              typeof game.home_score === 'number' && typeof game.away_score === 'number') {
-            
-            const homeAbbr = game.home_team.abbreviation;
-            const awayAbbr = game.away_team.abbreviation;
-            
-            // Debug: Track Cowboys games specifically
-            if (homeAbbr === 'DAL' || awayAbbr === 'DAL') {
-              cowboysGames.push({
-                id: game.id,
-                home: `${homeAbbr} ${game.home_score}`,
-                away: `${awayAbbr} ${game.away_score}`,
-                week: game.week,
-                winner: game.home_score > game.away_score ? homeAbbr : awayAbbr
-              });
-            }
-            
-            if (records[homeAbbr] && records[awayAbbr]) {
-              if (game.home_score > game.away_score) {
-                records[homeAbbr].wins++;
-                records[awayAbbr].losses++;
-              } else if (game.away_score > game.home_score) {
-                records[awayAbbr].wins++;
-                records[homeAbbr].losses++;
-              }
-              // Ties are ignored in preseason
-              gamesProcessed++;
-            }
+        if (game.status === 'STATUS_FINAL' && 
+            game.home_team && game.away_team && 
+            typeof game.home_score === 'number' && typeof game.away_score === 'number') {
+          
+          const homeAbbr = game.home_team.abbreviation;
+          const awayAbbr = game.away_team.abbreviation;
+          
+          // Debug: Track Cowboys games specifically
+          if (homeAbbr === 'DAL' || awayAbbr === 'DAL') {
+            cowboysGames.push({
+              id: game.id,
+              home: `${homeAbbr} ${game.home_score}`,
+              away: `${awayAbbr} ${game.away_score}`,
+              week: game.week,
+              winner: game.home_score > game.away_score ? homeAbbr : awayAbbr
+            });
           }
-        });
-      }
+          
+          if (records[homeAbbr] && records[awayAbbr]) {
+            if (game.home_score > game.away_score) {
+              records[homeAbbr].wins++;
+              records[awayAbbr].losses++;
+            } else if (game.away_score > game.home_score) {
+              records[awayAbbr].wins++;
+              records[homeAbbr].losses++;
+            }
+            // Ties are ignored in preseason
+            gamesProcessed++;
+          }
+        }
+      });
       
       // Debug logging for Cowboys specifically
       console.log('Preseason Records Calculation Debug:');
