@@ -15,3 +15,7 @@ frontend:
     paths:
       - node_modules/**/*
       - .npm/**/*
+redirects:
+  - source: '/<*>'
+    target: '/index.html'
+    status: '404-200'
