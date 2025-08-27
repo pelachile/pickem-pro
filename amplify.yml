@@ -3,7 +3,7 @@ backend:
   phases:
     build:
       commands:
-        - npx ampx generate outputs --app-id $AWS_AMPLIFY_APP_ID --branch $AWS_BRANCH
+        - npx ampx generate outputs --app-id dz577n3x9rkbm --branch $AWS_BRANCH
 frontend:
   phases:
     preBuild:
