@@ -242,14 +242,31 @@ const TeamRow: React.FC<{
         </div>
       )}
       
-      {/* Row 1: Score (for proportional layouts, badge moved to logo section) */}
+      {/* Row 1: Badge and Score (for proportional layouts) */}
       {(layout === 'full' || layout === 'wide') ? (
-        /* Score only for proportional layouts */
-        typeof score !== 'undefined' && (
-          <div className={cn(
-            'flex justify-end',
-            layout === 'full' ? 'mb-4' : 'mb-3.5'
-          )}>
+        /* Badge and Score on same plane for proportional layouts */
+        <div className={cn(
+          'flex items-start justify-between',
+          layout === 'full' ? 'mb-4' : 'mb-3.5'
+        )}>
+          {/* AWAY/HOME badge in top-left */}
+          <span 
+            className={cn(
+              'inline-block font-semibold px-2 py-1 rounded border backdrop-blur-sm leading-none',
+              layout === 'full' ? 'text-xs px-3 py-1.5' : 'text-[11px] px-2.5 py-1',
+              // Improved contrast for WCAG compliance
+              isHome 
+                ? 'bg-sunset-600/80 text-white border-sunset-500/60 shadow-lg'
+                : 'bg-sky-500/80 text-white border-sky-400/60 shadow-lg'
+            )}
+            role="status"
+            aria-label={`${isHome ? 'Home' : 'Away'} team designation`}
+          >
+            {isHome ? 'HOME' : 'AWAY'}
+          </span>
+          
+          {/* Score in top-right */}
+          {typeof score !== 'undefined' && (
             <div className={cn(
               'font-bold',
               layout === 'full' ? 'text-4xl' : 'text-3xl',
@@ -257,8 +274,8 @@ const TeamRow: React.FC<{
             )}>
               {score}
             </div>
-          </div>
-        )
+          )}
+        </div>
       ) : (
         /* Original Row 1 for non-proportional layouts */
         <div className={cn(
@@ -300,27 +317,9 @@ const TeamRow: React.FC<{
           layout === 'full' ? 'min-h-[6rem]' : 'min-h-[5rem]'
         )}>
           {/* Left 4/12 (33.33%): Logo Section */}
-          <div className="col-span-4 flex flex-col items-center justify-center h-full relative">
-            {/* AWAY/HOME badge positioned at top */}
-            <div className="absolute top-0 left-1/2 transform -translate-x-1/2 z-10">
-              <span 
-                className={cn(
-                  'inline-block font-semibold px-2 py-1 rounded border backdrop-blur-sm leading-none',
-                  layout === 'full' ? 'text-xs px-3 py-1.5' : 'text-[11px] px-2.5 py-1',
-                  // Improved contrast for WCAG compliance
-                  isHome 
-                    ? 'bg-sunset-600/80 text-white border-sunset-500/60 shadow-lg'
-                    : 'bg-sky-500/80 text-white border-sky-400/60 shadow-lg'
-                )}
-                role="status"
-                aria-label={`${isHome ? 'Home' : 'Away'} team designation`}
-              >
-                {isHome ? 'HOME' : 'AWAY'}
-              </span>
-            </div>
-            
+          <div className="col-span-4 flex flex-col items-center justify-center h-full">            
             {/* Team logo centered */}
-            <div className="flex items-center justify-center flex-1 pt-6">
+            <div className="flex items-center justify-center flex-1">
               <TeamLogo 
                 team={team} 
                 size={layout === 'full' ? '2xl' : 'xl'}

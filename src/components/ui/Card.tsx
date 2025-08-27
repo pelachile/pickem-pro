@@ -27,17 +27,17 @@ export const Card: React.FC<CardProps> = ({
   padding = 'md',
   ...props
 }) => {
-  // Glass effect styles - standardized glass morphism implementation
+  // Enhanced glass effect styles with better depth
   const glassStyles = glass 
-    ? 'backdrop-blur-lg bg-navy-900/40 border border-white/15 shadow-xl' 
-    : 'bg-navy-900/60 border border-white/10 shadow-sm';
+    ? 'glass-enhanced backdrop-blur-xl bg-navy-900/30 border border-white/20 shadow-2xl' 
+    : 'bg-navy-900/60 border border-white/10 shadow-lg';
 
-  // Hover effect styles with improved accessibility
+  // Enhanced hover effect styles with smooth micro-interactions
   const hoverStyles = hover 
-    ? 'transition-all duration-300 ease-in-out hover:bg-navy-900/50 hover:border-white/25 hover:shadow-2xl focus-within:bg-navy-900/50 focus-within:border-white/25' 
+    ? 'card-hover-lift hover:bg-navy-900/40 hover:border-white/30 hover:shadow-3xl focus-within:bg-navy-900/40 focus-within:border-white/30 group' 
     : 'transition-colors duration-200';
 
-  // Padding styles mapping
+  // Padding styles mapping with consistent spacing
   const paddingStyles = {
     sm: 'p-3',
     md: 'p-4',
@@ -46,10 +46,10 @@ export const Card: React.FC<CardProps> = ({
     '2xl': 'p-10',
   };
 
-  // Combine all classes
+  // Combine all classes with transform optimizations
   const cardClasses = cn(
-    // Base styles
-    'rounded-lg',
+    // Base styles with GPU acceleration
+    'relative rounded-xl transform-gpu',
     
     // Glass effect
     glassStyles,
@@ -60,15 +60,25 @@ export const Card: React.FC<CardProps> = ({
     // Padding
     paddingStyles[padding],
     
+    // Enhanced accessibility
+    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent',
+    
     className
   );
 
   return (
     <div 
       className={cardClasses}
+      role="region"
       {...props}
     >
-      {children}
+      {/* Subtle inner glow effect on hover */}
+      <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-sky-400/5 via-transparent to-sunset-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+      
+      {/* Content wrapper with relative positioning */}
+      <div className="relative z-10">
+        {children}
+      </div>
     </div>
   );
 };

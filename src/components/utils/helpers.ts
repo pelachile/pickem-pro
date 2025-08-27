@@ -38,6 +38,13 @@ export const statusTextMap = {
   finished: 'Finished',
   urgent: 'Urgent',
   critical: 'Critical',
+  // Handle internal status codes - security fix to avoid exposing internals
+  'STATUS_FINAL': 'Final',
+  'STATUS_LIVE': 'Live',
+  'STATUS_SCHEDULED': 'Scheduled',
+  'STATUS_POSTPONED': 'Postponed',
+  'STATUS_CANCELLED': 'Cancelled',
+  'STATUS_SUSPENDED': 'Suspended',
 } as const;
 
 // Avatar color mapping
@@ -100,7 +107,20 @@ export const getStatusVariant = (status: string): string => {
 };
 
 export const getStatusText = (status: string, customText?: string): string => {
-  return customText || statusTextMap[status as keyof typeof statusTextMap] || capitalize(status);
+  // Security: Always use custom text if provided
+  if (customText) return customText;
+  
+  // Security: Use explicit mapping to avoid exposing internal codes
+  const mappedText = statusTextMap[status as keyof typeof statusTextMap];
+  if (mappedText) return mappedText;
+  
+  // Security: For unmapped statuses, provide generic text instead of raw status
+  if (status.startsWith('STATUS_')) {
+    return 'Unknown'; // Don't expose internal status format
+  }
+  
+  // For user-friendly statuses, capitalize normally
+  return capitalize(status);
 };
 
 export const getAvatarColorClass = (color: string): string => {

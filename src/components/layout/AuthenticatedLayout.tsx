@@ -19,6 +19,7 @@ import { useAuth } from '../auth';
 import { useUserProfile } from '../../hooks/useProfile';
 import { useUserLeagues } from '../../hooks/useLeague';
 import { UserAvatar } from '../ui/UserAvatar';
+import { LeagueListSkeleton } from '../ui/SkeletonLoader';
 
 interface AuthenticatedLayoutProps {
     children: React.ReactNode;
@@ -158,21 +159,9 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
                             )}
                         </div>
                         <ul role="list" className="-mx-2 space-y-1">
-                            {/* Loading State */}
+                            {/* Enhanced Loading State */}
                             {leaguesLoading && (
-                                <>
-                                    {[1, 2, 3].map((i) => (
-                                        <li key={`skeleton-${i}`} className="animate-pulse">
-                                            <div className="flex gap-x-3 rounded-md p-2">
-                                                <div className="size-6 bg-white/10 rounded-lg"></div>
-                                                <div className="flex flex-col min-w-0 flex-1 space-y-1">
-                                                    <div className="h-3 bg-white/10 rounded w-20"></div>
-                                                    <div className="h-2 bg-white/10 rounded w-16"></div>
-                                                </div>
-                                            </div>
-                                        </li>
-                                    ))}
-                                </>
+                                <LeagueListSkeleton count={3} />
                             )}
 
                             {/* Error State */}

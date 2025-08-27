@@ -7,6 +7,9 @@ import {
     List,
 } from 'lucide-react';
 import { GameCard } from '../../components/ui/GameCard';
+import { GameCardSkeleton, DashboardStatsSkeleton } from '../../components/ui/SkeletonLoader';
+import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
+import { AnimatedCounter, HoverGlow, PulsingDot } from '../../components/ui/MicroInteractions';
 import type { Status } from '../../components/types';
 import ContentWrapper from '../../components/layout/ContentWrapper';
 // import { useEnhancedGames } from '../../hooks/useSmartGames'; // Disabled during AWS migration
@@ -96,39 +99,70 @@ function DashboardContent() {
 
     // Removed handlePickTeam - dashboard is now display-only
 
-    // Show loading state
+    // Show enhanced loading state
     if (gamesLoading) {
         return (
             <ContentWrapper 
                 title="Dashboard" 
                 subtitle="Loading your NFL data..."
             >
-                <div className="flex items-center justify-center py-12">
-                    <div className="text-center">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-sky-400 mx-auto mb-4"></div>
-                        <p className="text-white/80">Loading NFL schedule and teams...</p>
+                <div className="space-y-8">
+                    {/* Loading stats */}
+                    <DashboardStatsSkeleton />
+                    
+                    {/* Loading league actions */}
+                    <div className="bg-white/[0.03] backdrop-blur-lg border border-white/10 rounded-xl p-6">
+                        <div className="h-6 w-40 bg-white/10 rounded animate-pulse mb-4"></div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div className="h-32 bg-white/10 rounded-xl animate-pulse"></div>
+                            <div className="h-32 bg-white/10 rounded-xl animate-pulse"></div>
+                        </div>
+                    </div>
+                    
+                    {/* Loading games */}
+                    <div className="text-center py-8">
+                        <LoadingSpinner size="lg" color="sky" label="Loading NFL schedule and teams..." />
+                        <p className="text-white/80 mt-4">Just a moment while we fetch the latest data</p>
+                    </div>
+                    
+                    {/* Skeleton game cards */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                        {Array.from({ length: 8 }).map((_, index) => (
+                            <GameCardSkeleton key={index} className="animate-pulse" />
+                        ))}
                     </div>
                 </div>
             </ContentWrapper>
         );
     }
 
-    // Show error state
+    // Show enhanced error state
     if (gamesError) {
         return (
             <ContentWrapper 
                 title="Dashboard" 
                 subtitle="Error loading NFL data"
             >
-                <div className="bg-red-500/20 border border-red-500/30 rounded-xl p-6 text-center">
-                    <p className="text-red-400 font-medium">Failed to load NFL games</p>
-                    <p className="text-red-300/80 text-sm mt-2">{gamesError.message}</p>
-                    <button 
-                        onClick={() => window.location.reload()}
-                        className="mt-4 px-4 py-2 bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 rounded-lg text-red-300 transition-colors"
-                    >
-                        Retry
-                    </button>
+                <div className="bg-red-500/20 border border-red-500/30 rounded-xl p-8 text-center glass-enhanced">
+                    <div className="w-16 h-16 mx-auto mb-4 bg-red-500/30 rounded-full flex items-center justify-center">
+                        <Trophy className="h-8 w-8 text-red-400" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-red-400 mb-2">Failed to load NFL games</h3>
+                    <p className="text-red-300/80 text-sm mb-6">{gamesError.message}</p>
+                    <div className="flex items-center justify-center gap-4">
+                        <button 
+                            onClick={() => window.location.reload()}
+                            className="px-6 py-3 bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 rounded-lg text-red-300 transition-all duration-200 hover:scale-105 font-medium"
+                        >
+                            Try Again
+                        </button>
+                        <Link 
+                            to="/make-picks"
+                            className="px-6 py-3 bg-white/10 hover:bg-white/15 border border-white/20 rounded-lg text-white transition-all duration-200 hover:scale-105 font-medium"
+                        >
+                            Make Picks
+                        </Link>
+                    </div>
                 </div>
             </ContentWrapper>
         );
@@ -144,59 +178,84 @@ function DashboardContent() {
                 <CacheClearButton />
             </div>
 
-            {/* Performance Stats Overview */}
+            {/* Enhanced Performance Stats Overview with Animations */}
             <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <div className="group relative bg-white/[0.05] border border-white/10 rounded-xl p-6 hover:bg-white/[0.08] hover:border-white/20">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-sm text-white/60 mb-1">This Week</p>
-                            <p className="text-2xl font-bold text-white mb-1">12-4</p>
-                            <p className="text-xs text-sky-400 font-medium">75% accuracy</p>
-                        </div>
-                        <div className="p-2 bg-sunset-500/20 rounded-lg group-hover:bg-sunset-500/30">
-                            <Trophy className="h-6 w-6 text-sunset-500" />
+                <HoverGlow glowColor="sunset" intensity="medium">
+                    <div className="group relative bg-white/[0.05] border border-white/10 rounded-xl p-6 card-hover-lift">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="text-sm text-white/60 mb-1">This Week</p>
+                                <p className="text-2xl font-bold text-white mb-1">
+                                    <AnimatedCounter value={12} />-<AnimatedCounter value={4} />
+                                </p>
+                                <div className="text-xs text-sky-400 font-medium flex items-center gap-1">
+                                    <PulsingDot color="green" size="sm" />
+                                    75% accuracy
+                                </div>
+                            </div>
+                            <div className="p-2 bg-sunset-500/20 rounded-lg group-hover:bg-sunset-500/30 group-hover:scale-110 transition-all duration-200">
+                                <Trophy className="h-6 w-6 text-sunset-500" />
+                            </div>
                         </div>
                     </div>
-                </div>
+                </HoverGlow>
 
-                <div className="group relative bg-white/[0.05] border border-white/10 rounded-xl p-6 hover:bg-white/[0.08] hover:border-white/20">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-sm text-white/60 mb-1">Season Record</p>
-                            <p className="text-2xl font-bold text-white mb-1">84-52</p>
-                            <p className="text-xs text-sky-400 font-medium">61.8% accuracy</p>
-                        </div>
-                        <div className="p-2 bg-sunrise-500/20 rounded-lg group-hover:bg-sunrise-500/30">
-                            <BarChart className="h-6 w-6 text-sunrise-500" />
+                <HoverGlow glowColor="sunrise" intensity="medium">
+                    <div className="group relative bg-white/[0.05] border border-white/10 rounded-xl p-6 card-hover-lift">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="text-sm text-white/60 mb-1">Season Record</p>
+                                <p className="text-2xl font-bold text-white mb-1">
+                                    <AnimatedCounter value={84} />-<AnimatedCounter value={52} />
+                                </p>
+                                <div className="text-xs text-sky-400 font-medium flex items-center gap-1">
+                                    <PulsingDot color="sky" size="sm" />
+                                    61.8% accuracy
+                                </div>
+                            </div>
+                            <div className="p-2 bg-sunrise-500/20 rounded-lg group-hover:bg-sunrise-500/30 group-hover:scale-110 transition-all duration-200">
+                                <BarChart className="h-6 w-6 text-sunrise-500" />
+                            </div>
                         </div>
                     </div>
-                </div>
+                </HoverGlow>
 
-                <div className="group relative bg-white/[0.05] border border-white/10 rounded-xl p-6 hover:bg-white/[0.08] hover:border-white/20">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-sm text-white/60 mb-1">League Rank</p>
-                            <p className="text-2xl font-bold text-white mb-1">#3</p>
-                            <p className="text-xs text-sky-400 font-medium">of 12 members</p>
-                        </div>
-                        <div className="p-2 bg-sky-400/20 rounded-lg group-hover:bg-sky-400/30">
-                            <PieChart className="h-6 w-6 text-sky-400" />
+                <HoverGlow glowColor="sky" intensity="medium">
+                    <div className="group relative bg-white/[0.05] border border-white/10 rounded-xl p-6 card-hover-lift">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="text-sm text-white/60 mb-1">League Rank</p>
+                                <p className="text-2xl font-bold text-white mb-1">
+                                    #<AnimatedCounter value={3} />
+                                </p>
+                                <p className="text-xs text-sky-400 font-medium">of 12 members</p>
+                            </div>
+                            <div className="p-2 bg-sky-400/20 rounded-lg group-hover:bg-sky-400/30 group-hover:scale-110 transition-all duration-200">
+                                <PieChart className="h-6 w-6 text-sky-400" />
+                            </div>
                         </div>
                     </div>
-                </div>
+                </HoverGlow>
 
-                <div className="group relative bg-white/[0.05] border border-white/10 rounded-xl p-6 hover:bg-white/[0.08] hover:border-white/20">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-sm text-white/60 mb-1">Active Leagues</p>
-                            <p className="text-2xl font-bold text-white mb-1">3</p>
-                            <p className="text-xs text-sky-400 font-medium">2 pending picks</p>
-                        </div>
-                        <div className="p-2 bg-ocean-600/20 rounded-lg group-hover:bg-ocean-600/30">
-                            <List className="h-6 w-6 text-ocean-300" />
+                <HoverGlow glowColor="ocean" intensity="medium">
+                    <div className="group relative bg-white/[0.05] border border-white/10 rounded-xl p-6 card-hover-lift">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="text-sm text-white/60 mb-1">Active Leagues</p>
+                                <p className="text-2xl font-bold text-white mb-1">
+                                    <AnimatedCounter value={3} />
+                                </p>
+                                <div className="text-xs text-sky-400 font-medium flex items-center gap-1">
+                                    <PulsingDot color="yellow" size="sm" />
+                                    2 pending picks
+                                </div>
+                            </div>
+                            <div className="p-2 bg-ocean-600/20 rounded-lg group-hover:bg-ocean-600/30 group-hover:scale-110 transition-all duration-200">
+                                <List className="h-6 w-6 text-ocean-300" />
+                            </div>
                         </div>
                     </div>
-                </div>
+                </HoverGlow>
             </div>
 
             {/* League Actions */}

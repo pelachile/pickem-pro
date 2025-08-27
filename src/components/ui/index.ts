@@ -13,6 +13,23 @@ export { UserAvatar } from './UserAvatar';
 export { GameCard } from './GameCard';
 export { GameSchedule } from './GameSchedule';
 
+// Loading States
+export { default as Skeleton, GameCardSkeleton, DashboardStatsSkeleton, LeagueListSkeleton } from './SkeletonLoader';
+export { default as LoadingSpinner, PageLoader } from './LoadingSpinner';
+
+// Micro-interactions
+export {
+  AnimatedCounter,
+  HoverGlow,
+  FloatingActionButton,
+  ProgressBar,
+  PulsingDot,
+  ToastNotification
+} from './MicroInteractions';
+
+// Error Handling
+export { ErrorBoundary, SimpleErrorFallback } from './ErrorBoundary';
+
 // Re-export types for convenience
 export type { 
   ButtonProps, 
@@ -21,6 +38,11 @@ export type {
   UserAvatarProps,
   GameCardProps,
   GameScheduleProps,
-  SearchBarProps
+  SearchBarProps,
+  Size,
+  BadgeSize,
+  BadgeVariant,
+  Status,
+  ButtonVariant
 } from '../types';
 export type { InputProps } from './Input';
