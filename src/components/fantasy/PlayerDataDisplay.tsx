@@ -470,9 +470,8 @@ export const PlayerDataDisplay: React.FC<PlayerDataDisplayProps> = ({ position, 
     );
   }
 
-  if (!data) return null;
-
   // Filter and sort players based on search query and sort option
+  // IMPORTANT: This useMemo must be called before any conditional returns to follow Rules of Hooks
   const filteredAndSortedPlayers = useMemo(() => {
     // More defensive checks
     try {
@@ -538,6 +537,9 @@ export const PlayerDataDisplay: React.FC<PlayerDataDisplayProps> = ({ position, 
       return [];
     }
   }, [data, searchQuery, sortBy]);
+
+  // Now safe to do conditional returns after all hooks have been called
+  if (!data) return null;
 
   return (
     <div className="space-y-6">
