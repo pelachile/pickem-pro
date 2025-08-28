@@ -435,41 +435,6 @@ export const PlayerDataDisplay: React.FC<PlayerDataDisplayProps> = ({ position, 
     }
   }, [position]);
 
-  if (isLoading) {
-    return (
-      <div className="flex flex-col items-center justify-center py-12">
-        <Loader2 className="h-8 w-8 text-sky-400 animate-spin mb-4" />
-        <p className="text-white/70 text-lg">Loading {title} analysis...</p>
-        <p className="text-white/50 text-sm mt-1">Fetching latest player data</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <Card className="p-8 text-center" glass={true}>
-        <div className="flex flex-col items-center gap-4">
-          <div className="p-3 bg-red-500/20 rounded-full">
-            <AlertCircle className="h-8 w-8 text-red-400" />
-          </div>
-          <div>
-            <h3 className="text-lg font-semibold text-white mb-2">
-              Failed to Load {title} Data
-            </h3>
-            <p className="text-red-300 mb-4">{error}</p>
-            <button 
-              onClick={() => window.location.reload()}
-              className="px-4 py-2 bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 rounded-lg text-red-300 transition-colors flex items-center gap-2"
-            >
-              <RefreshCw className="h-4 w-4" />
-              Retry
-            </button>
-          </div>
-        </div>
-      </Card>
-    );
-  }
-
   // Filter and sort players based on search query and sort option
   // IMPORTANT: This useMemo must be called before any conditional returns to follow Rules of Hooks
   const filteredAndSortedPlayers = useMemo(() => {
@@ -538,8 +503,41 @@ export const PlayerDataDisplay: React.FC<PlayerDataDisplayProps> = ({ position, 
     }
   }, [data, searchQuery, sortBy]);
 
-  // Now safe to do conditional returns after all hooks have been called
-  if (!data) return null;
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12">
+        <Loader2 className="h-8 w-8 text-sky-400 animate-spin mb-4" />
+        <p className="text-white/70 text-lg">Loading {title} analysis...</p>
+        <p className="text-white/50 text-sm mt-1">Fetching latest player data</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card className="p-8 text-center" glass={true}>
+        <div className="flex flex-col items-center gap-4">
+          <div className="p-3 bg-red-500/20 rounded-full">
+            <AlertCircle className="h-8 w-8 text-red-400" />
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold text-white mb-2">
+              Failed to Load {title} Data
+            </h3>
+            <p className="text-red-300 mb-4">{error}</p>
+            <button 
+              onClick={() => window.location.reload()}
+              className="px-4 py-2 bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 rounded-lg text-red-300 transition-colors flex items-center gap-2"
+            >
+              <RefreshCw className="h-4 w-4" />
+              Retry
+            </button>
+          </div>
+        </div>
+      </Card>
+    );
+  }
+
 
   return (
     <div className="space-y-6">
