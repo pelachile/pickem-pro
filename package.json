@@ -10,7 +10,11 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "fetch-logos": "node scripts/fetch-team-logos.js",
-    "optimize-hero": "node scripts/optimize-hero-image.js"
+    "optimize-hero": "node scripts/optimize-hero-image.js",
+    "migrate:data": "npx tsx src/scripts/runMigration.ts",
+    "migrate:check": "npx tsx -e \"import { DataMigrationService } from './src/utils/dataMigration'; DataMigrationService.getMigrationProgress().then(p => console.log(JSON.stringify(p, null, 2)))\"",
+    "amplify:sandbox": "npx ampx sandbox",
+    "amplify:types": "npx ampx generate graphql-client-code"
   },
   "dependencies": {
     "@aws-amplify/ui-react": "^6.12.0",

@@ -8,6 +8,27 @@ type GeneratedMutation<InputType, OutputType> = string & {
   __generatedMutationOutput: OutputType;
 };
 
+export const createAIContentCache = /* GraphQL */ `mutation CreateAIContentCache(
+  $condition: ModelAIContentCacheConditionInput
+  $input: CreateAIContentCacheInput!
+) {
+  createAIContentCache(condition: $condition, input: $input) {
+    content
+    content_key
+    content_type
+    createdAt
+    created_at
+    expires_at
+    hit_count
+    last_accessed
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.CreateAIContentCacheMutationVariables,
+  APITypes.CreateAIContentCacheMutation
+>;
 export const createGameEvent = /* GraphQL */ `mutation CreateGameEvent(
   $condition: ModelGameEventConditionInput
   $input: CreateGameEventInput!
@@ -120,6 +141,77 @@ export const createLeagueMember = /* GraphQL */ `mutation CreateLeagueMember(
   APITypes.CreateLeagueMemberMutationVariables,
   APITypes.CreateLeagueMemberMutation
 >;
+export const createNFLTeam = /* GraphQL */ `mutation CreateNFLTeam(
+  $condition: ModelNFLTeamConditionInput
+  $input: CreateNFLTeamInput!
+) {
+  createNFLTeam(condition: $condition, input: $input) {
+    abbreviation
+    ai_last_updated
+    city
+    coaching_changes
+    conference
+    createdAt
+    division
+    fantasy_relevant_news
+    game_preview
+    injury_report
+    key_injuries
+    name
+    season_outlook
+    season_year
+    strengths
+    updatedAt
+    weaknesses
+    week
+    weekly_highlights
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.CreateNFLTeamMutationVariables,
+  APITypes.CreateNFLTeamMutation
+>;
+export const createPlayer = /* GraphQL */ `mutation CreatePlayer(
+  $condition: ModelPlayerConditionInput
+  $input: CreatePlayerInput!
+) {
+  createPlayer(condition: $condition, input: $input) {
+    ai_last_updated
+    concerns
+    createdAt
+    fantasy_points
+    fantasy_rank
+    floor
+    games_played
+    id
+    injury_history
+    injury_update
+    key_factors
+    name
+    news_analysis
+    position
+    position_stats
+    season_year
+    sentiment_score
+    strengths
+    summary
+    team
+    tier
+    top5_likelihood
+    trending_factors
+    updatedAt
+    upside
+    week
+    weekly_ceiling
+    weekly_floor
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.CreatePlayerMutationVariables,
+  APITypes.CreatePlayerMutation
+>;
 export const createTeamRecord = /* GraphQL */ `mutation CreateTeamRecord(
   $condition: ModelTeamRecordConditionInput
   $input: CreateTeamRecordInput!
@@ -160,6 +252,51 @@ export const createTodo = /* GraphQL */ `mutation CreateTodo(
 ` as GeneratedMutation<
   APITypes.CreateTodoMutationVariables,
   APITypes.CreateTodoMutation
+>;
+export const createUserProfile = /* GraphQL */ `mutation CreateUserProfile(
+  $condition: ModelUserProfileConditionInput
+  $input: CreateUserProfileInput!
+) {
+  createUserProfile(condition: $condition, input: $input) {
+    avatar_color
+    avatar_icon
+    avatar_url
+    bio
+    createdAt
+    full_name
+    id
+    is_public
+    owner
+    updatedAt
+    username
+    website
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.CreateUserProfileMutationVariables,
+  APITypes.CreateUserProfileMutation
+>;
+export const deleteAIContentCache = /* GraphQL */ `mutation DeleteAIContentCache(
+  $condition: ModelAIContentCacheConditionInput
+  $input: DeleteAIContentCacheInput!
+) {
+  deleteAIContentCache(condition: $condition, input: $input) {
+    content
+    content_key
+    content_type
+    createdAt
+    created_at
+    expires_at
+    hit_count
+    last_accessed
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.DeleteAIContentCacheMutationVariables,
+  APITypes.DeleteAIContentCacheMutation
 >;
 export const deleteGameEvent = /* GraphQL */ `mutation DeleteGameEvent(
   $condition: ModelGameEventConditionInput
@@ -273,6 +410,77 @@ export const deleteLeagueMember = /* GraphQL */ `mutation DeleteLeagueMember(
   APITypes.DeleteLeagueMemberMutationVariables,
   APITypes.DeleteLeagueMemberMutation
 >;
+export const deleteNFLTeam = /* GraphQL */ `mutation DeleteNFLTeam(
+  $condition: ModelNFLTeamConditionInput
+  $input: DeleteNFLTeamInput!
+) {
+  deleteNFLTeam(condition: $condition, input: $input) {
+    abbreviation
+    ai_last_updated
+    city
+    coaching_changes
+    conference
+    createdAt
+    division
+    fantasy_relevant_news
+    game_preview
+    injury_report
+    key_injuries
+    name
+    season_outlook
+    season_year
+    strengths
+    updatedAt
+    weaknesses
+    week
+    weekly_highlights
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.DeleteNFLTeamMutationVariables,
+  APITypes.DeleteNFLTeamMutation
+>;
+export const deletePlayer = /* GraphQL */ `mutation DeletePlayer(
+  $condition: ModelPlayerConditionInput
+  $input: DeletePlayerInput!
+) {
+  deletePlayer(condition: $condition, input: $input) {
+    ai_last_updated
+    concerns
+    createdAt
+    fantasy_points
+    fantasy_rank
+    floor
+    games_played
+    id
+    injury_history
+    injury_update
+    key_factors
+    name
+    news_analysis
+    position
+    position_stats
+    season_year
+    sentiment_score
+    strengths
+    summary
+    team
+    tier
+    top5_likelihood
+    trending_factors
+    updatedAt
+    upside
+    week
+    weekly_ceiling
+    weekly_floor
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.DeletePlayerMutationVariables,
+  APITypes.DeletePlayerMutation
+>;
 export const deleteTeamRecord = /* GraphQL */ `mutation DeleteTeamRecord(
   $condition: ModelTeamRecordConditionInput
   $input: DeleteTeamRecordInput!
@@ -313,6 +521,51 @@ export const deleteTodo = /* GraphQL */ `mutation DeleteTodo(
 ` as GeneratedMutation<
   APITypes.DeleteTodoMutationVariables,
   APITypes.DeleteTodoMutation
+>;
+export const deleteUserProfile = /* GraphQL */ `mutation DeleteUserProfile(
+  $condition: ModelUserProfileConditionInput
+  $input: DeleteUserProfileInput!
+) {
+  deleteUserProfile(condition: $condition, input: $input) {
+    avatar_color
+    avatar_icon
+    avatar_url
+    bio
+    createdAt
+    full_name
+    id
+    is_public
+    owner
+    updatedAt
+    username
+    website
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.DeleteUserProfileMutationVariables,
+  APITypes.DeleteUserProfileMutation
+>;
+export const updateAIContentCache = /* GraphQL */ `mutation UpdateAIContentCache(
+  $condition: ModelAIContentCacheConditionInput
+  $input: UpdateAIContentCacheInput!
+) {
+  updateAIContentCache(condition: $condition, input: $input) {
+    content
+    content_key
+    content_type
+    createdAt
+    created_at
+    expires_at
+    hit_count
+    last_accessed
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.UpdateAIContentCacheMutationVariables,
+  APITypes.UpdateAIContentCacheMutation
 >;
 export const updateGameEvent = /* GraphQL */ `mutation UpdateGameEvent(
   $condition: ModelGameEventConditionInput
@@ -426,6 +679,77 @@ export const updateLeagueMember = /* GraphQL */ `mutation UpdateLeagueMember(
   APITypes.UpdateLeagueMemberMutationVariables,
   APITypes.UpdateLeagueMemberMutation
 >;
+export const updateNFLTeam = /* GraphQL */ `mutation UpdateNFLTeam(
+  $condition: ModelNFLTeamConditionInput
+  $input: UpdateNFLTeamInput!
+) {
+  updateNFLTeam(condition: $condition, input: $input) {
+    abbreviation
+    ai_last_updated
+    city
+    coaching_changes
+    conference
+    createdAt
+    division
+    fantasy_relevant_news
+    game_preview
+    injury_report
+    key_injuries
+    name
+    season_outlook
+    season_year
+    strengths
+    updatedAt
+    weaknesses
+    week
+    weekly_highlights
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.UpdateNFLTeamMutationVariables,
+  APITypes.UpdateNFLTeamMutation
+>;
+export const updatePlayer = /* GraphQL */ `mutation UpdatePlayer(
+  $condition: ModelPlayerConditionInput
+  $input: UpdatePlayerInput!
+) {
+  updatePlayer(condition: $condition, input: $input) {
+    ai_last_updated
+    concerns
+    createdAt
+    fantasy_points
+    fantasy_rank
+    floor
+    games_played
+    id
+    injury_history
+    injury_update
+    key_factors
+    name
+    news_analysis
+    position
+    position_stats
+    season_year
+    sentiment_score
+    strengths
+    summary
+    team
+    tier
+    top5_likelihood
+    trending_factors
+    updatedAt
+    upside
+    week
+    weekly_ceiling
+    weekly_floor
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.UpdatePlayerMutationVariables,
+  APITypes.UpdatePlayerMutation
+>;
 export const updateTeamRecord = /* GraphQL */ `mutation UpdateTeamRecord(
   $condition: ModelTeamRecordConditionInput
   $input: UpdateTeamRecordInput!
@@ -466,4 +790,28 @@ export const updateTodo = /* GraphQL */ `mutation UpdateTodo(
 ` as GeneratedMutation<
   APITypes.UpdateTodoMutationVariables,
   APITypes.UpdateTodoMutation
+>;
+export const updateUserProfile = /* GraphQL */ `mutation UpdateUserProfile(
+  $condition: ModelUserProfileConditionInput
+  $input: UpdateUserProfileInput!
+) {
+  updateUserProfile(condition: $condition, input: $input) {
+    avatar_color
+    avatar_icon
+    avatar_url
+    bio
+    createdAt
+    full_name
+    id
+    is_public
+    owner
+    updatedAt
+    username
+    website
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.UpdateUserProfileMutationVariables,
+  APITypes.UpdateUserProfileMutation
 >;

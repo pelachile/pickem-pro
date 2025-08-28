@@ -137,6 +137,115 @@ const schema = a.schema({
       content: a.string(),
     })
     .authorization((allow) => [allow.guest()]),
+
+  // AI-enhanced player data models
+  Player: a
+    .model({
+      // Basic player info
+      name: a.string().required(),
+      team: a.string().required(), // Team abbreviation
+      position: a.string().required(),
+      tier: a.string(), // "Elite", "High-End RB1", etc.
+      
+      // AI-generated projections
+      top5_likelihood: a.float(), // 0-100 percentage
+      fantasy_points: a.float(),
+      weekly_floor: a.float(),
+      weekly_ceiling: a.float(),
+      
+      // 2024 stats
+      games_played: a.integer().default(0),
+      injury_history: a.json(), // Array of injury records
+      fantasy_rank: a.integer(),
+      position_stats: a.json(), // Position-specific stats object
+      
+      // AI analysis content
+      summary: a.string(),
+      strengths: a.json(), // Array of strength strings
+      concerns: a.json(), // Array of concern strings
+      key_factors: a.json(), // Array of key factor strings
+      upside: a.string(),
+      floor: a.string(),
+      
+      // AI metadata
+      ai_last_updated: a.datetime().required(),
+      news_analysis: a.string(),
+      injury_update: a.string(),
+      trending_factors: a.json(), // Array of trending topics
+      sentiment_score: a.float(), // -1 to 1 sentiment analysis
+      
+      // Metadata
+      season_year: a.integer().required(),
+      week: a.integer().required(),
+    })
+    .authorization((allow) => [
+      allow.authenticated().to(['read']),
+      // Only Lambda functions can write (via service role)
+    ])
+    .secondaryIndexes((index) => [
+      index('position').sortKeys(['fantasy_rank']).queryField('byPosition'),
+      index('team').sortKeys(['position', 'fantasy_rank']).queryField('byTeam'),
+      index('season_year').sortKeys(['week', 'fantasy_rank']).queryField('bySeason'),
+    ]),
+
+  NFLTeam: a
+    .model({
+      // Basic team info
+      name: a.string().required(),
+      abbreviation: a.string().required(),
+      city: a.string().required(),
+      conference: a.string().required(), // "AFC" or "NFC"
+      division: a.string().required(), // "North", "South", "East", "West"
+      
+      // Team analysis
+      season_outlook: a.string(),
+      strengths: a.json(), // Array of strength strings
+      weaknesses: a.json(), // Array of weakness strings
+      key_injuries: a.json(), // Array of injury reports
+      coaching_changes: a.string(),
+      
+      // AI-generated weekly content
+      weekly_highlights: a.string(),
+      injury_report: a.string(),
+      fantasy_relevant_news: a.string(),
+      game_preview: a.string(),
+      
+      // Metadata
+      season_year: a.integer().required(),
+      week: a.integer().required(),
+      ai_last_updated: a.datetime().required(),
+    })
+    .authorization((allow) => [
+      allow.authenticated().to(['read']),
+      allow.guest().to(['read']), // Public team data
+    ])
+    .identifier(['abbreviation', 'season_year'])
+    .secondaryIndexes((index) => [
+      index('conference').sortKeys(['division', 'abbreviation']).queryField('byConference'),
+      index('division').sortKeys(['abbreviation']).queryField('byDivision'),
+      index('season_year').sortKeys(['week', 'abbreviation']).queryField('bySeasonWeek'),
+    ]),
+
+  AIContentCache: a
+    .model({
+      content_type: a.string().required(), // "player_analysis", "team_preview", etc.
+      content_key: a.string().required(), // Unique identifier for the content
+      content: a.json().required(), // The cached AI-generated content
+      expires_at: a.datetime().required(), // TTL for cache invalidation
+      
+      // Metadata
+      created_at: a.datetime().required(),
+      hit_count: a.integer().default(0), // Track cache usage
+      last_accessed: a.datetime(),
+    })
+    .authorization((allow) => [
+      allow.authenticated().to(['read']),
+      // Only Lambda functions can write (via service role)
+    ])
+    .identifier(['content_type', 'content_key'])
+    .secondaryIndexes((index) => [
+      index('expires_at').queryField('byExpiration'), // For cleanup jobs
+    ]),
 });
 
 export type Schema = ClientSchema<typeof schema>;
