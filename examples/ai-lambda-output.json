@@ -1,0 +1,207 @@
+{
+  "_comment": "Example: What AI Lambda functions should generate for S3/component consumption",
+  
+  "position": "quarterbacks",
+  "positionFull": "Quarterbacks", 
+  "filename": "quarterbacks.json",
+  "lastUpdated": "2025-08-28T10:00:00.000Z",
+  "aiGenerated": true,
+  "version": "1.2.0",
+  
+  "content": {
+    "overview": {
+      "title": "2025 Quarterback Fantasy Analysis",
+      "summary": "The quarterback landscape in 2025 is dominated by dual-threat players who provide elite floors and ceilings. Mobile quarterbacks continue to separate themselves from pocket passers through rushing production and goal-line opportunities.",
+      "keyInsights": [
+        "Dual-threat QBs dominate the top-5 probability rankings",
+        "Schedule strength plays a major role in QB1 finishes", 
+        "Goal-line rushing creates significant scoring floors",
+        "Coaching continuity benefits quarterback consistency"
+      ],
+      "totalPlayers": 8
+    },
+
+    "players": [
+      {
+        "id": "lamar-jackson-bal",
+        "name": "Lamar Jackson",
+        "team": "BAL",
+        "position": "QB",
+        "tier": "Elite",
+        "tierColor": "#10B981",
+        "avatarUrl": "/images/players/lamar-jackson.jpg",
+        "teamLogoUrl": "/images/teams/bal.png",
+        
+        "quickStats": {
+          "top5Likelihood": 85,
+          "projectedRank": 1,
+          "weeklyFloor": 18.5,
+          "weeklyCeiling": 35.2
+        },
+
+        "analysis": {
+          "headline": "Elite dual-threat QB with highest floor/ceiling combination and proven track record in Ravens' optimized system.",
+          
+          "strengths": [
+            "League-leading rushing upside for QB position",
+            "Proven durability with 16-game 2024 season",
+            "Elite play-action efficiency with Derrick Henry",
+            "Goal-line rushing role provides weekly TD floor",
+            "Continuity in Todd Monken's offense"
+          ],
+          
+          "concerns": [
+            "Age 28 entering prime injury risk years",
+            "Potential decreased rushing attempts for longevity",
+            "Passing efficiency regression possible"
+          ],
+          
+          "keyFactors": [
+            "Health and rushing volume sustainability",
+            "Ravens' commitment to designed QB runs", 
+            "Offensive line protection in pocket"
+          ],
+
+          "aiInsights": {
+            "trendingUp": true,
+            "confidenceScore": 0.92,
+            "lastNewsUpdate": "2025-08-27T15:30:00.000Z",
+            "riskAlert": null
+          }
+        },
+
+        "detailedStats": {
+          "passingYards2024": 4180,
+          "passingTDs2024": 41,
+          "rushingYards2024": 915,
+          "rushingTDs2024": 12,
+          "fantasyPoints2024": 388.2,
+          "gamesPlayed2024": 16
+        },
+
+        "metadata": {
+          "lastUpdated": "2025-08-28T09:45:00.000Z",
+          "dataSource": "ai",
+          "popularity": 1247
+        }
+      },
+
+      {
+        "id": "josh-allen-buf", 
+        "name": "Josh Allen",
+        "team": "BUF",
+        "position": "QB",
+        "tier": "Elite",
+        "tierColor": "#10B981",
+        "teamLogoUrl": "/images/teams/buf.png",
+        
+        "quickStats": {
+          "top5Likelihood": 80,
+          "projectedRank": 2, 
+          "weeklyFloor": 17.8,
+          "weeklyCeiling": 38.5
+        },
+
+        "analysis": {
+          "headline": "Premier QB with unmatched ceiling but difficult playoff schedule creates championship path concerns.",
+          
+          "strengths": [
+            "Elite arm strength and deep ball accuracy",
+            "Goal-line rushing role (12 TDs in 2024)", 
+            "Proven big-game performer",
+            "Strong supporting cast with elite weapons"
+          ],
+          
+          "concerns": [
+            "Toughest QB playoff schedule in the league",
+            "Potential cold weather game script issues",
+            "Slight decline in rushing volume trends"
+          ],
+          
+          "keyFactors": [
+            "Schedule difficulty in fantasy playoffs",
+            "Health of receiving corps",
+            "Weather conditions in late season"
+          ],
+
+          "aiInsights": {
+            "trendingUp": false,
+            "confidenceScore": 0.78,
+            "lastNewsUpdate": "2025-08-28T08:15:00.000Z", 
+            "riskAlert": "Difficult playoff schedule ranked #31 among QBs"
+          }
+        },
+
+        "detailedStats": {
+          "passingYards2024": 4306,
+          "passingTDs2024": 29,
+          "rushingYards2024": 523,
+          "rushingTDs2024": 12,
+          "fantasyPoints2024": 361.8,
+          "gamesPlayed2024": 16
+        },
+
+        "metadata": {
+          "lastUpdated": "2025-08-28T09:45:00.000Z",
+          "dataSource": "ai",
+          "popularity": 1089
+        }
+      }
+    ],
+
+    "analysis": {
+      "trendingThemes": [
+        "Dual-threat quarterbacks dominating elite tier",
+        "Schedule strength creating significant value disparities", 
+        "Coaching continuity becoming premium factor",
+        "Goal-line rushing separating top QBs from field"
+      ],
+      
+      "keyFactors": [
+        "Rushing touchdown upside",
+        "Schedule strength in playoffs",
+        "Offensive system fit and continuity",
+        "Supporting cast health and talent"
+      ],
+      
+      "draftStrategy": "Prioritize dual-threat QBs with proven rushing floors. Schedule analysis critical for playoff-bound teams. Target QB with easiest schedule strength as value pick.",
+      
+      "riskFactors": [
+        "Injury risk for mobile quarterbacks",
+        "Weather-dependent passing attacks",
+        "Coaching changes disrupting systems",
+        "Schedule strength variance creating boom/bust outcomes"
+      ]
+    },
+
+    "weeklyUpdate": {
+      "headline": "Lamar Jackson trending up with Henry integration reports from camp",
+      "updates": [
+        "Ravens coaching staff emphasizing play-action with Henry",
+        "Josh Allen dealing with minor wrist soreness in practice",
+        "Joe Burrow cleared for full practice after wrist surgery"
+      ],
+      "generatedAt": "2025-08-28T09:30:00.000Z"
+    }
+  },
+
+  "ui": {
+    "displayMode": "cards",
+    "featuredPlayers": ["lamar-jackson-bal", "josh-allen-buf"],
+    "tierColors": {
+      "Elite": "#10B981",
+      "High-Upside": "#3B82F6", 
+      "Volatile": "#F59E0B",
+      "Sleeper": "#8B5CF6",
+      "Bust-Risk": "#EF4444"
+    }
+  },
+
+  "_aiMetadata": {
+    "model": "claude-3-sonnet",
+    "promptVersion": "v1.2.3",
+    "dataSourcesUsed": ["ESPN API", "NFL.com", "FantasyPros", "Recent News"],
+    "processingTimeMs": 2847,
+    "costEstimate": "$0.023"
+  }
+}

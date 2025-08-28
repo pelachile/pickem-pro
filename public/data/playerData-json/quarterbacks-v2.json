@@ -1,7 +1,7 @@
 {
   "position": "quarterbacks",
   "positionFull": "Quarterbacks", 
-  "filename": "quarterbacks.json",
+  "filename": "quarterbacks-v2.json",
   "lastUpdated": "2025-08-28T10:00:00.000Z",
   "aiGenerated": true,
   "version": "2.0.0",
@@ -9,14 +9,14 @@
   "content": {
     "overview": {
       "title": "2025 Quarterback Fantasy Analysis",
-      "summary": "The quarterback position in fantasy football continues to be defined by a clear division between elite, dual-threat players who offer a high weekly floor and ceiling, and traditional pocket passers who rely on volume and efficiency. The 2024 season reinforced this trend, with mobile quarterbacks dominating the top of the fantasy leaderboards.",
+      "summary": "The quarterback landscape in 2025 is dominated by dual-threat players who provide elite floors and ceilings. Mobile quarterbacks continue to separate themselves from pocket passers through rushing production and goal-line opportunities, creating a clear tier separation at the top of the position.",
       "keyInsights": [
         "Dual-threat QBs dominate the top-5 probability rankings",
         "Schedule strength plays a major role in QB1 finishes", 
         "Goal-line rushing creates significant scoring floors",
         "Coaching continuity benefits quarterback consistency"
       ],
-      "totalPlayers": 8
+      "totalPlayers": 6
     },
 
     "players": [
@@ -264,256 +264,6 @@
           "lastUpdated": "2025-08-28T09:45:00.000Z",
           "dataSource": "ai",
           "popularity": 745
-        }
-      },
-
-      {
-        "id": "anthony-richardson-ind",
-        "name": "Anthony Richardson",
-        "team": "IND", 
-        "position": "QB",
-        "tier": "Volatile",
-        "tierColor": "#F59E0B",
-        "teamLogoUrl": "/images/teams/ind.png",
-        
-        "quickStats": {
-          "top5Likelihood": 42,
-          "projectedRank": 6,
-          "weeklyFloor": 12.5,
-          "weeklyCeiling": 38.0
-        },
-
-        "analysis": {
-          "headline": "Ultimate boom-or-bust QB with elite physical tools but major accuracy and health concerns create volatility.",
-          
-          "strengths": [
-            "Unmatched combination of arm strength and mobility",
-            "Elite rushing ceiling (15+ TD potential)",
-            "Improved offensive line and receiving corps",
-            "High ceiling if everything clicks"
-          ],
-          
-          "concerns": [
-            "Significant accuracy issues and turnover prone",
-            "Injury history with shoulder concerns",
-            "Limited NFL experience and development",
-            "Inconsistent week-to-week production"
-          ],
-          
-          "keyFactors": [
-            "Health and durability over full season",
-            "Accuracy improvement and ball security",
-            "Offensive coordinator Shane Steichen's system fit"
-          ],
-
-          "aiInsights": {
-            "trendingUp": false,
-            "confidenceScore": 0.45,
-            "lastNewsUpdate": "2025-08-28T06:30:00.000Z",
-            "riskAlert": "High injury risk and inconsistent performance"
-          }
-        },
-
-        "detailedStats": {
-          "passingYards2024": 1998,
-          "passingTDs2024": 15,
-          "rushingYards2024": 654,
-          "rushingTDs2024": 5,
-          "fantasyPoints2024": 198.3,
-          "gamesPlayed2024": 10
-        },
-
-        "metadata": {
-          "lastUpdated": "2025-08-28T09:45:00.000Z",
-          "dataSource": "ai",
-          "popularity": 623
-        }
-      },
-
-      {
-        "id": "caleb-williams-chi",
-        "name": "Caleb Williams",
-        "team": "CHI", 
-        "position": "QB",
-        "tier": "High-Upside",
-        "tierColor": "#3B82F6",
-        "teamLogoUrl": "/images/teams/chi.png",
-        
-        "quickStats": {
-          "top5Likelihood": 35,
-          "projectedRank": 8,
-          "weeklyFloor": 14.2,
-          "weeklyCeiling": 29.5
-        },
-
-        "analysis": {
-          "headline": "Talented rookie with elite arm talent and mobility but learning curve and offensive uncertainty create questions.",
-          
-          "strengths": [
-            "Elite arm talent and accuracy from USC",
-            "Decent mobility with rushing upside",
-            "Improved receiving corps with DJ Moore and Keenan Allen",
-            "High ceiling if he develops quickly"
-          ],
-          
-          "concerns": [
-            "Rookie learning curve in NFL",
-            "Offensive line protection concerns",
-            "New system under Shane Waldron",
-            "Limited rushing production historically"
-          ],
-          
-          "keyFactors": [
-            "Adaptation speed to NFL game",
-            "Offensive line performance and protection",
-            "Chemistry development with receiving corps"
-          ],
-
-          "aiInsights": {
-            "trendingUp": true,
-            "confidenceScore": 0.62,
-            "lastNewsUpdate": "2025-08-27T12:15:00.000Z"
-          }
-        },
-
-        "detailedStats": {
-          "passingYards2024": 0,
-          "passingTDs2024": 0,
-          "rushingYards2024": 0,
-          "rushingTDs2024": 0,
-          "fantasyPoints2024": 0,
-          "gamesPlayed2024": 0
-        },
-
-        "metadata": {
-          "lastUpdated": "2025-08-28T09:45:00.000Z",
-          "dataSource": "ai",
-          "popularity": 567
-        }
-      },
-
-      {
-        "id": "bo-nix-den",
-        "name": "Bo Nix",
-        "team": "DEN", 
-        "position": "QB",
-        "tier": "Sleeper",
-        "tierColor": "#8B5CF6",
-        "teamLogoUrl": "/images/teams/den.png",
-        
-        "quickStats": {
-          "top5Likelihood": 18,
-          "projectedRank": 15,
-          "weeklyFloor": 11.8,
-          "weeklyCeiling": 25.2
-        },
-
-        "analysis": {
-          "headline": "Late-round sleeper with mobility upside but limited ceiling in conservative Denver offense creates risk/reward profile.",
-          
-          "strengths": [
-            "Decent mobility with rushing floor",
-            "Improved in college under Dan Lanning",
-            "Sean Payton's offensive system",
-            "Late-round value pick potential"
-          ],
-          
-          "concerns": [
-            "Limited arm talent and accuracy concerns",
-            "Conservative offensive approach in Denver",
-            "Weak receiving corps talent",
-            "Low ceiling compared to elite QBs"
-          ],
-          
-          "keyFactors": [
-            "Sean Payton's system integration",
-            "Development of receiving weapons",
-            "Rushing usage and designed runs"
-          ],
-
-          "aiInsights": {
-            "trendingUp": false,
-            "confidenceScore": 0.38,
-            "lastNewsUpdate": "2025-08-28T05:45:00.000Z"
-          }
-        },
-
-        "detailedStats": {
-          "passingYards2024": 0,
-          "passingTDs2024": 0,
-          "rushingYards2024": 0,
-          "rushingTDs2024": 0,
-          "fantasyPoints2024": 0,
-          "gamesPlayed2024": 0
-        },
-
-        "metadata": {
-          "lastUpdated": "2025-08-28T09:45:00.000Z",
-          "dataSource": "ai",
-          "popularity": 234
-        }
-      },
-
-      {
-        "id": "drake-maye-ne",
-        "name": "Drake Maye",
-        "team": "NE", 
-        "position": "QB",
-        "tier": "Sleeper",
-        "tierColor": "#8B5CF6",
-        "teamLogoUrl": "/images/teams/ne.png",
-        
-        "quickStats": {
-          "top5Likelihood": 15,
-          "projectedRank": 18,
-          "weeklyFloor": 10.5,
-          "weeklyCeiling": 26.8
-        },
-
-        "analysis": {
-          "headline": "High-upside rookie with mobility but weak supporting cast and offensive line create major risk in redraft leagues.",
-          
-          "strengths": [
-            "Strong arm talent from UNC",
-            "Good mobility and rushing ability",
-            "High ceiling if situation improves",
-            "Alex Van Pelt's quarterback-friendly system"
-          ],
-          
-          "concerns": [
-            "Weak offensive line protection",
-            "Limited receiving weapons and talent",
-            "Rookie learning curve challenges",
-            "Low floor in difficult situation"
-          ],
-          
-          "keyFactors": [
-            "Offensive line improvement and protection",
-            "Development of receiving corps",
-            "Adaptation speed to NFL complexity"
-          ],
-
-          "aiInsights": {
-            "trendingUp": false,
-            "confidenceScore": 0.32,
-            "lastNewsUpdate": "2025-08-27T11:30:00.000Z",
-            "riskAlert": "Difficult situation with weak supporting cast"
-          }
-        },
-
-        "detailedStats": {
-          "passingYards2024": 0,
-          "passingTDs2024": 0,
-          "rushingYards2024": 0,
-          "rushingTDs2024": 0,
-          "fantasyPoints2024": 0,
-          "gamesPlayed2024": 0
-        },
-
-        "metadata": {
-          "lastUpdated": "2025-08-28T09:45:00.000Z",
-          "dataSource": "ai",
-          "popularity": 198
         }
       }
     ],
