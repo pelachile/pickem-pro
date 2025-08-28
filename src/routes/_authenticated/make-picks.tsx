@@ -27,7 +27,15 @@ function MakePicksContent() {
     
     // Get the most recent week with games available (for off-season display)
     const gamesData = useMemo(() => {
-        if (!nflData) return null;
+        if (!nflData) {
+            return {
+                games: [],
+                gamesByDate: {},
+                sortedDates: [],
+                week: 1,
+                weekDescription: 'Loading...',
+            };
+        }
         // Get the latest week available in the cache
         const availableWeeks = nflData.meta.weeks_available;
         const latestWeek = Math.max(...availableWeeks);
