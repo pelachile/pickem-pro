@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Link, useLocation } from '@tanstack/react-router';
-import { ChevronDown, ChevronRight, Shield, Users } from 'lucide-react';
+import { ChevronDown, ChevronRight, Shield, Users, Search, X } from 'lucide-react';
 
 // Team data organized by conference and division
 const teamsStructure = {
@@ -67,6 +67,8 @@ export function TeamsNavigation({ isExpanded, onToggleExpanded }: TeamsNavigatio
   const location = useLocation();
   const [expandedConferences, setExpandedConferences] = useState<Set<string>>(new Set(['AFC', 'NFC']));
   const [expandedDivisions, setExpandedDivisions] = useState<Set<string>>(new Set());
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showSearch, setShowSearch] = useState(false);
 
   const toggleConference = (conference: string) => {
     setExpandedConferences(prev => {
@@ -107,6 +109,56 @@ export function TeamsNavigation({ isExpanded, onToggleExpanded }: TeamsNavigatio
     return location.pathname === path;
   };
 
+  // Filter teams based on search query
+  const filteredTeams = useMemo(() => {
+    if (!searchQuery.trim()) return teamsStructure;
+
+    const filtered: any = {};
+    const query = searchQuery.toLowerCase();
+
+    Object.entries(teamsStructure).forEach(([conference, divisions]) => {
+      const filteredDivisions: any = {};
+      let hasMatchingTeams = false;
+
+      Object.entries(divisions).forEach(([division, teams]) => {
+        const matchingTeams = teams.filter(team => 
+          team.name.toLowerCase().includes(query) ||
+          team.abbreviation.toLowerCase().includes(query) ||
+          division.toLowerCase().includes(query)
+        );
+
+        if (matchingTeams.length > 0) {
+          filteredDivisions[division] = matchingTeams;
+          hasMatchingTeams = true;
+        }
+      });
+
+      if (hasMatchingTeams) {
+        filtered[conference] = filteredDivisions;
+      }
+    });
+
+    return filtered;
+  }, [searchQuery]);
+
+  // Auto-expand conferences and divisions when searching
+  useEffect(() => {
+    if (searchQuery.trim()) {
+      // Expand all conferences that have matching teams
+      const conferenceKeys = Object.keys(filteredTeams);
+      setExpandedConferences(new Set(conferenceKeys));
+      
+      // Expand all divisions that have matching teams
+      const divisionKeys: string[] = [];
+      Object.entries(filteredTeams).forEach(([conference, divisions]) => {
+        Object.keys(divisions).forEach(division => {
+          divisionKeys.push(`${conference}-${division}`);
+        });
+      });
+      setExpandedDivisions(new Set(divisionKeys));
+    }
+  }, [searchQuery, filteredTeams]);
+
   const getDivisionColor = (division: string, conference: string) => {
     const colorMap = {
       'AFC-North': '#6366f1', // Indigo
@@ -125,7 +177,61 @@ export function TeamsNavigation({ isExpanded, onToggleExpanded }: TeamsNavigatio
 
   return (
     <div className="space-y-2">
-      {Object.entries(teamsStructure).map(([conference, divisions]) => (
+      {/* Search Header */}
+      <div className="flex items-center justify-between mb-3">
+        {!showSearch ? (
+          <button
+            onClick={() => setShowSearch(true)}
+            className="flex items-center gap-2 text-white/60 hover:text-white/80 transition-colors"
+            title="Search teams"
+          >
+            <Search className="h-4 w-4" />
+            <span className="text-xs">Search Teams</span>
+          </button>
+        ) : (
+          <div className="flex items-center gap-2 w-full">
+            <div className="relative flex-1">
+              <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-3 w-3 text-white/40" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => e.key === 'Escape' && (setShowSearch(false), setSearchQuery(''))}
+                placeholder="Search teams..."
+                className="w-full pl-7 pr-7 py-1.5 bg-white/5 border border-white/10 rounded-md text-sm text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-sky-400/50 focus:border-transparent"
+                autoFocus
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 text-white/40 hover:text-white/60"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              )}
+            </div>
+            <button
+              onClick={() => {
+                setShowSearch(false);
+                setSearchQuery('');
+              }}
+              className="text-white/40 hover:text-white/60"
+              title="Close search"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Teams Display */}
+      {searchQuery.trim() && Object.keys(filteredTeams).length === 0 ? (
+        <div className="text-center py-4 text-white/60">
+          <Users className="h-6 w-6 mx-auto mb-2 opacity-50" />
+          <p className="text-sm">No teams found for "{searchQuery}"</p>
+        </div>
+      ) : (
+        Object.entries(filteredTeams).map(([conference, divisions]) => (
         <div key={conference}>
           {/* Conference Header */}
           <button
@@ -182,10 +288,10 @@ export function TeamsNavigation({ isExpanded, onToggleExpanded }: TeamsNavigatio
                           <Link
                             key={team.abbreviation}
                             to="/team/$teamId"
-                            params={{ teamId: team.abbreviation }}
+                            params={{ teamId: team.abbreviation.toLowerCase() }}
                             className={`
                               flex items-center gap-3 p-2 rounded-lg transition-colors text-sm
-                              ${isCurrentPath(`/team/${team.abbreviation}`) 
+                              ${isCurrentPath(`/team/${team.abbreviation.toLowerCase()}`) 
                                 ? 'bg-sky-500/20 text-sky-300' 
                                 : 'text-white/60 hover:text-white hover:bg-white/5'
                               }
@@ -203,7 +309,8 @@ export function TeamsNavigation({ isExpanded, onToggleExpanded }: TeamsNavigatio
             </div>
           )}
         </div>
-      ))}
+        ))
+      )}
 
       {/* Quick Links */}
       <div className="border-t border-white/10 pt-2 mt-4">

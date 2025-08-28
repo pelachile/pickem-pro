@@ -1,5 +1,5 @@
 import React from 'react';
-import { useLocation } from '@tanstack/react-router';
+import { useLocation, useNavigate } from '@tanstack/react-router';
 import { SearchBar } from '../ui';
 import type { NFLTeamData } from '../types';
 import AnimatedContent from './AnimatedContent';
@@ -20,10 +20,16 @@ export default function ContentWrapper({
     className = '' 
 }: ContentWrapperProps) {
     const location = useLocation();
+    const navigate = useNavigate();
 
     const handleTeamSearch = (team: NFLTeamData) => {
         console.log('Team search in content:', team);
-        // Future: Navigate to team page or filter content
+        console.log('Navigating to team page:', `/team/${team.abbreviation.toLowerCase()}`);
+        // Navigate to team page
+        navigate({ 
+            to: '/team/$teamId', 
+            params: { teamId: team.abbreviation.toLowerCase() } 
+        });
     };
 
     // Determine if search bar should be hidden based on route

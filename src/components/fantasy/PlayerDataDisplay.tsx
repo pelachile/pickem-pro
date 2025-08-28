@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
-import { Loader2, AlertCircle, TrendingUp, TrendingDown, Target, Zap, Shield, AlertTriangle, Calendar, RefreshCw, Brain, Sparkles } from 'lucide-react';
+import { Loader2, AlertCircle, TrendingUp, TrendingDown, Target, Zap, Shield, AlertTriangle, Calendar, RefreshCw, Brain, Sparkles, Search, X, Filter } from 'lucide-react';
 import { useAIPlayerAnalysis } from '../../hooks/useAIAnalysis';
 
 // Define interfaces directly in component to avoid import issues
@@ -378,6 +378,11 @@ export const PlayerDataDisplay: React.FC<PlayerDataDisplayProps> = ({ position, 
   const [error, setError] = useState<string | null>(null);
   const [expandedPlayers, setExpandedPlayers] = useState<Set<string>>(new Set());
   
+  // Search state
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showSearch, setShowSearch] = useState(false);
+  const [sortBy, setSortBy] = useState<'name' | 'team' | 'tier'>('tier');
+  
   // AI Analysis integration
   const { players: aiPlayers, loading: aiLoading, error: aiError, refresh: refreshAI, isContentFresh } = useAIPlayerAnalysis(undefined, undefined, position);
 
@@ -467,6 +472,44 @@ export const PlayerDataDisplay: React.FC<PlayerDataDisplayProps> = ({ position, 
 
   if (!data) return null;
 
+  // Filter and sort players based on search query and sort option
+  const filteredAndSortedPlayers = useMemo(() => {
+    if (!data) return [];
+    
+    let filtered = data.content.players;
+
+    // Apply search filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(player => 
+        player.name.toLowerCase().includes(query) ||
+        player.team.toLowerCase().includes(query) ||
+        player.tier.toLowerCase().includes(query) ||
+        player.position.toLowerCase().includes(query)
+      );
+    }
+
+    // Apply sorting
+    const sorted = [...filtered].sort((a, b) => {
+      switch (sortBy) {
+        case 'name':
+          return a.name.localeCompare(b.name);
+        case 'team':
+          return a.team.localeCompare(b.team);
+        case 'tier':
+          // Sort by tier priority (Tier 1 first, then 2, etc.)
+          const tierOrder = { 'Tier 1': 1, 'Tier 2': 2, 'Tier 3': 3, 'Tier 4': 4, 'Tier 5': 5 };
+          const aTier = tierOrder[a.tier as keyof typeof tierOrder] || 999;
+          const bTier = tierOrder[b.tier as keyof typeof tierOrder] || 999;
+          return aTier - bTier;
+        default:
+          return 0;
+      }
+    });
+
+    return sorted;
+  }, [data, searchQuery, sortBy]);
+
   return (
     <div className="space-y-6">
       {/* AI Analysis Status */}
@@ -512,6 +555,77 @@ export const PlayerDataDisplay: React.FC<PlayerDataDisplayProps> = ({ position, 
         </div>
       </Card>
 
+      {/* Player Search and Filter */}
+      <Card className="p-4" glass={true}>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <Search className="h-5 w-5 text-white/60" />
+            <h3 className="text-lg font-semibold text-white">
+              {filteredAndSortedPlayers.length} {position} Players
+              {searchQuery && ` matching "${searchQuery}"`}
+            </h3>
+          </div>
+          
+          <div className="flex items-center gap-3">
+            {/* Sort Options */}
+            <div className="flex items-center gap-2">
+              <Filter className="h-4 w-4 text-white/60" />
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as 'name' | 'team' | 'tier')}
+                className="bg-white/10 border border-white/20 rounded-md px-3 py-1 text-sm text-white focus:outline-none focus:ring-2 focus:ring-sky-400/50 focus:border-transparent"
+              >
+                <option value="tier">Sort by Tier</option>
+                <option value="name">Sort by Name</option>
+                <option value="team">Sort by Team</option>
+              </select>
+            </div>
+            
+            {/* Search Input */}
+            <div className="relative">
+              <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-white/40" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder={`Search ${position.toLowerCase()} players...`}
+                className="pl-8 pr-8 py-2 bg-white/10 border border-white/20 rounded-md text-sm text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-sky-400/50 focus:border-transparent min-w-[200px]"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 text-white/40 hover:text-white/60"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Results Summary */}
+        {searchQuery && (
+          <div className="mt-3 pt-3 border-t border-white/10">
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-white/60">
+                {filteredAndSortedPlayers.length === 0 
+                  ? 'No players found' 
+                  : `Found ${filteredAndSortedPlayers.length} of ${data.content.players.length} players`
+                }
+              </span>
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="text-sky-400 hover:text-sky-300 font-medium"
+                >
+                  Clear search
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+      </Card>
+
       {/* Overview */}
       <OverviewCard 
         title={data.content.overview.title}
@@ -524,7 +638,23 @@ export const PlayerDataDisplay: React.FC<PlayerDataDisplayProps> = ({ position, 
 
       {/* Player Cards */}
       <div className="space-y-4">
-        {data.content.players.map((player) => {
+        {filteredAndSortedPlayers.length === 0 && searchQuery ? (
+          <Card className="p-8 text-center" glass={true}>
+            <Search className="h-12 w-12 text-white/40 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-white mb-2">No players found</h3>
+            <p className="text-white/60 mb-4">
+              No {position.toLowerCase()} players match "{searchQuery}"
+            </p>
+            <Button
+              onClick={() => setSearchQuery('')}
+              variant="outline"
+              className="mx-auto"
+            >
+              Clear search
+            </Button>
+          </Card>
+        ) : (
+          filteredAndSortedPlayers.map((player) => {
           // Find matching AI insights for this player
           const playerAIInsights = aiPlayers.find(aiPlayer => 
             aiPlayer.name === player.name || 
@@ -542,7 +672,8 @@ export const PlayerDataDisplay: React.FC<PlayerDataDisplayProps> = ({ position, 
               aiInsights={playerAIInsights}
             />
           );
-        })}
+        })
+        )}
       </div>
 
       {/* Position Analysis */}
