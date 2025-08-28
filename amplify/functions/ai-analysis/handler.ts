@@ -29,7 +29,7 @@ Amplify.configure({
 
 const client = generateClient<Schema>();
 const bedrockClient = new BedrockRuntimeClient({ 
-  region: process.env.AWS_REGION || 'us-east-1' 
+  region: process.env.AWS_REGION || 'us-east-2' 
 });
 
 // Configuration constants
