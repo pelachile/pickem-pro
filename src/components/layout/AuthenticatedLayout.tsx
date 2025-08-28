@@ -20,12 +20,14 @@ import {
     Shield,
     ChevronDown,
     ChevronRight,
+    Brain,
 } from 'lucide-react';
 import { useAuth } from '../auth';
 import { useUserProfile } from '../../hooks/useProfile';
 import { useUserLeagues } from '../../hooks/useLeague';
 import { UserAvatar } from '../ui/UserAvatar';
 import { LeagueListSkeleton } from '../ui/SkeletonLoader';
+import { TeamsNavigation } from '../teams/TeamsNavigation';
 
 interface AuthenticatedLayoutProps {
     children: React.ReactNode;
@@ -42,6 +44,7 @@ const navigation = [
     { name: 'Make Picks', href: '/make-picks', icon: List },
     { name: 'Leagues', href: '/leagues', icon: Trophy },
     { name: 'Stats', href: '/stats', icon: PieChart },
+    { name: 'AI Settings', href: '/ai-settings', icon: Brain },
 ];
 
 // Fantasy Football navigation items
@@ -53,6 +56,13 @@ const fantasyNavigation = [
     { name: 'Defense & Kickers', href: '/fantasy/defense-kickers', icon: Shield },
 ];
 
+// Team Analysis navigation items
+const teamNavigation = [
+    { name: 'AFC Conference', href: '/teams/afc', icon: Shield },
+    { name: 'NFC Conference', href: '/teams/nfc', icon: Shield },
+    { name: 'All Teams', href: '/teams/all', icon: Shield },
+];
+
 
 function classNames(...classes: string[]) {
     return classes.filter(Boolean).join(' ');
@@ -61,6 +71,7 @@ function classNames(...classes: string[]) {
 export default function AuthenticatedLayout({ children }: AuthenticatedLayoutProps) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [fantasyExpanded, setFantasyExpanded] = useState(false);
+    const [teamsExpanded, setTeamsExpanded] = useState(true);
     const { user, signOut } = useAuth();
     const router = useRouter();
     const location = useLocation();
@@ -94,11 +105,15 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
 
     // Detect if we're on a Fantasy Football route and auto-expand
     const isFantasyRoute = location.pathname.startsWith('/fantasy');
+    const isTeamsRoute = location.pathname.startsWith('/teams');
     React.useEffect(() => {
         if (isFantasyRoute) {
             setFantasyExpanded(true);
         }
-    }, [isFantasyRoute]);
+        if (isTeamsRoute) {
+            setTeamsExpanded(true);
+        }
+    }, [isFantasyRoute, isTeamsRoute]);
 
     const Sidebar = () => (
         <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-navy-900/95 backdrop-blur-lg border-r border-sky-400/20 px-6">
@@ -219,6 +234,28 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
                                 })}
                             </ul>
                         )}
+                    </li>
+
+                    {/* Team Analysis Section */}
+                    <li>
+                        <div className="mb-3">
+                            <button
+                                onClick={() => setTeamsExpanded(!teamsExpanded)}
+                                className="w-full flex items-center justify-between text-xs font-semibold text-white/60 uppercase tracking-wider hover:text-white/80 transition-colors duration-200"
+                            >
+                                <span>Team Analysis</span>
+                                {teamsExpanded ? (
+                                    <ChevronDown className="h-3 w-3" />
+                                ) : (
+                                    <ChevronRight className="h-3 w-3" />
+                                )}
+                            </button>
+                        </div>
+                        
+                        <TeamsNavigation 
+                            isExpanded={teamsExpanded}
+                            onToggleExpanded={() => setTeamsExpanded(!teamsExpanded)}
+                        />
                     </li>
 
                     {/* My Leagues Section */}

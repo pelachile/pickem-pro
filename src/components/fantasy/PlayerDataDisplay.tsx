@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Card } from '../ui/Card';
-import { Loader2, AlertCircle, TrendingUp, TrendingDown, Target, Zap, Shield, AlertTriangle, Calendar, RefreshCw } from 'lucide-react';
+import { Button } from '../ui/Button';
+import { Loader2, AlertCircle, TrendingUp, TrendingDown, Target, Zap, Shield, AlertTriangle, Calendar, RefreshCw, Brain, Sparkles } from 'lucide-react';
+import { useAIPlayerAnalysis } from '../../hooks/useAIAnalysis';
 
 // Define interfaces directly in component to avoid import issues
 interface ComponentPlayerData {
@@ -83,6 +85,7 @@ interface PlayerCardProps {
   player: ComponentPlayer;
   isExpanded: boolean;
   onToggleExpand: () => void;
+  aiInsights?: any;
 }
 
 interface OverviewCardProps {
@@ -164,7 +167,7 @@ const OverviewCard: React.FC<OverviewCardProps> = ({
 };
 
 // Player Card Component
-const PlayerCard: React.FC<PlayerCardProps> = ({ player, isExpanded, onToggleExpand }) => {
+const PlayerCard: React.FC<PlayerCardProps> = ({ player, isExpanded, onToggleExpand, aiInsights }) => {
   return (
     <Card className="p-6" glass={true} hover={true}>
       <div className="flex items-start justify-between mb-4">
@@ -374,6 +377,9 @@ export const PlayerDataDisplay: React.FC<PlayerDataDisplayProps> = ({ position, 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [expandedPlayers, setExpandedPlayers] = useState<Set<string>>(new Set());
+  
+  // AI Analysis integration
+  const { players: aiPlayers, loading: aiLoading, error: aiError, refresh: refreshAI, isContentFresh } = useAIPlayerAnalysis(undefined, undefined, position);
 
   const togglePlayerExpansion = (playerId: string) => {
     setExpandedPlayers(prev => {
@@ -463,6 +469,49 @@ export const PlayerDataDisplay: React.FC<PlayerDataDisplayProps> = ({ position, 
 
   return (
     <div className="space-y-6">
+      {/* AI Analysis Status */}
+      <Card className="p-4 mb-6" glass={true}>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-purple-500/20 rounded-lg">
+              <Brain className="h-5 w-5 text-purple-400" />
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-white">AI Player Analysis</h3>
+              <p className="text-white/60 text-sm">
+                {aiPlayers.length > 0 ? `${aiPlayers.length} ${position} players analyzed` : `No AI analysis for ${position} players yet`}
+                {aiPlayers.length > 0 && (
+                  <span className={`ml-2 ${isContentFresh ? 'text-green-400' : 'text-orange-400'}`}>
+                    • {isContentFresh ? 'Fresh' : 'Needs Update'}
+                  </span>
+                )}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            {aiError && (
+              <div className="text-red-400 text-sm mr-2">
+                AI analysis unavailable
+              </div>
+            )}
+            <Button
+              onClick={() => refreshAI({ type: 'players' })}
+              disabled={aiLoading}
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-2"
+            >
+              {aiLoading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Sparkles className="h-4 w-4" />
+              )}
+              {aiLoading ? 'Analyzing...' : 'Refresh AI'}
+            </Button>
+          </div>
+        </div>
+      </Card>
+
       {/* Overview */}
       <OverviewCard 
         title={data.content.overview.title}
@@ -475,14 +524,25 @@ export const PlayerDataDisplay: React.FC<PlayerDataDisplayProps> = ({ position, 
 
       {/* Player Cards */}
       <div className="space-y-4">
-        {data.content.players.map((player) => (
-          <PlayerCard 
-            key={player.id}
-            player={player}
-            isExpanded={expandedPlayers.has(player.id)}
-            onToggleExpand={() => togglePlayerExpansion(player.id)}
-          />
-        ))}
+        {data.content.players.map((player) => {
+          // Find matching AI insights for this player
+          const playerAIInsights = aiPlayers.find(aiPlayer => 
+            aiPlayer.name === player.name || 
+            aiPlayer.id === player.id ||
+            aiPlayer.name.toLowerCase().includes(player.name.toLowerCase()) ||
+            player.name.toLowerCase().includes(aiPlayer.name.toLowerCase())
+          );
+          
+          return (
+            <PlayerCard 
+              key={player.id}
+              player={player}
+              isExpanded={expandedPlayers.has(player.id)}
+              onToggleExpand={() => togglePlayerExpansion(player.id)}
+              aiInsights={playerAIInsights}
+            />
+          );
+        })}
       </div>
 
       {/* Position Analysis */}

@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Import team image system styles */
+@import "./styles/teamImage.css";
+
 /* Ocean-to-Sunset Theme for Tailwind CSS v4 */
 @theme {
   /* Navy color scale */

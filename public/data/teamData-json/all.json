@@ -1,0 +1,67 @@
+{
+  "conference": "all",
+  "conferenceFull": "NFL",
+  "filename": "all.json",
+  "lastUpdated": "2025-08-28T00:00:00Z",
+  "aiGenerated": true,
+  "version": "1.0.0",
+  "content": {
+    "overview": {
+      "title": "NFL League-Wide Analysis",
+      "summary": "The 2025 NFL season promises to be one of the most competitive in recent memory, with legitimate championship contenders spread across both conferences. The league continues to evolve with young quarterback talent emerging while veteran signal-callers adapt to new systems and environments.",
+      "keyInsights": [
+        "AFC remains deeper with more playoff-caliber teams",
+        "NFC features clear elite tier with significant drop-off",
+        "Record number of quarterback changes across both conferences",
+        "Salary cap constraints forcing difficult roster decisions league-wide",
+        "Young quarterback development will be crucial storyline",
+        "Several franchises in complete organizational rebuilds"
+      ],
+      "totalTeams": 32
+    },
+    "teams": [],
+    "analysis": {
+      "trendingThemes": [
+        "Quarterback development and transitions dominating storylines",
+        "Increased emphasis on defensive value with rule changes",
+        "Salary cap management becoming crucial for sustained success",
+        "Young coaching talent being given opportunities across league",
+        "Home field advantage varying significantly by market and team",
+        "Technology and analytics playing larger role in game preparation"
+      ],
+      "keyFactors": [
+        "Health of elite quarterbacks across both conferences",
+        "Development curve of rookie and sophomore quarterbacks",
+        "Impact of new coaching staffs on team performance",
+        "Salary cap decisions affecting roster construction",
+        "Division races expected to be highly competitive"
+      ],
+      "seasonOutlook": "The 2025 NFL season presents a fascinating landscape with the AFC maintaining its reputation as the deeper, more competitive conference while the NFC features a clear elite tier followed by teams in various stages of rebuild. The Chiefs remain the gold standard, but legitimate challengers exist in both conferences. Young quarterback development will be a major storyline, with several franchises betting their futures on recently drafted signal-callers. Expect a highly competitive season with multiple surprise teams and disappointing underperformers.",
+      "riskFactors": [
+        "Quarterback injuries could dramatically reshape playoff races",
+        "Several aging rosters face potential rapid decline",
+        "New coaching staffs may need time to implement systems",
+        "Salary cap constraints forcing teams to make difficult decisions",
+        "Increased player safety focus could impact game style"
+      ]
+    },
+    "weeklyUpdate": {
+      "headline": "Preseason action revealing league-wide trends and storylines",
+      "updates": [
+        "Elite teams showing championship form early",
+        "Young quarterbacks displaying promising development",
+        "Several coaching changes appearing to have immediate positive impact",
+        "Competitive balance appears strong across both conferences"
+      ],
+      "generatedAt": "2025-08-28T00:00:00Z"
+    }
+  },
+  "ui": {
+    "displayMode": "cards",
+    "featuredTeams": ["kc", "sf", "buf", "det"],
+    "conferenceColors": {
+      "AFC": "#004C99",
+      "NFC": "#CC0000"
+    }
+  }
+}

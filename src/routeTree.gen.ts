@@ -15,6 +15,7 @@ import { Route as HomeSimpleRouteImport } from './routes/home-simple'
 import { Route as HomeRouteImport } from './routes/home'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as DemoTeamImagesRouteImport } from './routes/demo/team-images'
 import { Route as AuthenticatedTestVenuesRouteImport } from './routes/_authenticated/test-venues'
 import { Route as AuthenticatedStatsRouteImport } from './routes/_authenticated/stats'
 import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
@@ -26,6 +27,11 @@ import { Route as AuthenticatedDevPicksTestRouteImport } from './routes/_authent
 import { Route as AuthenticatedDataDemoRouteImport } from './routes/_authenticated/data-demo'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedCreateLeagueRouteImport } from './routes/_authenticated/create-league'
+import { Route as AuthenticatedAiSettingsRouteImport } from './routes/_authenticated/ai-settings'
+import { Route as AuthenticatedTeamsNfcRouteImport } from './routes/_authenticated/teams.nfc'
+import { Route as AuthenticatedTeamsAllRouteImport } from './routes/_authenticated/teams.all'
+import { Route as AuthenticatedTeamsAfcRouteImport } from './routes/_authenticated/teams.afc'
+import { Route as AuthenticatedTeamTeamIdRouteImport } from './routes/_authenticated/team.$teamId'
 import { Route as AuthenticatedLeagueLeagueIdRouteImport } from './routes/_authenticated/league.$leagueId'
 import { Route as AuthenticatedLeagueManageLeagueIdRouteImport } from './routes/_authenticated/league-manage.$leagueId'
 import { Route as AuthenticatedFantasyWideReceiversRouteImport } from './routes/_authenticated/fantasy.wide-receivers'
@@ -61,6 +67,11 @@ const AuthenticatedRoute = AuthenticatedRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemoTeamImagesRoute = DemoTeamImagesRouteImport.update({
+  id: '/demo/team-images',
+  path: '/demo/team-images',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedTestVenuesRoute = AuthenticatedTestVenuesRouteImport.update({
@@ -120,6 +131,31 @@ const AuthenticatedCreateLeagueRoute =
     path: '/create-league',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedAiSettingsRoute = AuthenticatedAiSettingsRouteImport.update({
+  id: '/ai-settings',
+  path: '/ai-settings',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedTeamsNfcRoute = AuthenticatedTeamsNfcRouteImport.update({
+  id: '/teams/nfc',
+  path: '/teams/nfc',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedTeamsAllRoute = AuthenticatedTeamsAllRouteImport.update({
+  id: '/teams/all',
+  path: '/teams/all',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedTeamsAfcRoute = AuthenticatedTeamsAfcRouteImport.update({
+  id: '/teams/afc',
+  path: '/teams/afc',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedTeamTeamIdRoute = AuthenticatedTeamTeamIdRouteImport.update({
+  id: '/team/$teamId',
+  path: '/team/$teamId',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedLeagueLeagueIdRoute =
   AuthenticatedLeagueLeagueIdRouteImport.update({
     id: '/league/$leagueId',
@@ -169,6 +205,7 @@ export interface FileRoutesByFullPath {
   '/home-simple': typeof HomeSimpleRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/ai-settings': typeof AuthenticatedAiSettingsRoute
   '/create-league': typeof AuthenticatedCreateLeagueRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/data-demo': typeof AuthenticatedDataDemoRoute
@@ -180,6 +217,7 @@ export interface FileRoutesByFullPath {
   '/settings': typeof AuthenticatedSettingsRoute
   '/stats': typeof AuthenticatedStatsRoute
   '/test-venues': typeof AuthenticatedTestVenuesRoute
+  '/demo/team-images': typeof DemoTeamImagesRoute
   '/fantasy/defense-kickers': typeof AuthenticatedFantasyDefenseKickersRoute
   '/fantasy/quarterbacks': typeof AuthenticatedFantasyQuarterbacksRoute
   '/fantasy/running-backs': typeof AuthenticatedFantasyRunningBacksRoute
@@ -187,6 +225,10 @@ export interface FileRoutesByFullPath {
   '/fantasy/wide-receivers': typeof AuthenticatedFantasyWideReceiversRoute
   '/league-manage/$leagueId': typeof AuthenticatedLeagueManageLeagueIdRoute
   '/league/$leagueId': typeof AuthenticatedLeagueLeagueIdRoute
+  '/team/$teamId': typeof AuthenticatedTeamTeamIdRoute
+  '/teams/afc': typeof AuthenticatedTeamsAfcRoute
+  '/teams/all': typeof AuthenticatedTeamsAllRoute
+  '/teams/nfc': typeof AuthenticatedTeamsNfcRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -194,6 +236,7 @@ export interface FileRoutesByTo {
   '/home-simple': typeof HomeSimpleRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/ai-settings': typeof AuthenticatedAiSettingsRoute
   '/create-league': typeof AuthenticatedCreateLeagueRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/data-demo': typeof AuthenticatedDataDemoRoute
@@ -205,6 +248,7 @@ export interface FileRoutesByTo {
   '/settings': typeof AuthenticatedSettingsRoute
   '/stats': typeof AuthenticatedStatsRoute
   '/test-venues': typeof AuthenticatedTestVenuesRoute
+  '/demo/team-images': typeof DemoTeamImagesRoute
   '/fantasy/defense-kickers': typeof AuthenticatedFantasyDefenseKickersRoute
   '/fantasy/quarterbacks': typeof AuthenticatedFantasyQuarterbacksRoute
   '/fantasy/running-backs': typeof AuthenticatedFantasyRunningBacksRoute
@@ -212,6 +256,10 @@ export interface FileRoutesByTo {
   '/fantasy/wide-receivers': typeof AuthenticatedFantasyWideReceiversRoute
   '/league-manage/$leagueId': typeof AuthenticatedLeagueManageLeagueIdRoute
   '/league/$leagueId': typeof AuthenticatedLeagueLeagueIdRoute
+  '/team/$teamId': typeof AuthenticatedTeamTeamIdRoute
+  '/teams/afc': typeof AuthenticatedTeamsAfcRoute
+  '/teams/all': typeof AuthenticatedTeamsAllRoute
+  '/teams/nfc': typeof AuthenticatedTeamsNfcRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -221,6 +269,7 @@ export interface FileRoutesById {
   '/home-simple': typeof HomeSimpleRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/_authenticated/ai-settings': typeof AuthenticatedAiSettingsRoute
   '/_authenticated/create-league': typeof AuthenticatedCreateLeagueRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/data-demo': typeof AuthenticatedDataDemoRoute
@@ -232,6 +281,7 @@ export interface FileRoutesById {
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/stats': typeof AuthenticatedStatsRoute
   '/_authenticated/test-venues': typeof AuthenticatedTestVenuesRoute
+  '/demo/team-images': typeof DemoTeamImagesRoute
   '/_authenticated/fantasy/defense-kickers': typeof AuthenticatedFantasyDefenseKickersRoute
   '/_authenticated/fantasy/quarterbacks': typeof AuthenticatedFantasyQuarterbacksRoute
   '/_authenticated/fantasy/running-backs': typeof AuthenticatedFantasyRunningBacksRoute
@@ -239,6 +289,10 @@ export interface FileRoutesById {
   '/_authenticated/fantasy/wide-receivers': typeof AuthenticatedFantasyWideReceiversRoute
   '/_authenticated/league-manage/$leagueId': typeof AuthenticatedLeagueManageLeagueIdRoute
   '/_authenticated/league/$leagueId': typeof AuthenticatedLeagueLeagueIdRoute
+  '/_authenticated/team/$teamId': typeof AuthenticatedTeamTeamIdRoute
+  '/_authenticated/teams/afc': typeof AuthenticatedTeamsAfcRoute
+  '/_authenticated/teams/all': typeof AuthenticatedTeamsAllRoute
+  '/_authenticated/teams/nfc': typeof AuthenticatedTeamsNfcRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -248,6 +302,7 @@ export interface FileRouteTypes {
     | '/home-simple'
     | '/login'
     | '/register'
+    | '/ai-settings'
     | '/create-league'
     | '/dashboard'
     | '/data-demo'
@@ -259,6 +314,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/stats'
     | '/test-venues'
+    | '/demo/team-images'
     | '/fantasy/defense-kickers'
     | '/fantasy/quarterbacks'
     | '/fantasy/running-backs'
@@ -266,6 +322,10 @@ export interface FileRouteTypes {
     | '/fantasy/wide-receivers'
     | '/league-manage/$leagueId'
     | '/league/$leagueId'
+    | '/team/$teamId'
+    | '/teams/afc'
+    | '/teams/all'
+    | '/teams/nfc'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -273,6 +333,7 @@ export interface FileRouteTypes {
     | '/home-simple'
     | '/login'
     | '/register'
+    | '/ai-settings'
     | '/create-league'
     | '/dashboard'
     | '/data-demo'
@@ -284,6 +345,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/stats'
     | '/test-venues'
+    | '/demo/team-images'
     | '/fantasy/defense-kickers'
     | '/fantasy/quarterbacks'
     | '/fantasy/running-backs'
@@ -291,6 +353,10 @@ export interface FileRouteTypes {
     | '/fantasy/wide-receivers'
     | '/league-manage/$leagueId'
     | '/league/$leagueId'
+    | '/team/$teamId'
+    | '/teams/afc'
+    | '/teams/all'
+    | '/teams/nfc'
   id:
     | '__root__'
     | '/'
@@ -299,6 +365,7 @@ export interface FileRouteTypes {
     | '/home-simple'
     | '/login'
     | '/register'
+    | '/_authenticated/ai-settings'
     | '/_authenticated/create-league'
     | '/_authenticated/dashboard'
     | '/_authenticated/data-demo'
@@ -310,6 +377,7 @@ export interface FileRouteTypes {
     | '/_authenticated/settings'
     | '/_authenticated/stats'
     | '/_authenticated/test-venues'
+    | '/demo/team-images'
     | '/_authenticated/fantasy/defense-kickers'
     | '/_authenticated/fantasy/quarterbacks'
     | '/_authenticated/fantasy/running-backs'
@@ -317,6 +385,10 @@ export interface FileRouteTypes {
     | '/_authenticated/fantasy/wide-receivers'
     | '/_authenticated/league-manage/$leagueId'
     | '/_authenticated/league/$leagueId'
+    | '/_authenticated/team/$teamId'
+    | '/_authenticated/teams/afc'
+    | '/_authenticated/teams/all'
+    | '/_authenticated/teams/nfc'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -326,6 +398,7 @@ export interface RootRouteChildren {
   HomeSimpleRoute: typeof HomeSimpleRoute
   LoginRoute: typeof LoginRoute
   RegisterRoute: typeof RegisterRoute
+  DemoTeamImagesRoute: typeof DemoTeamImagesRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -370,6 +443,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demo/team-images': {
+      id: '/demo/team-images'
+      path: '/demo/team-images'
+      fullPath: '/demo/team-images'
+      preLoaderRoute: typeof DemoTeamImagesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/test-venues': {
@@ -449,6 +529,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCreateLeagueRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/ai-settings': {
+      id: '/_authenticated/ai-settings'
+      path: '/ai-settings'
+      fullPath: '/ai-settings'
+      preLoaderRoute: typeof AuthenticatedAiSettingsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/teams/nfc': {
+      id: '/_authenticated/teams/nfc'
+      path: '/teams/nfc'
+      fullPath: '/teams/nfc'
+      preLoaderRoute: typeof AuthenticatedTeamsNfcRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/teams/all': {
+      id: '/_authenticated/teams/all'
+      path: '/teams/all'
+      fullPath: '/teams/all'
+      preLoaderRoute: typeof AuthenticatedTeamsAllRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/teams/afc': {
+      id: '/_authenticated/teams/afc'
+      path: '/teams/afc'
+      fullPath: '/teams/afc'
+      preLoaderRoute: typeof AuthenticatedTeamsAfcRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/team/$teamId': {
+      id: '/_authenticated/team/$teamId'
+      path: '/team/$teamId'
+      fullPath: '/team/$teamId'
+      preLoaderRoute: typeof AuthenticatedTeamTeamIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/league/$leagueId': {
       id: '/_authenticated/league/$leagueId'
       path: '/league/$leagueId'
@@ -502,6 +617,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteChildren {
+  AuthenticatedAiSettingsRoute: typeof AuthenticatedAiSettingsRoute
   AuthenticatedCreateLeagueRoute: typeof AuthenticatedCreateLeagueRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedDataDemoRoute: typeof AuthenticatedDataDemoRoute
@@ -520,9 +636,14 @@ interface AuthenticatedRouteChildren {
   AuthenticatedFantasyWideReceiversRoute: typeof AuthenticatedFantasyWideReceiversRoute
   AuthenticatedLeagueManageLeagueIdRoute: typeof AuthenticatedLeagueManageLeagueIdRoute
   AuthenticatedLeagueLeagueIdRoute: typeof AuthenticatedLeagueLeagueIdRoute
+  AuthenticatedTeamTeamIdRoute: typeof AuthenticatedTeamTeamIdRoute
+  AuthenticatedTeamsAfcRoute: typeof AuthenticatedTeamsAfcRoute
+  AuthenticatedTeamsAllRoute: typeof AuthenticatedTeamsAllRoute
+  AuthenticatedTeamsNfcRoute: typeof AuthenticatedTeamsNfcRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedAiSettingsRoute: AuthenticatedAiSettingsRoute,
   AuthenticatedCreateLeagueRoute: AuthenticatedCreateLeagueRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedDataDemoRoute: AuthenticatedDataDemoRoute,
@@ -544,6 +665,10 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedLeagueManageLeagueIdRoute:
     AuthenticatedLeagueManageLeagueIdRoute,
   AuthenticatedLeagueLeagueIdRoute: AuthenticatedLeagueLeagueIdRoute,
+  AuthenticatedTeamTeamIdRoute: AuthenticatedTeamTeamIdRoute,
+  AuthenticatedTeamsAfcRoute: AuthenticatedTeamsAfcRoute,
+  AuthenticatedTeamsAllRoute: AuthenticatedTeamsAllRoute,
+  AuthenticatedTeamsNfcRoute: AuthenticatedTeamsNfcRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
@@ -557,6 +682,7 @@ const rootRouteChildren: RootRouteChildren = {
   HomeSimpleRoute: HomeSimpleRoute,
   LoginRoute: LoginRoute,
   RegisterRoute: RegisterRoute,
+  DemoTeamImagesRoute: DemoTeamImagesRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

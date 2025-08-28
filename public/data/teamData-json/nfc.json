@@ -1,0 +1,1123 @@
+{
+  "conference": "nfc",
+  "conferenceFull": "NFC",
+  "filename": "nfc.json",
+  "lastUpdated": "2025-08-28T00:00:00Z",
+  "aiGenerated": true,
+  "version": "1.0.0",
+  "content": {
+    "overview": {
+      "title": "NFC Conference Analysis",
+      "summary": "The NFC features several elite teams at the top with a clear separation between contenders and rebuilding franchises. The conference is led by established powerhouses with proven track records, while several teams are in various stages of rebuild or transition.",
+      "keyInsights": [
+        "49ers remain the conference's most complete roster",
+        "Lions emerging as legitimate Super Bowl contenders",
+        "Eagles and Cowboys in highly competitive NFC East",
+        "Several franchises undergoing quarterback transitions",
+        "NFC South appears wide open with multiple contenders",
+        "Packers and Vikings battling for NFC North supremacy"
+      ],
+      "totalTeams": 16
+    },
+    "teams": [
+      {
+        "id": "sf",
+        "name": "49ers",
+        "location": "San Francisco",
+        "abbreviation": "SF",
+        "displayName": "San Francisco 49ers",
+        "conference": "NFC",
+        "division": "West",
+        "tier": "Contender",
+        "tierColor": "#aa0000",
+        "logoUrl": "/images/teams/sf.png",
+        "primaryColor": "#aa0000",
+        "secondaryColor": "#b3995d",
+        "quickStats": {
+          "playoffOdds": 92,
+          "projectedWins": 12,
+          "strengthOfSchedule": 14,
+          "powerRanking": 4
+        },
+        "analysis": {
+          "headline": "Most complete roster in NFC with elite coaching and championship experience",
+          "strengths": [
+            "Elite defense across all levels",
+            "Outstanding offensive line",
+            "Excellent coaching staff",
+            "Deep talent throughout roster",
+            "Championship experience"
+          ],
+          "concerns": [
+            "Quarterback consistency questions",
+            "Injury history concerns",
+            "Tough division competition",
+            "Salary cap constraints"
+          ],
+          "keyFactors": [
+            "Brock Purdy's continued development",
+            "Defense stays healthy",
+            "Offensive weapons integration"
+          ],
+          "aiInsights": {
+            "trendingUp": true,
+            "confidenceScore": 0.88,
+            "lastNewsUpdate": "2025-08-27T10:45:00Z"
+          }
+        },
+        "seasonStats": {
+          "wins": 0,
+          "losses": 0,
+          "ties": 0,
+          "pointsFor": 0,
+          "pointsAgainst": 0,
+          "pointDifferential": 0,
+          "divisionRecord": "0-0",
+          "conferenceRecord": "0-0"
+        },
+        "keyPlayers": {
+          "quarterback": "Brock Purdy",
+          "topSkillPlayer": "Christian McCaffrey",
+          "defensiveLeader": "Nick Bosa"
+        },
+        "metadata": {
+          "lastUpdated": "2025-08-28T00:00:00Z",
+          "dataSource": "ai",
+          "espnId": "25"
+        }
+      },
+      {
+        "id": "det",
+        "name": "Lions",
+        "location": "Detroit",
+        "abbreviation": "DET",
+        "displayName": "Detroit Lions",
+        "conference": "NFC",
+        "division": "North",
+        "tier": "Contender",
+        "tierColor": "#0076b6",
+        "logoUrl": "/images/teams/det.png",
+        "primaryColor": "#0076b6",
+        "secondaryColor": "#b0b7bc",
+        "quickStats": {
+          "playoffOdds": 85,
+          "projectedWins": 11,
+          "strengthOfSchedule": 12,
+          "powerRanking": 6
+        },
+        "analysis": {
+          "headline": "Explosive offense with improved defense and excellent coaching culture",
+          "strengths": [
+            "High-powered offensive attack",
+            "Excellent offensive line",
+            "Outstanding coaching staff",
+            "Strong team culture",
+            "Home field advantage"
+          ],
+          "concerns": [
+            "Defense consistency questions",
+            "Injury depth concerns",
+            "Playoff inexperience",
+            "Division competition"
+          ],
+          "keyFactors": [
+            "Jared Goff's consistency",
+            "Defense improvement",
+            "Playoff execution"
+          ],
+          "aiInsights": {
+            "trendingUp": true,
+            "confidenceScore": 0.82,
+            "lastNewsUpdate": "2025-08-27T11:30:00Z"
+          }
+        },
+        "seasonStats": {
+          "wins": 0,
+          "losses": 0,
+          "ties": 0,
+          "pointsFor": 0,
+          "pointsAgainst": 0,
+          "pointDifferential": 0,
+          "divisionRecord": "0-0",
+          "conferenceRecord": "0-0"
+        },
+        "keyPlayers": {
+          "quarterback": "Jared Goff",
+          "topSkillPlayer": "Amon-Ra St. Brown",
+          "defensiveLeader": "Aidan Hutchinson"
+        },
+        "metadata": {
+          "lastUpdated": "2025-08-28T00:00:00Z",
+          "dataSource": "ai",
+          "espnId": "8"
+        }
+      },
+      {
+        "id": "phi",
+        "name": "Eagles",
+        "location": "Philadelphia",
+        "abbreviation": "PHI",
+        "displayName": "Philadelphia Eagles",
+        "conference": "NFC",
+        "division": "East",
+        "tier": "Contender",
+        "tierColor": "#004c54",
+        "logoUrl": "/images/teams/phi.png",
+        "primaryColor": "#004c54",
+        "secondaryColor": "#a5a5a5",
+        "quickStats": {
+          "playoffOdds": 78,
+          "projectedWins": 10,
+          "strengthOfSchedule": 16,
+          "powerRanking": 8
+        },
+        "analysis": {
+          "headline": "Talented roster with championship experience but consistency questions remain",
+          "strengths": [
+            "Elite offensive line",
+            "Strong running game",
+            "Good defensive pieces",
+            "Championship experience",
+            "Passionate fan base"
+          ],
+          "concerns": [
+            "Quarterback consistency",
+            "Secondary depth issues",
+            "Division competition",
+            "Coaching continuity"
+          ],
+          "keyFactors": [
+            "Jalen Hurts' development",
+            "Defense stays healthy",
+            "Division race outcome"
+          ],
+          "aiInsights": {
+            "trendingUp": false,
+            "confidenceScore": 0.68,
+            "lastNewsUpdate": "2025-08-27T09:20:00Z"
+          }
+        },
+        "seasonStats": {
+          "wins": 0,
+          "losses": 0,
+          "ties": 0,
+          "pointsFor": 0,
+          "pointsAgainst": 0,
+          "pointDifferential": 0,
+          "divisionRecord": "0-0",
+          "conferenceRecord": "0-0"
+        },
+        "keyPlayers": {
+          "quarterback": "Jalen Hurts",
+          "topSkillPlayer": "A.J. Brown",
+          "defensiveLeader": "Haason Reddick"
+        },
+        "metadata": {
+          "lastUpdated": "2025-08-28T00:00:00Z",
+          "dataSource": "ai",
+          "espnId": "21"
+        }
+      },
+      {
+        "id": "dal",
+        "name": "Cowboys",
+        "location": "Dallas",
+        "abbreviation": "DAL",
+        "displayName": "Dallas Cowboys",
+        "conference": "NFC",
+        "division": "East",
+        "tier": "Playoff-Bound",
+        "tierColor": "#041e42",
+        "logoUrl": "/images/teams/dal.png",
+        "primaryColor": "#041e42",
+        "secondaryColor": "#a2aaad",
+        "quickStats": {
+          "playoffOdds": 72,
+          "projectedWins": 10,
+          "strengthOfSchedule": 18,
+          "powerRanking": 9
+        },
+        "analysis": {
+          "headline": "Talented roster with championship aspirations but playoff execution concerns",
+          "strengths": [
+            "Elite pass rush duo",
+            "Strong quarterback play",
+            "Good receiver corps",
+            "Home field advantage",
+            "Coaching experience"
+          ],
+          "concerns": [
+            "Playoff performance history",
+            "Running game consistency",
+            "Defense depth questions",
+            "Salary cap management"
+          ],
+          "keyFactors": [
+            "Dak Prescott's playoff performance",
+            "Defense stays elite",
+            "Running game improvement"
+          ],
+          "aiInsights": {
+            "trendingUp": true,
+            "confidenceScore": 0.71,
+            "lastNewsUpdate": "2025-08-27T12:10:00Z"
+          }
+        },
+        "seasonStats": {
+          "wins": 0,
+          "losses": 0,
+          "ties": 0,
+          "pointsFor": 0,
+          "pointsAgainst": 0,
+          "pointDifferential": 0,
+          "divisionRecord": "0-0",
+          "conferenceRecord": "0-0"
+        },
+        "keyPlayers": {
+          "quarterback": "Dak Prescott",
+          "topSkillPlayer": "CeeDee Lamb",
+          "defensiveLeader": "Micah Parsons"
+        },
+        "metadata": {
+          "lastUpdated": "2025-08-28T00:00:00Z",
+          "dataSource": "ai",
+          "espnId": "6"
+        }
+      },
+      {
+        "id": "gb",
+        "name": "Packers",
+        "location": "Green Bay",
+        "abbreviation": "GB",
+        "displayName": "Green Bay Packers",
+        "conference": "NFC",
+        "division": "North",
+        "tier": "Playoff-Bound",
+        "tierColor": "#203731",
+        "logoUrl": "/images/teams/gb.png",
+        "primaryColor": "#203731",
+        "secondaryColor": "#ffb612",
+        "quickStats": {
+          "playoffOdds": 68,
+          "projectedWins": 9,
+          "strengthOfSchedule": 21,
+          "powerRanking": 13
+        },
+        "analysis": {
+          "headline": "Young quarterback with strong supporting cast and excellent organization",
+          "strengths": [
+            "Jordan Love's development",
+            "Strong receiver corps",
+            "Excellent coaching staff",
+            "Historic home advantage",
+            "Good defensive pieces"
+          ],
+          "concerns": [
+            "Quarterback consistency",
+            "Division competition",
+            "Defensive depth issues",
+            "Post-Rodgers transition"
+          ],
+          "keyFactors": [
+            "Love's continued growth",
+            "Receiver health",
+            "Defense improvement"
+          ],
+          "aiInsights": {
+            "trendingUp": true,
+            "confidenceScore": 0.74,
+            "lastNewsUpdate": "2025-08-27T10:00:00Z"
+          }
+        },
+        "seasonStats": {
+          "wins": 0,
+          "losses": 0,
+          "ties": 0,
+          "pointsFor": 0,
+          "pointsAgainst": 0,
+          "pointDifferential": 0,
+          "divisionRecord": "0-0",
+          "conferenceRecord": "0-0"
+        },
+        "keyPlayers": {
+          "quarterback": "Jordan Love",
+          "topSkillPlayer": "Jaylen Waddle",
+          "defensiveLeader": "Jaire Alexander"
+        },
+        "metadata": {
+          "lastUpdated": "2025-08-28T00:00:00Z",
+          "dataSource": "ai",
+          "espnId": "9"
+        }
+      },
+      {
+        "id": "atl",
+        "name": "Falcons",
+        "location": "Atlanta",
+        "abbreviation": "ATL",
+        "displayName": "Atlanta Falcons",
+        "conference": "NFC",
+        "division": "South",
+        "tier": "Competitive",
+        "tierColor": "#a71930",
+        "logoUrl": "/images/teams/atl.png",
+        "primaryColor": "#a71930",
+        "secondaryColor": "#000000",
+        "quickStats": {
+          "playoffOdds": 58,
+          "projectedWins": 8,
+          "strengthOfSchedule": 19,
+          "powerRanking": 17
+        },
+        "analysis": {
+          "headline": "Veteran quarterback with talented weapons and defensive improvements",
+          "strengths": [
+            "Elite receiver duo",
+            "Strong running game",
+            "Improved offensive line",
+            "Good coaching staff",
+            "Home dome advantage"
+          ],
+          "concerns": [
+            "Quarterback age and durability",
+            "Defense consistency",
+            "Division competition",
+            "Playoff experience"
+          ],
+          "keyFactors": [
+            "Kirk Cousins health",
+            "Defense development",
+            "Division race outcome"
+          ],
+          "aiInsights": {
+            "trendingUp": true,
+            "confidenceScore": 0.62,
+            "lastNewsUpdate": "2025-08-27T13:15:00Z"
+          }
+        },
+        "seasonStats": {
+          "wins": 0,
+          "losses": 0,
+          "ties": 0,
+          "pointsFor": 0,
+          "pointsAgainst": 0,
+          "pointDifferential": 0,
+          "divisionRecord": "0-0",
+          "conferenceRecord": "0-0"
+        },
+        "keyPlayers": {
+          "quarterback": "Kirk Cousins",
+          "topSkillPlayer": "Drake London",
+          "defensiveLeader": "Grady Jarrett"
+        },
+        "metadata": {
+          "lastUpdated": "2025-08-28T00:00:00Z",
+          "dataSource": "ai",
+          "espnId": "1"
+        }
+      },
+      {
+        "id": "min",
+        "name": "Vikings",
+        "location": "Minnesota",
+        "abbreviation": "MIN",
+        "displayName": "Minnesota Vikings",
+        "conference": "NFC",
+        "division": "North",
+        "tier": "Competitive",
+        "tierColor": "#4f2683",
+        "logoUrl": "/images/teams/min.png",
+        "primaryColor": "#4f2683",
+        "secondaryColor": "#ffc62f",
+        "quickStats": {
+          "playoffOdds": 55,
+          "projectedWins": 8,
+          "strengthOfSchedule": 23,
+          "powerRanking": 19
+        },
+        "analysis": {
+          "headline": "Veteran quarterback with elite receiver and strong defensive foundation",
+          "strengths": [
+            "Justin Jefferson's elite ability",
+            "Strong defensive coordinator",
+            "Good coaching staff",
+            "Home field advantage",
+            "Veteran quarterback"
+          ],
+          "concerns": [
+            "Quarterback fit in system",
+            "Offensive line questions",
+            "Division competition",
+            "Defense depth concerns"
+          ],
+          "keyFactors": [
+            "Sam Darnold's performance",
+            "Jefferson stays healthy",
+            "Defense improvement"
+          ],
+          "aiInsights": {
+            "trendingUp": false,
+            "confidenceScore": 0.56,
+            "lastNewsUpdate": "2025-08-27T11:45:00Z"
+          }
+        },
+        "seasonStats": {
+          "wins": 0,
+          "losses": 0,
+          "ties": 0,
+          "pointsFor": 0,
+          "pointsAgainst": 0,
+          "pointDifferential": 0,
+          "divisionRecord": "0-0",
+          "conferenceRecord": "0-0"
+        },
+        "keyPlayers": {
+          "quarterback": "Sam Darnold",
+          "topSkillPlayer": "Justin Jefferson",
+          "defensiveLeader": "Brian Flores"
+        },
+        "metadata": {
+          "lastUpdated": "2025-08-28T00:00:00Z",
+          "dataSource": "ai",
+          "espnId": "16"
+        }
+      },
+      {
+        "id": "sea",
+        "name": "Seahawks",
+        "location": "Seattle",
+        "abbreviation": "SEA",
+        "displayName": "Seattle Seahawks",
+        "conference": "NFC",
+        "division": "West",
+        "tier": "Competitive",
+        "tierColor": "#002244",
+        "logoUrl": "/images/teams/sea.png",
+        "primaryColor": "#002244",
+        "secondaryColor": "#69be28",
+        "quickStats": {
+          "playoffOdds": 52,
+          "projectedWins": 8,
+          "strengthOfSchedule": 25,
+          "powerRanking": 20
+        },
+        "analysis": {
+          "headline": "Young quarterback with strong receiving corps and defensive improvements",
+          "strengths": [
+            "Geno Smith's continued development",
+            "Elite receiver duo",
+            "Strong home field advantage",
+            "Good coaching staff",
+            "Defensive coordinator upgrade"
+          ],
+          "concerns": [
+            "Quarterback consistency questions",
+            "Division competition",
+            "Defense rebuilding",
+            "Offensive line depth"
+          ],
+          "keyFactors": [
+            "Smith's consistency",
+            "Receiver health",
+            "Defense development"
+          ],
+          "aiInsights": {
+            "trendingUp": true,
+            "confidenceScore": 0.59,
+            "lastNewsUpdate": "2025-08-27T14:20:00Z"
+          }
+        },
+        "seasonStats": {
+          "wins": 0,
+          "losses": 0,
+          "ties": 0,
+          "pointsFor": 0,
+          "pointsAgainst": 0,
+          "pointDifferential": 0,
+          "divisionRecord": "0-0",
+          "conferenceRecord": "0-0"
+        },
+        "keyPlayers": {
+          "quarterback": "Geno Smith",
+          "topSkillPlayer": "DK Metcalf",
+          "defensiveLeader": "Boye Mafe"
+        },
+        "metadata": {
+          "lastUpdated": "2025-08-28T00:00:00Z",
+          "dataSource": "ai",
+          "espnId": "26"
+        }
+      },
+      {
+        "id": "tb",
+        "name": "Buccaneers",
+        "location": "Tampa Bay",
+        "abbreviation": "TB",
+        "displayName": "Tampa Bay Buccaneers",
+        "conference": "NFC",
+        "division": "South",
+        "tier": "Competitive",
+        "tierColor": "#d50a0a",
+        "logoUrl": "/images/teams/tb.png",
+        "primaryColor": "#d50a0a",
+        "secondaryColor": "#34302b",
+        "quickStats": {
+          "playoffOdds": 48,
+          "projectedWins": 7,
+          "strengthOfSchedule": 27,
+          "powerRanking": 21
+        },
+        "analysis": {
+          "headline": "Veteran quarterback with championship experience but aging core concerns",
+          "strengths": [
+            "Championship experience",
+            "Strong receiver corps",
+            "Good coaching continuity",
+            "Home advantage",
+            "Veteran leadership"
+          ],
+          "concerns": [
+            "Quarterback age questions",
+            "Defense rebuilding needs",
+            "Offensive line concerns",
+            "Division competition"
+          ],
+          "keyFactors": [
+            "Baker Mayfield's consistency",
+            "Receiver health",
+            "Defense improvement"
+          ],
+          "aiInsights": {
+            "trendingUp": false,
+            "confidenceScore": 0.51,
+            "lastNewsUpdate": "2025-08-27T15:30:00Z"
+          }
+        },
+        "seasonStats": {
+          "wins": 0,
+          "losses": 0,
+          "ties": 0,
+          "pointsFor": 0,
+          "pointsAgainst": 0,
+          "pointDifferential": 0,
+          "divisionRecord": "0-0",
+          "conferenceRecord": "0-0"
+        },
+        "keyPlayers": {
+          "quarterback": "Baker Mayfield",
+          "topSkillPlayer": "Mike Evans",
+          "defensiveLeader": "Vita Vea"
+        },
+        "metadata": {
+          "lastUpdated": "2025-08-28T00:00:00Z",
+          "dataSource": "ai",
+          "espnId": "27"
+        }
+      },
+      {
+        "id": "lar",
+        "name": "Rams",
+        "location": "Los Angeles",
+        "abbreviation": "LAR",
+        "displayName": "Los Angeles Rams",
+        "conference": "NFC",
+        "division": "West",
+        "tier": "Competitive",
+        "tierColor": "#003594",
+        "logoUrl": "/images/teams/lar.png",
+        "primaryColor": "#003594",
+        "secondaryColor": "#ffa300",
+        "quickStats": {
+          "playoffOdds": 45,
+          "projectedWins": 7,
+          "strengthOfSchedule": 29,
+          "powerRanking": 23
+        },
+        "analysis": {
+          "headline": "Championship-caliber coaching with quarterback questions and salary cap constraints",
+          "strengths": [
+            "Elite coaching staff",
+            "Championship experience",
+            "Strong defensive coordinator",
+            "Good receiver corps",
+            "Home advantage"
+          ],
+          "concerns": [
+            "Quarterback uncertainty",
+            "Salary cap constraints",
+            "Aging core players",
+            "Division competition"
+          ],
+          "keyFactors": [
+            "Matthew Stafford health",
+            "Defense consistency",
+            "Cap space management"
+          ],
+          "aiInsights": {
+            "trendingUp": false,
+            "confidenceScore": 0.46,
+            "lastNewsUpdate": "2025-08-27T16:15:00Z"
+          }
+        },
+        "seasonStats": {
+          "wins": 0,
+          "losses": 0,
+          "ties": 0,
+          "pointsFor": 0,
+          "pointsAgainst": 0,
+          "pointDifferential": 0,
+          "divisionRecord": "0-0",
+          "conferenceRecord": "0-0"
+        },
+        "keyPlayers": {
+          "quarterback": "Matthew Stafford",
+          "topSkillPlayer": "Cooper Kupp",
+          "defensiveLeader": "Aaron Donald"
+        },
+        "metadata": {
+          "lastUpdated": "2025-08-28T00:00:00Z",
+          "dataSource": "ai",
+          "espnId": "14"
+        }
+      },
+      {
+        "id": "no",
+        "name": "Saints",
+        "location": "New Orleans",
+        "abbreviation": "NO",
+        "displayName": "New Orleans Saints",
+        "conference": "NFC",
+        "division": "South",
+        "tier": "Rebuilding",
+        "tierColor": "#d3bc8d",
+        "logoUrl": "/images/teams/no.png",
+        "primaryColor": "#d3bc8d",
+        "secondaryColor": "#101820",
+        "quickStats": {
+          "playoffOdds": 42,
+          "projectedWins": 7,
+          "strengthOfSchedule": 30,
+          "powerRanking": 24
+        },
+        "analysis": {
+          "headline": "Veteran quarterback with strong culture but aging roster concerns",
+          "strengths": [
+            "Strong organizational culture",
+            "Good coaching staff",
+            "Home dome advantage",
+            "Veteran leadership",
+            "Draft development"
+          ],
+          "concerns": [
+            "Aging roster throughout",
+            "Salary cap challenges",
+            "Quarterback transition needed",
+            "Division competition"
+          ],
+          "keyFactors": [
+            "Derek Carr's performance",
+            "Young players development",
+            "Cap space management"
+          ],
+          "aiInsights": {
+            "trendingUp": false,
+            "confidenceScore": 0.44,
+            "lastNewsUpdate": "2025-08-27T12:30:00Z"
+          }
+        },
+        "seasonStats": {
+          "wins": 0,
+          "losses": 0,
+          "ties": 0,
+          "pointsFor": 0,
+          "pointsAgainst": 0,
+          "pointDifferential": 0,
+          "divisionRecord": "0-0",
+          "conferenceRecord": "0-0"
+        },
+        "keyPlayers": {
+          "quarterback": "Derek Carr",
+          "topSkillPlayer": "Chris Olave",
+          "defensiveLeader": "Demario Davis"
+        },
+        "metadata": {
+          "lastUpdated": "2025-08-28T00:00:00Z",
+          "dataSource": "ai",
+          "espnId": "18"
+        }
+      },
+      {
+        "id": "chi",
+        "name": "Bears",
+        "location": "Chicago",
+        "abbreviation": "CHI",
+        "displayName": "Chicago Bears",
+        "conference": "NFC",
+        "division": "North",
+        "tier": "Rebuilding",
+        "tierColor": "#c83803",
+        "logoUrl": "/images/teams/chi.png",
+        "primaryColor": "#c83803",
+        "secondaryColor": "#0b162a",
+        "quickStats": {
+          "playoffOdds": 38,
+          "projectedWins": 6,
+          "strengthOfSchedule": 31,
+          "powerRanking": 26
+        },
+        "analysis": {
+          "headline": "Rookie quarterback with improved supporting cast and defensive foundation",
+          "strengths": [
+            "Caleb Williams' potential",
+            "Strong defensive foundation",
+            "Improved offensive weapons",
+            "Good coaching staff",
+            "Home field advantage"
+          ],
+          "concerns": [
+            "Rookie quarterback growing pains",
+            "Offensive line protection",
+            "Division competition",
+            "Franchise transition period"
+          ],
+          "keyFactors": [
+            "Williams' development",
+            "Offensive line improvement",
+            "Defense consistency"
+          ],
+          "aiInsights": {
+            "trendingUp": true,
+            "confidenceScore": 0.62,
+            "lastNewsUpdate": "2025-08-27T13:45:00Z"
+          }
+        },
+        "seasonStats": {
+          "wins": 0,
+          "losses": 0,
+          "ties": 0,
+          "pointsFor": 0,
+          "pointsAgainst": 0,
+          "pointDifferential": 0,
+          "divisionRecord": "0-0",
+          "conferenceRecord": "0-0"
+        },
+        "keyPlayers": {
+          "quarterback": "Caleb Williams",
+          "topSkillPlayer": "D.J. Moore",
+          "defensiveLeader": "Montez Sweat"
+        },
+        "metadata": {
+          "lastUpdated": "2025-08-28T00:00:00Z",
+          "dataSource": "ai",
+          "espnId": "3"
+        }
+      },
+      {
+        "id": "ari",
+        "name": "Cardinals",
+        "location": "Arizona",
+        "abbreviation": "ARI",
+        "displayName": "Arizona Cardinals",
+        "conference": "NFC",
+        "division": "West",
+        "tier": "Rebuilding",
+        "tierColor": "#a40227",
+        "logoUrl": "/images/teams/ari.png",
+        "primaryColor": "#a40227",
+        "secondaryColor": "#ffffff",
+        "quickStats": {
+          "playoffOdds": 35,
+          "projectedWins": 6,
+          "strengthOfSchedule": 32,
+          "powerRanking": 27
+        },
+        "analysis": {
+          "headline": "Young quarterback with developing talent but consistency concerns remain",
+          "strengths": [
+            "Kyler Murray's dual-threat ability",
+            "Young receiving corps",
+            "Strong draft classes",
+            "Home weather advantage",
+            "Organizational commitment"
+          ],
+          "concerns": [
+            "Quarterback consistency",
+            "Defense rebuilding needs",
+            "Offensive line concerns",
+            "Tough division competition"
+          ],
+          "keyFactors": [
+            "Murray's health and development",
+            "Young receivers growth",
+            "Defense improvement"
+          ],
+          "aiInsights": {
+            "trendingUp": false,
+            "confidenceScore": 0.43,
+            "lastNewsUpdate": "2025-08-27T14:45:00Z"
+          }
+        },
+        "seasonStats": {
+          "wins": 0,
+          "losses": 0,
+          "ties": 0,
+          "pointsFor": 0,
+          "pointsAgainst": 0,
+          "pointDifferential": 0,
+          "divisionRecord": "0-0",
+          "conferenceRecord": "0-0"
+        },
+        "keyPlayers": {
+          "quarterback": "Kyler Murray",
+          "topSkillPlayer": "Marvin Harrison Jr.",
+          "defensiveLeader": "Budda Baker"
+        },
+        "metadata": {
+          "lastUpdated": "2025-08-28T00:00:00Z",
+          "dataSource": "ai",
+          "espnId": "22"
+        }
+      },
+      {
+        "id": "wsh",
+        "name": "Commanders",
+        "location": "Washington",
+        "abbreviation": "WSH",
+        "displayName": "Washington Commanders",
+        "conference": "NFC",
+        "division": "East",
+        "tier": "Struggling",
+        "tierColor": "#5a1414",
+        "logoUrl": "/images/teams/wsh.png",
+        "primaryColor": "#5a1414",
+        "secondaryColor": "#ffb612",
+        "quickStats": {
+          "playoffOdds": 28,
+          "projectedWins": 5,
+          "strengthOfSchedule": 33,
+          "powerRanking": 28
+        },
+        "analysis": {
+          "headline": "Rookie quarterback with new coaching regime and organizational changes",
+          "strengths": [
+            "Jayden Daniels' potential",
+            "New coaching staff",
+            "Strong fan support",
+            "Draft capital available",
+            "Organizational reset"
+          ],
+          "concerns": [
+            "Rookie quarterback development",
+            "Lack of offensive weapons",
+            "Defense rebuilding needs",
+            "Tough division competition"
+          ],
+          "keyFactors": [
+            "Daniels' development",
+            "Coaching effectiveness",
+            "Roster building"
+          ],
+          "aiInsights": {
+            "trendingUp": true,
+            "confidenceScore": 0.51,
+            "lastNewsUpdate": "2025-08-27T15:45:00Z"
+          }
+        },
+        "seasonStats": {
+          "wins": 0,
+          "losses": 0,
+          "ties": 0,
+          "pointsFor": 0,
+          "pointsAgainst": 0,
+          "pointDifferential": 0,
+          "divisionRecord": "0-0",
+          "conferenceRecord": "0-0"
+        },
+        "keyPlayers": {
+          "quarterback": "Jayden Daniels",
+          "topSkillPlayer": "Terry McLaurin",
+          "defensiveLeader": "Jonathan Allen"
+        },
+        "metadata": {
+          "lastUpdated": "2025-08-28T00:00:00Z",
+          "dataSource": "ai",
+          "espnId": "28"
+        }
+      },
+      {
+        "id": "nyg",
+        "name": "Giants",
+        "location": "New York",
+        "abbreviation": "NYG",
+        "displayName": "New York Giants",
+        "conference": "NFC",
+        "division": "East",
+        "tier": "Struggling",
+        "tierColor": "#0b2265",
+        "logoUrl": "/images/teams/nyg.png",
+        "primaryColor": "#0b2265",
+        "secondaryColor": "#a71930",
+        "quickStats": {
+          "playoffOdds": 25,
+          "projectedWins": 4,
+          "strengthOfSchedule": 34,
+          "powerRanking": 30
+        },
+        "analysis": {
+          "headline": "Quarterback questions with talented defense but offensive struggles continue",
+          "strengths": [
+            "Strong defensive pieces",
+            "Good coaching staff",
+            "Home market advantage",
+            "Young talent developing",
+            "Strong fan base"
+          ],
+          "concerns": [
+            "Quarterback inconsistency",
+            "Lack of offensive weapons",
+            "Salary cap constraints",
+            "Tough division competition"
+          ],
+          "keyFactors": [
+            "Daniel Jones' performance",
+            "Receiver development",
+            "Defense health"
+          ],
+          "aiInsights": {
+            "trendingUp": false,
+            "confidenceScore": 0.34,
+            "lastNewsUpdate": "2025-08-27T16:30:00Z"
+          }
+        },
+        "seasonStats": {
+          "wins": 0,
+          "losses": 0,
+          "ties": 0,
+          "pointsFor": 0,
+          "pointsAgainst": 0,
+          "pointDifferential": 0,
+          "divisionRecord": "0-0",
+          "conferenceRecord": "0-0"
+        },
+        "keyPlayers": {
+          "quarterback": "Daniel Jones",
+          "topSkillPlayer": "Saquon Barkley",
+          "defensiveLeader": "Brian Burns"
+        },
+        "metadata": {
+          "lastUpdated": "2025-08-28T00:00:00Z",
+          "dataSource": "ai",
+          "espnId": "19"
+        }
+      },
+      {
+        "id": "car",
+        "name": "Panthers",
+        "location": "Carolina",
+        "abbreviation": "CAR",
+        "displayName": "Carolina Panthers",
+        "conference": "NFC",
+        "division": "South",
+        "tier": "Struggling",
+        "tierColor": "#0085ca",
+        "logoUrl": "/images/teams/car.png",
+        "primaryColor": "#0085ca",
+        "secondaryColor": "#000000",
+        "quickStats": {
+          "playoffOdds": 18,
+          "projectedWins": 3,
+          "strengthOfSchedule": 35,
+          "powerRanking": 31
+        },
+        "analysis": {
+          "headline": "Young quarterback with new coaching but significant roster rebuilding needed",
+          "strengths": [
+            "Bryce Young's potential",
+            "New coaching regime",
+            "Strong fan support",
+            "Draft capital available",
+            "Young core developing"
+          ],
+          "concerns": [
+            "Lack of offensive weapons",
+            "Defensive talent shortage",
+            "Quarterback development needs",
+            "Organizational transition"
+          ],
+          "keyFactors": [
+            "Young's development",
+            "Coaching effectiveness",
+            "Talent acquisition"
+          ],
+          "aiInsights": {
+            "trendingUp": true,
+            "confidenceScore": 0.48,
+            "lastNewsUpdate": "2025-08-27T17:00:00Z"
+          }
+        },
+        "seasonStats": {
+          "wins": 0,
+          "losses": 0,
+          "ties": 0,
+          "pointsFor": 0,
+          "pointsAgainst": 0,
+          "pointDifferential": 0,
+          "divisionRecord": "0-0",
+          "conferenceRecord": "0-0"
+        },
+        "keyPlayers": {
+          "quarterback": "Bryce Young",
+          "topSkillPlayer": "Diontae Johnson",
+          "defensiveLeader": "Brian Burns"
+        },
+        "metadata": {
+          "lastUpdated": "2025-08-28T00:00:00Z",
+          "dataSource": "ai",
+          "espnId": "29"
+        }
+      }
+    ],
+    "analysis": {
+      "trendingThemes": [
+        "Quarterback transitions happening across multiple franchises",
+        "Several franchises investing heavily in young quarterback development",
+        "Defense becoming more valuable with offensive rule changes",
+        "NFC appearing more top-heavy than AFC",
+        "Coaching changes impacting several organizations significantly"
+      ],
+      "keyFactors": [
+        "Health of elite quarterbacks like Murray, Stafford, Cousins",
+        "Development of rookies like Williams, Daniels, Young",
+        "49ers maintaining championship-level performance",
+        "NFC East remaining highly competitive four-team race",
+        "Several aging rosters needing to reload or rebuild"
+      ],
+      "seasonOutlook": "The NFC appears more top-heavy than the AFC, with a clear tier of elite teams followed by a significant drop-off. The 49ers remain the conference favorite, but the Lions, Eagles, and Cowboys all have legitimate championship aspirations. Several teams are in various stages of rebuilding around young quarterbacks, which could lead to some surprising results but also some disappointing seasons for franchises in transition.",
+      "riskFactors": [
+        "Several aging rosters could decline rapidly",
+        "Quarterback injuries could reshape entire divisions",
+        "Multiple franchises in transition with new coaching staffs",
+        "Salary cap issues forcing difficult roster decisions",
+        "Young quarterback development not progressing as expected"
+      ]
+    },
+    "weeklyUpdate": {
+      "headline": "Preseason revealing promising developments for NFC contenders",
+      "updates": [
+        "49ers looking championship-ready with healthy roster",
+        "Lions offense showing explosive potential in limited action",
+        "Several rookie quarterbacks showing promising early signs",
+        "NFC East competition intensifying with all four teams improved"
+      ],
+      "generatedAt": "2025-08-28T00:00:00Z"
+    }
+  },
+  "ui": {
+    "displayMode": "cards",
+    "featuredTeams": ["sf", "det", "phi", "dal"],
+    "conferenceColors": {
+      "AFC": "#004C99",
+      "NFC": "#CC0000"
+    }
+  }
+}

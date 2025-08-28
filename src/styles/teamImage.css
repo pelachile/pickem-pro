@@ -1,0 +1,210 @@
+/* Team Image System Styles */
+/* Gradient animations and effects for team image fallbacks */
+
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 0%;
+  }
+  25% {
+    background-position: 100% 0%;
+  }
+  50% {
+    background-position: 100% 100%;
+  }
+  75% {
+    background-position: 0% 100%;
+  }
+  100% {
+    background-position: 0% 0%;
+  }
+}
+
+@keyframes gradientPulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+@keyframes logoGlow {
+  0%, 100% {
+    text-shadow: 
+      0 0 10px currentColor,
+      0 0 20px currentColor,
+      0 0 40px currentColor;
+  }
+  50% {
+    text-shadow: 
+      0 0 5px currentColor,
+      0 0 10px currentColor,
+      0 0 20px currentColor;
+  }
+}
+
+/* Team gradient backgrounds */
+.team-gradient-stadium {
+  animation: gradientShift 8s ease-in-out infinite;
+}
+
+.team-gradient-banner {
+  animation: gradientShift 6s ease-in-out infinite;
+}
+
+.team-gradient-subtle {
+  animation: gradientPulse 4s ease-in-out infinite;
+}
+
+/* Team logo overlay effects */
+.team-logo-overlay {
+  transition: all 0.3s ease;
+}
+
+.team-logo-overlay:hover {
+  animation: logoGlow 2s ease-in-out infinite;
+}
+
+/* Pattern overlays for texture */
+.team-pattern-dots {
+  background-image: 
+    radial-gradient(circle at 25% 25%, currentColor 1px, transparent 1px),
+    radial-gradient(circle at 75% 75%, currentColor 1px, transparent 1px);
+  background-size: 20px 20px;
+  background-position: 0 0, 10px 10px;
+}
+
+.team-pattern-lines {
+  background-image: 
+    linear-gradient(45deg, transparent 40%, currentColor 41%, currentColor 42%, transparent 43%),
+    linear-gradient(-45deg, transparent 40%, currentColor 41%, currentColor 42%, transparent 43%);
+  background-size: 20px 20px;
+}
+
+.team-pattern-grid {
+  background-image: 
+    linear-gradient(currentColor 1px, transparent 1px),
+    linear-gradient(90deg, currentColor 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+/* Loading animations */
+@keyframes imageShimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.team-image-loading {
+  position: relative;
+  overflow: hidden;
+}
+
+.team-image-loading::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
+  animation: imageShimmer 2s ease-in-out infinite;
+}
+
+/* Team color-specific enhancements */
+.team-image-container {
+  position: relative;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.team-image-container:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 10px 25px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05),
+    0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .team-logo-overlay {
+    font-size: clamp(2rem, 6vw, 4rem);
+  }
+  
+  .team-pattern-dots,
+  .team-pattern-lines,
+  .team-pattern-grid {
+    background-size: 15px 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .team-logo-overlay {
+    font-size: clamp(1.5rem, 5vw, 3rem);
+  }
+  
+  .team-pattern-dots,
+  .team-pattern-lines,
+  .team-pattern-grid {
+    background-size: 12px 12px;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .team-gradient-stadium,
+  .team-gradient-banner,
+  .team-gradient-subtle {
+    animation: none;
+  }
+  
+  .team-logo-overlay {
+    opacity: 0.3;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .team-gradient-stadium,
+  .team-gradient-banner,
+  .team-gradient-subtle {
+    animation: none;
+  }
+  
+  .team-logo-overlay:hover {
+    animation: none;
+  }
+  
+  .team-image-loading::after {
+    animation: none;
+  }
+  
+  .team-image-container:hover {
+    transform: none;
+  }
+}
+
+/* Print styles */
+@media print {
+  .team-gradient-stadium,
+  .team-gradient-banner,
+  .team-gradient-subtle {
+    background: #f3f4f6 !important;
+    color: #1f2937 !important;
+  }
+  
+  .team-logo-overlay {
+    color: #6b7280 !important;
+    opacity: 0.5;
+  }
+}
