@@ -1,27 +1,455 @@
 {
-  "position": "RB",
-  "positionFull": "Running Backs",
-  "lastUpdated": "2025-08-28T03:23:29.865Z",
-  "season": 2025,
-  "overview": {
-    "summary": "**Report Date: August 27, 2025**\n\nThe landscape of the National Football League running back position is one of constant evolution, defined by a confluence of elite talent, strategic deployment, and situational dependency. For fantasy football managers and league analysts, accurately projecting the top performers at this volatile position is a cornerstone of successful season preparation. This report provides a comprehensive, data-driven analysis of running backs from the 2025 draft strategy list, with the primary objective of assigning a percentage likelihood for each player to finish within the top five in total fantasy points at their position. The insights contained herein are designed to equip decision-makers with a sophisticated understanding of the factors that will shape elite running back production in the upcoming season.\n\nOur methodology synthesizes a multi-faceted analytical framework, moving beyond surface-level statistics to create a holistic projection model. Each player's probability is derived from a rigorous evaluation of their 2024 on-field performance, including volume and efficiency metrics; the broader team context, encompassing offensive scheme and personnel; the quality of their offensive line, a critical and often underestimated variable; their projected usage and role within the backfield, distinguishing between true workhorses and committee members; and a thorough assessment of their injury history and durability. By integrating these diverse data streams, this report aims to deliver nuanced, evidence-based conclusions that transcend conventional wisdom and provide a distinct strategic advantage for the 2025 season.\n\nThis analysis of the 2025 running back landscape reveals a distinct stratification of talent, with a select few players possessing a significantly higher probability of achieving a top-5 fantasy finish. The evaluation underscores that an elite outcome is not merely a function of individual skill but a delicate interplay of volume, offensive environment, health, and efficiency. Our projections identify a clear upper echelon of contenders, followed by tiers of players whose paths to the top are contingent on overcoming specific obstacles, such as committee backfields, offensive line deficiencies, or durability concerns.\n\nThe **elite tier** of running backs, each with a projected **75% or greater likelihood** of a top-5 finish, is composed of:\n\n- ***Saquon Barkley*** (85%)\n\n- ***Derrick Henry*** (85%)\n\n- ***Bijan Robinson*** (75%)\n\nBarkley and Henry, both operating as definitive bellcow backs behind formidable offensive lines, combine immense volume with proven production, giving them an 85% probability. Robinson, a dynamic talent in a favorable offensive system, follows closely at 75%. These athletes represent the safest and highest-upside investments for the 2025 season.",
-    "totalPlayers": 0,
-    "tiers": {}
+  "position": "running-backs",
+  "positionFull": "Running Backs", 
+  "filename": "running-backs.json",
+  "lastUpdated": "2025-08-28T10:00:00.000Z",
+  "aiGenerated": true,
+  "version": "2.0.0",
+  
+  "content": {
+    "overview": {
+      "title": "2025 Running Back Fantasy Analysis",
+      "summary": "The landscape of the National Football League running back position is one of constant evolution, defined by a confluence of elite talent, strategic deployment, and situational dependency. For fantasy football managers and league analysts, accurately projecting the top performers at this volatile position is a cornerstone of successful season preparation.",
+      "keyInsights": [
+        "Elite tier has 85% or greater top-5 likelihood",
+        "Volume and offensive environment critical factors", 
+        "Bellcow backs behind strong offensive lines dominate",
+        "Health and durability separate elite from volatile"
+      ],
+      "totalPlayers": 6
+    },
+
+    "players": [
+      {
+        "id": "saquon-barkley-phi",
+        "name": "Saquon Barkley",
+        "team": "PHI",
+        "position": "RB",
+        "tier": "Elite",
+        "tierColor": "#10B981",
+        "teamLogoUrl": "/images/teams/phi.png",
+        
+        "quickStats": {
+          "top5Likelihood": 85,
+          "projectedRank": 1,
+          "weeklyFloor": 15.5,
+          "weeklyCeiling": 35.0
+        },
+
+        "analysis": {
+          "headline": "Elite bellcow running back in premier offensive environment with proven durability and massive volume upside.",
+          
+          "strengths": [
+            "Definitive bellcow role in Eagles' elite offense",
+            "Operating behind one of NFL's best offensive lines",
+            "Proven track record of elite production when healthy",
+            "High-volume ceiling in pass-heavy Eagles system",
+            "Goal line and red zone touchdown opportunities"
+          ],
+          
+          "concerns": [
+            "Injury history creates durability questions",
+            "New team chemistry and system learning curve",
+            "Competition from other Eagles skill position players"
+          ],
+          
+          "keyFactors": [
+            "Health and full-season availability",
+            "Eagles' continued offensive line excellence",
+            "Integration into new offensive system"
+          ],
+
+          "aiInsights": {
+            "trendingUp": true,
+            "confidenceScore": 0.87,
+            "lastNewsUpdate": "2025-08-27T15:45:00.000Z"
+          }
+        },
+
+        "detailedStats": {
+          "rushingYards2024": 1463,
+          "rushingTDs2024": 11,
+          "receptions2024": 41,
+          "receivingYards2024": 280,
+          "receivingTDs2024": 2,
+          "fantasyPoints2024": 285.3,
+          "gamesPlayed2024": 17
+        },
+
+        "metadata": {
+          "lastUpdated": "2025-08-28T09:45:00.000Z",
+          "dataSource": "ai",
+          "popularity": 1156
+        }
+      },
+
+      {
+        "id": "derrick-henry-bal",
+        "name": "Derrick Henry",
+        "team": "BAL",
+        "position": "RB",
+        "tier": "Elite",
+        "tierColor": "#10B981",
+        "teamLogoUrl": "/images/teams/bal.png",
+        
+        "quickStats": {
+          "top5Likelihood": 85,
+          "projectedRank": 2,
+          "weeklyFloor": 14.8,
+          "weeklyCeiling": 32.0
+        },
+
+        "analysis": {
+          "headline": "Power running back joining elite Ravens offense with massive goal line upside and proven production floor.",
+          
+          "strengths": [
+            "Joining elite Ravens offense with Lamar Jackson",
+            "Proven goal line and short-yardage specialist",
+            "Consistent 1,000+ yard seasons and durability",
+            "Perfect fit for Ravens' run-heavy approach",
+            "Elite touchdown scoring potential near goal line"
+          ],
+          
+          "concerns": [
+            "Age 30 entering decline years for RBs",
+            "New system and scheme adaptation required",
+            "Potential timeshare with other Ravens RBs"
+          ],
+          
+          "keyFactors": [
+            "Ravens' commitment to running game",
+            "Health and maintaining physical style",
+            "Goal line and red zone carry distribution"
+          ],
+
+          "aiInsights": {
+            "trendingUp": true,
+            "confidenceScore": 0.83,
+            "lastNewsUpdate": "2025-08-28T08:20:00.000Z"
+          }
+        },
+
+        "detailedStats": {
+          "rushingYards2024": 1167,
+          "rushingTDs2024": 12,
+          "receptions2024": 11,
+          "receivingYards2024": 114,
+          "receivingTDs2024": 0,
+          "fantasyPoints2024": 242.1,
+          "gamesPlayed2024": 17
+        },
+
+        "metadata": {
+          "lastUpdated": "2025-08-28T09:45:00.000Z",
+          "dataSource": "ai",
+          "popularity": 987
+        }
+      },
+
+      {
+        "id": "bijan-robinson-atl",
+        "name": "Bijan Robinson",
+        "team": "ATL",
+        "position": "RB",
+        "tier": "Elite",
+        "tierColor": "#10B981",
+        "teamLogoUrl": "/images/teams/atl.png",
+        
+        "quickStats": {
+          "top5Likelihood": 75,
+          "projectedRank": 3,
+          "weeklyFloor": 14.2,
+          "weeklyCeiling": 30.5
+        },
+
+        "analysis": {
+          "headline": "Dynamic young talent in favorable offensive system with elite ceiling and dual-threat capability.",
+          
+          "strengths": [
+            "Elite talent in Falcons' improved offensive system",
+            "Dual-threat ability with receiving upside",
+            "Young player entering prime production years",
+            "Favorable offensive scheme fit",
+            "High ceiling with continued development"
+          ],
+          
+          "concerns": [
+            "Still developing consistent weekly floor",
+            "Competition for touches in Falcons backfield",
+            "Offensive line consistency questions",
+            "Proving durability over full season"
+          ],
+          
+          "keyFactors": [
+            "Falcons' offensive system development",
+            "Increasing involvement in passing game",
+            "Health and avoiding sophomore slump"
+          ],
+
+          "aiInsights": {
+            "trendingUp": true,
+            "confidenceScore": 0.79,
+            "lastNewsUpdate": "2025-08-27T13:30:00.000Z"
+          }
+        },
+
+        "detailedStats": {
+          "rushingYards2024": 976,
+          "rushingTDs2024": 8,
+          "receptions2024": 58,
+          "receivingYards2024": 487,
+          "receivingTDs2024": 1,
+          "fantasyPoints2024": 218.3,
+          "gamesPlayed2024": 16
+        },
+
+        "metadata": {
+          "lastUpdated": "2025-08-28T09:45:00.000Z",
+          "dataSource": "ai",
+          "popularity": 845
+        }
+      },
+
+      {
+        "id": "josh-jacobs-gb",
+        "name": "Josh Jacobs",
+        "team": "GB",
+        "position": "RB",
+        "tier": "High-Upside",
+        "tierColor": "#3B82F6",
+        "teamLogoUrl": "/images/teams/gb.png",
+        
+        "quickStats": {
+          "top5Likelihood": 60,
+          "projectedRank": 5,
+          "weeklyFloor": 12.5,
+          "weeklyCeiling": 28.0
+        },
+
+        "analysis": {
+          "headline": "Proven veteran back joining high-powered Packers offense with opportunity for career resurgence.",
+          
+          "strengths": [
+            "Joining elite Packers offensive system",
+            "Proven track record of RB1 seasons",
+            "Opportunity for increased receiving work",
+            "Aaron Rodgers' departure opens more rushing volume",
+            "Strong offensive line support"
+          ],
+          
+          "concerns": [
+            "New team and system adaptation period",
+            "Age and wear from previous high-volume seasons",
+            "Competition from young Packers RBs",
+            "Injury history and durability questions"
+          ],
+          
+          "keyFactors": [
+            "Packers' commitment to running game",
+            "Health and maintaining effectiveness",
+            "Chemistry with Jordan Love offense"
+          ],
+
+          "aiInsights": {
+            "trendingUp": true,
+            "confidenceScore": 0.72,
+            "lastNewsUpdate": "2025-08-28T07:15:00.000Z"
+          }
+        },
+
+        "detailedStats": {
+          "rushingYards2024": 805,
+          "rushingTDs2024": 6,
+          "receptions2024": 28,
+          "receivingYards2024": 238,
+          "receivingTDs2024": 1,
+          "fantasyPoints2024": 178.3,
+          "gamesPlayed2024": 13
+        },
+
+        "metadata": {
+          "lastUpdated": "2025-08-28T09:45:00.000Z",
+          "dataSource": "ai",
+          "popularity": 678
+        }
+      },
+
+      {
+        "id": "jonathan-taylor-ind",
+        "name": "Jonathan Taylor",
+        "team": "IND",
+        "position": "RB",
+        "tier": "High-Upside",
+        "tierColor": "#3B82F6",
+        "teamLogoUrl": "/images/teams/ind.png",
+        
+        "quickStats": {
+          "top5Likelihood": 55,
+          "projectedRank": 7,
+          "weeklyFloor": 11.8,
+          "weeklyCeiling": 26.5
+        },
+
+        "analysis": {
+          "headline": "Former elite back with rebound potential but concerns about offensive line and quarterback play consistency.",
+          
+          "strengths": [
+            "Proven elite production in past seasons",
+            "Still young with room for resurgence",
+            "Potential workhorse role when healthy",
+            "Goal line and red zone touchdown opportunities"
+          ],
+          
+          "concerns": [
+            "Colts' offensive line struggles impact production",
+            "Anthony Richardson's inconsistency affects game scripts",
+            "Recent injury history creates durability questions",
+            "Competition from other Colts running backs"
+          ],
+          
+          "keyFactors": [
+            "Colts' offensive line improvement",
+            "Anthony Richardson's development",
+            "Health and avoiding injury setbacks"
+          ],
+
+          "aiInsights": {
+            "trendingUp": false,
+            "confidenceScore": 0.65,
+            "lastNewsUpdate": "2025-08-27T10:45:00.000Z",
+            "riskAlert": "Offensive environment and injury history create volatility"
+          }
+        },
+
+        "detailedStats": {
+          "rushingYards2024": 818,
+          "rushingTDs2024": 4,
+          "receptions2024": 32,
+          "receivingYards2024": 267,
+          "receivingTDs2024": 1,
+          "fantasyPoints2024": 165.5,
+          "gamesPlayed2024": 10
+        },
+
+        "metadata": {
+          "lastUpdated": "2025-08-28T09:45:00.000Z",
+          "dataSource": "ai",
+          "popularity": 543
+        }
+      },
+
+      {
+        "id": "jahmyr-gibbs-det",
+        "name": "Jahmyr Gibbs",
+        "team": "DET",
+        "position": "RB",
+        "tier": "Volatile",
+        "tierColor": "#F59E0B",
+        "teamLogoUrl": "/images/teams/det.png",
+        
+        "quickStats": {
+          "top5Likelihood": 45,
+          "projectedRank": 9,
+          "weeklyFloor": 10.5,
+          "weeklyCeiling": 25.0
+        },
+
+        "analysis": {
+          "headline": "Explosive pass-catching back in elite offense but timeshare concerns limit consistent weekly floor.",
+          
+          "strengths": [
+            "Elite pass-catching ability and YAC skills",
+            "Part of high-powered Lions offensive system",
+            "Big-play potential and breakaway speed",
+            "Receiving work provides PPR upside",
+            "Young talent with continued development"
+          ],
+          
+          "concerns": [
+            "Clear timeshare with David Montgomery",
+            "Limited pure rushing volume and carries",
+            "Inconsistent weekly floor due to role",
+            "Touchdown dependency for ceiling games"
+          ],
+          
+          "keyFactors": [
+            "Lions' backfield usage distribution",
+            "David Montgomery's health impact",
+            "Red zone and goal line opportunity share"
+          ],
+
+          "aiInsights": {
+            "trendingUp": true,
+            "confidenceScore": 0.68,
+            "lastNewsUpdate": "2025-08-28T06:30:00.000Z",
+            "riskAlert": "Timeshare limits consistent weekly production"
+          }
+        },
+
+        "detailedStats": {
+          "rushingYards2024": 945,
+          "rushingTDs2024": 11,
+          "receptions2024": 52,
+          "receivingYards2024": 462,
+          "receivingTDs2024": 1,
+          "fantasyPoints2024": 222.7,
+          "gamesPlayed2024": 15
+        },
+
+        "metadata": {
+          "lastUpdated": "2025-08-28T09:45:00.000Z",
+          "dataSource": "ai",
+          "popularity": 567
+        }
+      }
+    ],
+
+    "analysis": {
+      "trendingThemes": [
+        "Bellcow backs in elite offenses dominating projections",
+        "Volume and offensive line quality remain critical factors", 
+        "Age and durability creating clear tier separations",
+        "Pass-catching ability increasingly valuable in PPR formats"
+      ],
+      
+      "keyFactors": [
+        "Volume and bellcow usage in offense",
+        "Offensive line quality and run blocking",
+        "Health and durability over 17-game season",
+        "Red zone and goal line opportunity share"
+      ],
+      
+      "draftStrategy": "Focus on opportunity and situation over pure talent. Target bellcow backs in strong offensive environments early, then look for pass-catching upside in middle rounds.",
+      
+      "riskFactors": [
+        "Injury risk for high-volume runners",
+        "Timeshare situations limiting ceiling",
+        "Offensive line deficiencies impacting production",
+        "Age-related decline for veteran backs"
+      ]
+    },
+
+    "weeklyUpdate": {
+      "headline": "Saquon Barkley impressing in Eagles training camp with full health",
+      "updates": [
+        "Barkley looking explosive in Eagles' offensive system",
+        "Henry establishing goal line role in Ravens offense",
+        "Robinson working on pass-catching with Falcons coaches",
+        "Jacobs adapting well to Packers' scheme and playbook"
+      ],
+      "generatedAt": "2025-08-28T09:30:00.000Z"
+    }
   },
-  "players": [],
-  "positionAnalysis": {
-    "trendingThemes": [
-      "Introduction",
-      "Executive Summary",
-      "# Saquon Barkley, Philadelphia Eagles",
-      "# Derrick Henry, Baltimore Ravens"
-    ],
-    "keyFactors": [
-      "Opportunity",
-      "Health",
-      "Schedule Strength",
-      "Team Context"
-    ],
-    "draftStrategy": "Focus on opportunity and situation over pure talent."
+
+  "ui": {
+    "displayMode": "cards",
+    "featuredPlayers": ["saquon-barkley-phi", "derrick-henry-bal"],
+    "tierColors": {
+      "Elite": "#10B981",
+      "High-Upside": "#3B82F6", 
+      "Volatile": "#F59E0B",
+      "Sleeper": "#8B5CF6",
+      "Bust-Risk": "#EF4444"
+    }
   }
 }

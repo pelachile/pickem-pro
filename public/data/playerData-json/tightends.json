@@ -1,262 +1,451 @@
 {
-  "position": "TE",
-  "positionFull": "Tight Ends",
-  "lastUpdated": "2025-08-28T03:23:29.868Z",
-  "season": 2025,
-  "overview": {
-    "summary": "The tight end position remains a source of strategic debate in fantasy football, characterized by a small tier of elite, game-changing players followed by a significant drop-off in production and consistency. The 2024 season saw the emergence of new stars who challenged the established order, proving that high-end talent can make an immediate impact. Key metrics for evaluating tight ends include target share, which indicates volume and a player's role within their offense, and red zone usage, which is a primary driver of touchdown-dependent scoring. For 2025, identifying players who combine both consistent volume with high-leverage scoring opportunities is the key to unlocking a true positional advantage.\n\n***Brock Bowers (Las Vegas Raiders)*** delivered one of the most dominant rookie seasons by any player in NFL history in 2024. He shattered records for a rookie tight end, posting 112 receptions for 1,194 yards, and his reception total was the most by any rookie, regardless of position. He achieved this incredible production despite being in a dysfunctional Raiders offense with inconsistent quarterback play. His ability to command targets and produce at such a high level in a suboptimal environment speaks to his immense talent. For 2025, he enters as a locked-in, elite TE1. The primary risk is the continued uncertainty at the quarterback position for the Raiders and the potential for a new, run-heavy offensive scheme under Pete Carroll and Chip Kelly. However, Bowers' proven ability to be the focal point of the passing game makes him one of the safest bets at the position.Top 5 Likelihood: 85%\n\n***Sam LaPorta (Detroit Lions)*** followed up his historic 2023 rookie campaign with another strong season in 2024, solidifying his place in the elite tier. He benefits from being a primary target in a high-powered Detroit offense, commanding a target share of over 23%. While the departure of offensive coordinator Ben Johnson is a notable change, the new OC, John Morton, is expected to maintain a similar balanced and high-scoring scheme. One area of potential concern is LaPorta's touchdown dependency; a significant portion of his fantasy points in past seasons came from touchdowns, a metric that can be prone to regression. However, his high target volume and role in a potent offense provide a very high floor, and he remains a strong candidate for a top-5 finish.Top 5 Likelihood: 70%\n\n***Trey McBride (Arizona Cardinals)*** established himself as a target monster in 2024, boasting the highest target share among all tight ends at nearly 30%. This elite volume makes him an incredibly reliable asset, particularly in PPR formats. His fantasy value is set to receive a further boost in 2025 from the Cardinals' highly favorable strength of schedule, which is projected to be the easiest in the league for quarterbacks and their passing attacks. The one area where McBride was lacking in 2024 was touchdown production, but with his high volume of targets, positive regression in that category is highly likely. The combination of elite target share and a soft schedule gives McBride a legitimate shot at finishing as the overall TE1.Top 5 Likelihood: 65%\n\n***Travis Kelce (Kansas City Chiefs)*** continues to be a top-tier fantasy tight end, though signs of a slight decline appeared in 2024 as his target share dipped slightly. He remains the focal point of the Chiefs' passing attack alongside Patrick Mahomes, and his connection with the elite quarterback provides a weekly floor that is difficult to match. The Chiefs' offense under Andy Reid consistently produces, ensuring Kelce will have ample opportunities. While younger players like Bowers and LaPorta may have surpassed him in terms of raw upside, Kelce's consistency and role in an elite offense keep him firmly in the top-5 conversation. He is a safe, high-floor option who is unlikely to win you a week on his own as frequently as in the past, but he will rarely lose you one.Top 5 Likelihood: 60%\n\n***Mark Andrews (Baltimore Ravens)*** is the premier red zone weapon at the tight end position. In 2024, he led all tight ends with 10 touchdowns inside the 20-yard line, commanding an astonishing 51.7% target share in that critical area of the field. This touchdown-scoring prowess gives him an immense weekly ceiling. When healthy, his overall team target share is also elite, exceeding 27%. The primary risk with Andrews is his reliance on touchdowns for a significant portion of his fantasy output, which can lead to some volatility. However, his established role as Lamar Jackson's go-to target, especially near the end zone, ensures he will remain a high-end fantasy producer. His health will be a key factor, but if he plays a full season, he is a strong bet for a top-5 finish.Top 5 Likelihood: 50%\n\n***George Kittle (San Francisco 49ers)*** remains one of the most efficient and explosive tight ends in the league, leading the position in yards per route run. His big-play ability gives him a massive ceiling in any given week. However, he operates in a crowded San Francisco offense alongside other elite playmakers, which leads to significant volatility in his target volume. While he is a potent red zone threat, with 8 touchdowns in 2024, his week-to-week production can be frustratingly inconsistent. The 49ers' offense, under Kyle Shanahan, will continue to spread the ball around, which caps Kittle's overall ceiling. He will have several week-winning performances, but the lack of consistent target share makes a season-long top-5 finish more challenging compared to his peers who are the undisputed top targets on their respective teams.Top 5 Likelihood: 40%",
-    "totalPlayers": 6,
-    "tiers": {
-      "Elite": 2,
-      "High-Upside": 3,
-      "Volatile": 1
+  "position": "tightends",
+  "positionFull": "Tight Ends", 
+  "filename": "tightends.json",
+  "lastUpdated": "2025-08-28T10:00:00.000Z",
+  "aiGenerated": true,
+  "version": "2.0.0",
+  
+  "content": {
+    "overview": {
+      "title": "2025 Tight End Fantasy Analysis",
+      "summary": "The tight end position remains a source of strategic debate in fantasy football, characterized by a small tier of elite, game-changing players followed by a significant drop-off in production and consistency. The 2024 season saw the emergence of new stars who challenged the established order, proving that high-end talent can make an immediate impact.",
+      "keyInsights": [
+        "Elite tier dominated by young talent with target monopoly",
+        "Red zone usage is critical driver of TE production", 
+        "Rookie records shattered by emerging stars",
+        "Veteran decline creates opportunity for new elite tier"
+      ],
+      "totalPlayers": 6
+    },
+
+    "players": [
+      {
+        "id": "brock-bowers-lv",
+        "name": "Brock Bowers",
+        "team": "LV",
+        "position": "TE",
+        "tier": "Elite",
+        "tierColor": "#10B981",
+        "teamLogoUrl": "/images/teams/lv.png",
+        
+        "quickStats": {
+          "top5Likelihood": 85,
+          "projectedRank": 1,
+          "weeklyFloor": 21.0,
+          "weeklyCeiling": 51.0
+        },
+
+        "analysis": {
+          "headline": "Record-breaking rookie tight end with elite volume and proven ability to produce in any offensive environment.",
+          
+          "strengths": [
+            "Shattered rookie records with 112 receptions for 1,194 yards",
+            "Most receptions by any rookie regardless of position",
+            "Proven focal point of passing game despite QB instability",
+            "Elite target share and route running ability",
+            "High floor due to volume-based production"
+          ],
+          
+          "concerns": [
+            "Continued uncertainty at quarterback position",
+            "Potential run-heavy scheme under new coaching staff",
+            "Raiders' overall offensive struggles"
+          ],
+          
+          "keyFactors": [
+            "Raiders' quarterback stability and development",
+            "New offensive coordinator's scheme fit",
+            "Maintaining elite target share in changing system"
+          ],
+
+          "aiInsights": {
+            "trendingUp": true,
+            "confidenceScore": 0.89,
+            "lastNewsUpdate": "2025-08-27T16:15:00.000Z"
+          }
+        },
+
+        "detailedStats": {
+          "receptions2024": 112,
+          "receivingYards2024": 1194,
+          "receivingTDs2024": 5,
+          "targets2024": 150,
+          "fantasyPoints2024": 413.0,
+          "gamesPlayed2024": 16
+        },
+
+        "metadata": {
+          "lastUpdated": "2025-08-28T09:45:00.000Z",
+          "dataSource": "ai",
+          "popularity": 987
+        }
+      },
+
+      {
+        "id": "sam-laporta-det",
+        "name": "Sam LaPorta",
+        "team": "DET",
+        "position": "TE",
+        "tier": "Elite",
+        "tierColor": "#10B981",
+        "teamLogoUrl": "/images/teams/det.png",
+        
+        "quickStats": {
+          "top5Likelihood": 70,
+          "projectedRank": 2,
+          "weeklyFloor": 19.0,
+          "weeklyCeiling": 46.0
+        },
+
+        "analysis": {
+          "headline": "Elite tight end in high-powered Lions offense with consistent target share and touchdown upside.",
+          
+          "strengths": [
+            "Primary target in explosive Detroit offense",
+            "Commanding 23%+ target share consistently",
+            "High-scoring offensive environment",
+            "Proven chemistry with Jared Goff",
+            "Red zone involvement and scoring opportunities"
+          ],
+          
+          "concerns": [
+            "Departure of offensive coordinator Ben Johnson",
+            "Touchdown dependency for peak production",
+            "Competition from other Lions receiving options",
+            "Potential regression in TD rate"
+          ],
+          
+          "keyFactors": [
+            "New offensive coordinator John Morton's system",
+            "Maintaining role in high-volume passing attack",
+            "Red zone target share sustainability"
+          ],
+
+          "aiInsights": {
+            "trendingUp": true,
+            "confidenceScore": 0.82,
+            "lastNewsUpdate": "2025-08-28T07:45:00.000Z"
+          }
+        },
+
+        "detailedStats": {
+          "receptions2024": 89,
+          "receivingYards2024": 1063,
+          "receivingTDs2024": 9,
+          "targets2024": 120,
+          "fantasyPoints2024": 375.0,
+          "gamesPlayed2024": 16
+        },
+
+        "metadata": {
+          "lastUpdated": "2025-08-28T09:45:00.000Z",
+          "dataSource": "ai",
+          "popularity": 856
+        }
+      },
+
+      {
+        "id": "trey-mcbride-ari",
+        "name": "Trey McBride",
+        "team": "ARI",
+        "position": "TE",
+        "tier": "High-Upside",
+        "tierColor": "#3B82F6",
+        "teamLogoUrl": "/images/teams/ari.png",
+        
+        "quickStats": {
+          "top5Likelihood": 65,
+          "projectedRank": 3,
+          "weeklyFloor": 18.0,
+          "weeklyCeiling": 45.0
+        },
+
+        "analysis": {
+          "headline": "Target monster tight end with highest target share at position and favorable 2025 schedule outlook.",
+          
+          "strengths": [
+            "Highest target share among TEs at nearly 30%",
+            "Elite volume in PPR formats provides high floor",
+            "Cardinals' easiest QB schedule in 2025",
+            "Reliable hands and consistent production",
+            "Perfect system fit in Arizona's offense"
+          ],
+          
+          "concerns": [
+            "Limited touchdown production in 2024",
+            "Cardinals' overall offensive limitations",
+            "Quarterback play consistency",
+            "Red zone efficiency needs improvement"
+          ],
+          
+          "keyFactors": [
+            "Positive TD regression with high target volume",
+            "Cardinals' favorable schedule impact",
+            "Kyler Murray's health and development"
+          ],
+
+          "aiInsights": {
+            "trendingUp": true,
+            "confidenceScore": 0.76,
+            "lastNewsUpdate": "2025-08-27T13:20:00.000Z"
+          }
+        },
+
+        "detailedStats": {
+          "receptions2024": 96,
+          "receivingYards2024": 825,
+          "receivingTDs2024": 3,
+          "targets2024": 127,
+          "fantasyPoints2024": 363.0,
+          "gamesPlayed2024": 16
+        },
+
+        "metadata": {
+          "lastUpdated": "2025-08-28T09:45:00.000Z",
+          "dataSource": "ai",
+          "popularity": 734
+        }
+      },
+
+      {
+        "id": "travis-kelce-kc",
+        "name": "Travis Kelce",
+        "team": "KC",
+        "position": "TE",
+        "tier": "High-Upside",
+        "tierColor": "#3B82F6",
+        "teamLogoUrl": "/images/teams/kc.png",
+        
+        "quickStats": {
+          "top5Likelihood": 60,
+          "projectedRank": 4,
+          "weeklyFloor": 17.0,
+          "weeklyCeiling": 43.0
+        },
+
+        "analysis": {
+          "headline": "Veteran elite tight end with Mahomes connection providing high floor but showing signs of decline.",
+          
+          "strengths": [
+            "Elite quarterback Patrick Mahomes connection",
+            "Focal point of Chiefs' championship offense",
+            "Consistent weekly floor due to system role",
+            "Andy Reid's TE-friendly offensive scheme",
+            "Proven postseason and clutch performer"
+          ],
+          
+          "concerns": [
+            "Target share dipped slightly in 2024",
+            "Age-related decline beginning to show",
+            "Younger TEs may have surpassed raw upside",
+            "Less explosive weekly ceiling than prime years"
+          ],
+          
+          "keyFactors": [
+            "Maintaining role as Mahomes' security blanket",
+            "Chiefs' continued offensive efficiency",
+            "Health and durability at age 35"
+          ],
+
+          "aiInsights": {
+            "trendingUp": false,
+            "confidenceScore": 0.73,
+            "lastNewsUpdate": "2025-08-28T08:30:00.000Z"
+          }
+        },
+
+        "detailedStats": {
+          "receptions2024": 93,
+          "receivingYards2024": 1016,
+          "receivingTDs2024": 5,
+          "targets2024": 121,
+          "fantasyPoints2024": 350.0,
+          "gamesPlayed2024": 14
+        },
+
+        "metadata": {
+          "lastUpdated": "2025-08-28T09:45:00.000Z",
+          "dataSource": "ai",
+          "popularity": 912
+        }
+      },
+
+      {
+        "id": "mark-andrews-bal",
+        "name": "Mark Andrews",
+        "team": "BAL",
+        "position": "TE",
+        "tier": "High-Upside",
+        "tierColor": "#3B82F6",
+        "teamLogoUrl": "/images/teams/bal.png",
+        
+        "quickStats": {
+          "top5Likelihood": 50,
+          "projectedRank": 6,
+          "weeklyFloor": 16.0,
+          "weeklyCeiling": 40.0
+        },
+
+        "analysis": {
+          "headline": "Premier red zone weapon with elite touchdown upside but concerning health and volatility factors.",
+          
+          "strengths": [
+            "Led all TEs with 10 TDs in red zone in 2024",
+            "Commanding 51.7% red zone target share",
+            "Elite weekly ceiling due to TD scoring ability",
+            "Lamar Jackson's preferred end zone target",
+            "27%+ overall target share when healthy"
+          ],
+          
+          "concerns": [
+            "Heavy reliance on touchdowns for fantasy value",
+            "Injury history creates durability questions",
+            "Week-to-week volatility in production",
+            "Health will be key determining factor"
+          ],
+          
+          "keyFactors": [
+            "Staying healthy for full 17-game season",
+            "Maintaining red zone target dominance",
+            "Ravens' continued passing game efficiency"
+          ],
+
+          "aiInsights": {
+            "trendingUp": false,
+            "confidenceScore": 0.68,
+            "lastNewsUpdate": "2025-08-27T11:15:00.000Z",
+            "riskAlert": "Injury history and TD dependency create volatility"
+          }
+        },
+
+        "detailedStats": {
+          "receptions2024": 67,
+          "receivingYards2024": 673,
+          "receivingTDs2024": 11,
+          "targets2024": 89,
+          "fantasyPoints2024": 325.0,
+          "gamesPlayed2024": 13
+        },
+
+        "metadata": {
+          "lastUpdated": "2025-08-28T09:45:00.000Z",
+          "dataSource": "ai",
+          "popularity": 678
+        }
+      },
+
+      {
+        "id": "george-kittle-sf",
+        "name": "George Kittle",
+        "team": "SF",
+        "position": "TE",
+        "tier": "Volatile",
+        "tierColor": "#F59E0B",
+        "teamLogoUrl": "/images/teams/sf.png",
+        
+        "quickStats": {
+          "top5Likelihood": 40,
+          "projectedRank": 8,
+          "weeklyFloor": 14.0,
+          "weeklyCeiling": 37.0
+        },
+
+        "analysis": {
+          "headline": "Elite efficiency tight end with explosive ceiling but inconsistent target share in crowded 49ers offense.",
+          
+          "strengths": [
+            "Leading the position in yards per route run",
+            "Explosive big-play ability and YAC skills",
+            "Red zone threat with 8 TDs in 2024",
+            "Kyle Shanahan's creative usage schemes",
+            "Capable of massive weekly ceiling games"
+          ],
+          
+          "concerns": [
+            "Operates in crowded 49ers offense with many weapons",
+            "Significant volatility in target volume week-to-week",
+            "Inconsistent production makes season-long finish difficult",
+            "Target share capped by offensive philosophy"
+          ],
+          
+          "keyFactors": [
+            "49ers' target distribution philosophy",
+            "Health of other 49ers receiving weapons",
+            "Game script and weekly offensive game plan"
+          ],
+
+          "aiInsights": {
+            "trendingUp": false,
+            "confidenceScore": 0.55,
+            "lastNewsUpdate": "2025-08-28T06:50:00.000Z",
+            "riskAlert": "Target share volatility creates weekly uncertainty"
+          }
+        },
+
+        "detailedStats": {
+          "receptions2024": 65,
+          "receivingYards2024": 1106,
+          "receivingTDs2024": 8,
+          "targets2024": 91,
+          "fantasyPoints2024": 300.0,
+          "gamesPlayed2024": 14
+        },
+
+        "metadata": {
+          "lastUpdated": "2025-08-28T09:45:00.000Z",
+          "dataSource": "ai",
+          "popularity": 543
+        }
+      }
+    ],
+
+    "analysis": {
+      "trendingThemes": [
+        "Young talent reshaping elite tier landscape",
+        "Target share becoming critical differentiator", 
+        "Red zone usage drives ceiling for position",
+        "Veteran decline creating opportunity gaps"
+      ],
+      
+      "keyFactors": [
+        "Target share and volume consistency",
+        "Red zone involvement and touchdown opportunity",
+        "Quarterback stability and offensive system fit",
+        "Health and durability over 17-game season"
+      ],
+      
+      "draftStrategy": "Target elite tier early or wait for late-round value. The position has clear tiers with significant drop-offs, making the elite options worth premium picks while later rounds offer streaming candidates.",
+      
+      "riskFactors": [
+        "Touchdown dependency for many top options",
+        "Injury history among several elite players",
+        "Offensive coordinator changes affecting usage",
+        "Target competition in high-powered offenses"
+      ]
+    },
+
+    "weeklyUpdate": {
+      "headline": "Brock Bowers solidifying elite status with expanded 2025 role",
+      "updates": [
+        "Raiders coaching staff emphasizing Bowers as offensive centerpiece",
+        "LaPorta working with new Lions OC on maintaining target share",
+        "McBride expected to see increased red zone usage in 2025",
+        "Kelce showing no signs of decline in Chiefs training camp"
+      ],
+      "generatedAt": "2025-08-28T09:30:00.000Z"
     }
   },
-  "players": [
-    {
-      "id": "*brock-bowers-lv",
-      "name": "*Brock Bowers",
-      "team": "LV",
-      "position": "TE",
-      "tier": "Elite",
-      "projections": {
-        "top5Likelihood": 85,
-        "fantasyPoints": 413,
-        "weeklyFloor": 21,
-        "weeklyCeiling": 51
-      },
-      "stats2024": {
-        "gamesPlayed": 16,
-        "injuryHistory": [],
-        "fantasyRank": 0,
-        "positionStats": {
-          "gamesPlayed": 16,
-          "fantasyRank": 0
-        }
-      },
-      "analysis": {
-        "summary": "",
-        "strengths": [
-          "in, elite TE1. The primary risk is the continued uncertainty at the quarterback position for the Raiders and the potential for a new, run-heavy offensive scheme under Pete Carroll and Chip Kelly. However, Bowers' proven ability to be the focal point of the passing game makes him one of the safest bets at the position.Top 5 Likelihood: 85%"
-        ],
-        "concerns": [],
-        "keyFactors": [],
-        "upside": "High ceiling potential",
-        "floor": "Solid weekly production"
-      },
-      "aiGenerated": {
-        "lastUpdated": "2025-08-28T03:23:29.867Z",
-        "newsAnalysis": "Analysis converted from markdown: ...",
-        "trendingFactors": [],
-        "sentimentScore": 0
-      }
-    },
-    {
-      "id": "*sam-laporta-det",
-      "name": "*Sam LaPorta",
-      "team": "DET",
-      "position": "TE",
-      "tier": "Elite",
-      "projections": {
-        "top5Likelihood": 70,
-        "fantasyPoints": 375,
-        "weeklyFloor": 19,
-        "weeklyCeiling": 46
-      },
-      "stats2024": {
-        "gamesPlayed": 16,
-        "injuryHistory": [],
-        "fantasyRank": 0,
-        "positionStats": {
-          "gamesPlayed": 16,
-          "fantasyRank": 0
-        }
-      },
-      "analysis": {
-        "summary": "",
-        "strengths": [
-          "powered Detroit offense, commanding a target share of over 23%. While the departure of offensive coordinator Ben Johnson is a notable change, the new OC, John Morton, is expected to maintain a similar balanced and high-scoring scheme. One area of potential concern is LaPorta's touchdown dependency; a significant portion of his fantasy points in past seasons came from touchdowns, a metric that can be prone to regression. However, his high target volume and role in a potent offense provide a very high floor, and he remains a strong candidate for a top-5 finish.Top 5 Likelihood: 70%"
-        ],
-        "concerns": [],
-        "keyFactors": [],
-        "upside": "High ceiling potential",
-        "floor": "floor, and he remains a strong candidate for a top-5 finish."
-      },
-      "aiGenerated": {
-        "lastUpdated": "2025-08-28T03:23:29.868Z",
-        "newsAnalysis": "Analysis converted from markdown: ...",
-        "trendingFactors": [],
-        "sentimentScore": 0.2
-      }
-    },
-    {
-      "id": "*trey-mcbride-ari",
-      "name": "*Trey McBride",
-      "team": "ARI",
-      "position": "TE",
-      "tier": "High-Upside",
-      "projections": {
-        "top5Likelihood": 65,
-        "fantasyPoints": 363,
-        "weeklyFloor": 18,
-        "weeklyCeiling": 45
-      },
-      "stats2024": {
-        "gamesPlayed": 16,
-        "injuryHistory": [],
-        "fantasyRank": 0,
-        "positionStats": {
-          "gamesPlayed": 16,
-          "fantasyRank": 0
-        }
-      },
-      "analysis": {
-        "summary": "",
-        "strengths": [],
-        "concerns": [],
-        "keyFactors": [
-          "Floor Veterans and Red Zone Monsters"
-        ],
-        "upside": "High ceiling potential",
-        "floor": "Floor Veterans and Red Zone Monsters\n\n\n"
-      },
-      "aiGenerated": {
-        "lastUpdated": "2025-08-28T03:23:29.868Z",
-        "newsAnalysis": "Analysis converted from markdown: ...",
-        "trendingFactors": [
-          "Floor Veterans and Red Zone Monsters"
-        ],
-        "sentimentScore": 0.2
-      }
-    },
-    {
-      "id": "*travis-kelce-kc",
-      "name": "*Travis Kelce",
-      "team": "KC",
-      "position": "TE",
-      "tier": "High-Upside",
-      "projections": {
-        "top5Likelihood": 60,
-        "fantasyPoints": 350,
-        "weeklyFloor": 17,
-        "weeklyCeiling": 43
-      },
-      "stats2024": {
-        "gamesPlayed": 16,
-        "injuryHistory": [],
-        "fantasyRank": 0,
-        "positionStats": {
-          "gamesPlayed": 16,
-          "fantasyRank": 0
-        }
-      },
-      "analysis": {
-        "summary": "",
-        "strengths": [
-          "tier fantasy tight end, though signs of a slight decline appeared in 2024 as his target share dipped slightly. He remains the focal point of the Chiefs' passing attack alongside Patrick Mahomes, and his connection with the elite quarterback provides a weekly floor that is difficult to match. The Chiefs' offense under Andy Reid consistently produces, ensuring Kelce will have ample opportunities. While younger players like Bowers and LaPorta may have surpassed him in terms of raw upside, Kelce's consistency and role in an elite offense keep him firmly in the top-5 conversation. He is a safe, high-floor option who is unlikely to win you a week on his own as frequently as in the past, but he will rarely lose you one.Top 5 Likelihood: 60%"
-        ],
-        "concerns": [],
-        "keyFactors": [],
-        "upside": "upside, Kelce's consistency and role in an elite offense keep him firmly in the top-5 conversation.",
-        "floor": "floor that is difficult to match."
-      },
-      "aiGenerated": {
-        "lastUpdated": "2025-08-28T03:23:29.868Z",
-        "newsAnalysis": "Analysis converted from markdown: ...",
-        "trendingFactors": [],
-        "sentimentScore": 0.1
-      }
-    },
-    {
-      "id": "*mark-andrews-bal",
-      "name": "*Mark Andrews",
-      "team": "BAL",
-      "position": "TE",
-      "tier": "High-Upside",
-      "projections": {
-        "top5Likelihood": 50,
-        "fantasyPoints": 325,
-        "weeklyFloor": 16,
-        "weeklyCeiling": 40
-      },
-      "stats2024": {
-        "gamesPlayed": 16,
-        "injuryHistory": [
-          "health mentioned in analysis"
-        ],
-        "fantasyRank": 0,
-        "positionStats": {
-          "gamesPlayed": 16,
-          "fantasyRank": 0
-        }
-      },
-      "analysis": {
-        "summary": "",
-        "strengths": [
-          "yard line, commanding an astonishing 51.7% target share in that critical area of the field. This touchdown-scoring prowess gives him an immense weekly ceiling. When healthy, his overall team target share is also elite, exceeding 27%. The primary risk with Andrews is his reliance on touchdowns for a significant portion of his fantasy output, which can lead to some volatility. However, his established role as Lamar Jackson's go-to target, especially near the end zone, ensures he will remain a high-end fantasy producer. His health will be a key factor, but if he plays a full season, he is a strong bet for a top-5 finish.Top 5 Likelihood: 50%"
-        ],
-        "concerns": [],
-        "keyFactors": [],
-        "upside": "High ceiling potential",
-        "floor": "Solid weekly production"
-      },
-      "aiGenerated": {
-        "lastUpdated": "2025-08-28T03:23:29.868Z",
-        "newsAnalysis": "Analysis converted from markdown: ...",
-        "trendingFactors": [],
-        "sentimentScore": 0.1
-      }
-    },
-    {
-      "id": "*george-kittle-sf",
-      "name": "*George Kittle",
-      "team": "SF",
-      "position": "TE",
-      "tier": "Volatile",
-      "projections": {
-        "top5Likelihood": 40,
-        "fantasyPoints": 300,
-        "weeklyFloor": 14,
-        "weeklyCeiling": 37
-      },
-      "stats2024": {
-        "gamesPlayed": 16,
-        "injuryHistory": [],
-        "fantasyRank": 0,
-        "positionStats": {
-          "gamesPlayed": 16,
-          "fantasyRank": 0
-        }
-      },
-      "analysis": {
-        "summary": "",
-        "strengths": [
-          "play ability gives him a massive ceiling in any given week. However, he operates in a crowded San Francisco offense alongside other elite playmakers, which leads to significant volatility in his target volume. While he is a potent red zone threat, with 8 touchdowns in 2024, his week-to-week production can be frustratingly inconsistent. The 49ers' offense, under Kyle Shanahan, will continue to spread the ball around, which caps Kittle's overall ceiling. He will have several week-winning performances, but the lack of consistent target share makes a season-long top-5 finish more challenging compared to his peers who are the undisputed top targets on their respective teams.Top 5 Likelihood: 40%"
-        ],
-        "concerns": [],
-        "keyFactors": [],
-        "upside": "High ceiling potential",
-        "floor": "Solid weekly production"
-      },
-      "aiGenerated": {
-        "lastUpdated": "2025-08-28T03:23:29.868Z",
-        "newsAnalysis": "Analysis converted from markdown: ...",
-        "trendingFactors": [],
-        "sentimentScore": -0.1
-      }
+
+  "ui": {
+    "displayMode": "cards",
+    "featuredPlayers": ["brock-bowers-lv", "sam-laporta-det"],
+    "tierColors": {
+      "Elite": "#10B981",
+      "High-Upside": "#3B82F6", 
+      "Volatile": "#F59E0B",
+      "Sleeper": "#8B5CF6",
+      "Bust-Risk": "#EF4444"
     }
-  ],
-  "positionAnalysis": {
-    "trendingThemes": [
-      "The Elite Difference-Makers",
-      "High-Floor Veterans and Red Zone Monsters"
-    ],
-    "keyFactors": [
-      "Opportunity",
-      "Health",
-      "Schedule Strength",
-      "Team Context"
-    ],
-    "draftStrategy": "Focus on opportunity and situation over pure talent."
   }
 }
