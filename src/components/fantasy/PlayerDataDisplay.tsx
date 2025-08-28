@@ -474,45 +474,69 @@ export const PlayerDataDisplay: React.FC<PlayerDataDisplayProps> = ({ position, 
 
   // Filter and sort players based on search query and sort option
   const filteredAndSortedPlayers = useMemo(() => {
-    if (!data || !data.content || !data.content.players || !Array.isArray(data.content.players)) {
+    // More defensive checks
+    try {
+      if (!data) return [];
+      if (typeof data !== 'object') return [];
+      if (!data.content) return [];
+      if (typeof data.content !== 'object') return [];
+      if (!data.content.players) return [];
+      if (!Array.isArray(data.content.players)) return [];
+      
+      // Create a copy to avoid mutation
+      const players = data.content.players.slice();
+      
+      // Apply search filter
+      let filtered = players;
+      if (searchQuery && typeof searchQuery === 'string' && searchQuery.trim()) {
+        const query = searchQuery.toLowerCase();
+        filtered = players.filter(player => {
+          if (!player || typeof player !== 'object') return false;
+          
+          const name = player.name || '';
+          const team = player.team || '';
+          const tier = player.tier || '';
+          const position = player.position || '';
+          
+          return (
+            name.toLowerCase().includes(query) ||
+            team.toLowerCase().includes(query) ||
+            tier.toLowerCase().includes(query) ||
+            position.toLowerCase().includes(query)
+          );
+        });
+      }
+
+      // Apply sorting
+      if (sortBy && typeof sortBy === 'string') {
+        filtered.sort((a, b) => {
+          if (!a || !b || typeof a !== 'object' || typeof b !== 'object') return 0;
+          
+          switch (sortBy) {
+            case 'name':
+              const nameA = (a.name || '').toString();
+              const nameB = (b.name || '').toString();
+              return nameA.localeCompare(nameB);
+            case 'team':
+              const teamA = (a.team || '').toString();
+              const teamB = (b.team || '').toString();
+              return teamA.localeCompare(teamB);
+            case 'tier':
+              const tierOrder = { 'Tier 1': 1, 'Tier 2': 2, 'Tier 3': 3, 'Tier 4': 4, 'Tier 5': 5 };
+              const tierA = tierOrder[a.tier as keyof typeof tierOrder] || 999;
+              const tierB = tierOrder[b.tier as keyof typeof tierOrder] || 999;
+              return tierA - tierB;
+            default:
+              return 0;
+          }
+        });
+      }
+
+      return filtered;
+    } catch (error) {
+      console.error('Error in filteredAndSortedPlayers useMemo:', error);
       return [];
     }
-    
-    let filtered = [...data.content.players];
-
-    // Apply search filter
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(player => 
-        player && player.name && player.team && player.tier && player.position &&
-        (player.name.toLowerCase().includes(query) ||
-        player.team.toLowerCase().includes(query) ||
-        player.tier.toLowerCase().includes(query) ||
-        player.position.toLowerCase().includes(query))
-      );
-    }
-
-    // Apply sorting
-    const sorted = [...filtered].sort((a, b) => {
-      if (!a || !b) return 0;
-      
-      switch (sortBy) {
-        case 'name':
-          return (a.name || '').localeCompare(b.name || '');
-        case 'team':
-          return (a.team || '').localeCompare(b.team || '');
-        case 'tier':
-          // Sort by tier priority (Tier 1 first, then 2, etc.)
-          const tierOrder = { 'Tier 1': 1, 'Tier 2': 2, 'Tier 3': 3, 'Tier 4': 4, 'Tier 5': 5 };
-          const aTier = tierOrder[(a.tier || '') as keyof typeof tierOrder] || 999;
-          const bTier = tierOrder[(b.tier || '') as keyof typeof tierOrder] || 999;
-          return aTier - bTier;
-        default:
-          return 0;
-      }
-    });
-
-    return sorted;
   }, [data, searchQuery, sortBy]);
 
   return (
