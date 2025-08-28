@@ -11,6 +11,7 @@
     "preview": "vite preview",
     "fetch-logos": "node scripts/fetch-team-logos.js",
     "optimize-hero": "node scripts/optimize-hero-image.js",
+    "convert:markdown": "npx tsx src/scripts/convertMarkdownToJson.ts",
     "migrate:data": "npx tsx src/scripts/runMigration.ts",
     "migrate:check": "npx tsx -e \"import { DataMigrationService } from './src/utils/dataMigration'; DataMigrationService.getMigrationProgress().then(p => console.log(JSON.stringify(p, null, 2)))\"",
     "amplify:sandbox": "npx ampx sandbox",

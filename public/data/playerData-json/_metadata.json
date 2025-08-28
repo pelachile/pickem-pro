@@ -1,0 +1,14 @@
+{
+  "lastUpdated": "2025-08-28T03:23:29.871Z",
+  "season": 2025,
+  "totalPositions": 5,
+  "totalPlayers": 17,
+  "positions": [
+    "quarterbacks",
+    "running-backs",
+    "wide-receivers",
+    "tightends",
+    "defense-kickers"
+  ],
+  "version": "1.0.0"
+}

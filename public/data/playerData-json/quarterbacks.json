@@ -1,0 +1,381 @@
+{
+  "position": "QB",
+  "positionFull": "Quarterbacks",
+  "lastUpdated": "2025-08-28T03:23:29.865Z",
+  "season": 2025,
+  "overview": {
+    "summary": "The quarterback position in fantasy football continues to be defined by a clear division between elite, dual-threat players who offer a high weekly floor and ceiling, and traditional pocket passers who rely on volume and efficiency. The 2024 season reinforced this trend, with mobile quarterbacks dominating the top of the fantasy leaderboards. As we look ahead to the 2025 season, a comprehensive strategy requires analyzing not only past performance but also critical off-season changes, including coaching adjustments, offensive personnel additions, and, most importantly, the strength of schedule. These factors combine to create a complex landscape where last year's heroes can become this year's disappointments, and new stars can emerge. This analysis synthesizes performance data from 2024 with forward-looking projections to provide a nuanced perspective on the most important position in fantasy football.",
+    "totalPlayers": 8,
+    "tiers": {
+      "Sleeper": 2,
+      "Elite": 2,
+      "High-Upside": 3,
+      "Volatile": 1
+    }
+  },
+  "players": [
+    {
+      "id": "lamar-jackson-bal",
+      "name": "Lamar Jackson",
+      "team": "BAL",
+      "position": "QB",
+      "tier": "Sleeper",
+      "projections": {
+        "top5Likelihood": 0,
+        "fantasyPoints": 200,
+        "weeklyFloor": 8,
+        "weeklyCeiling": 25
+      },
+      "stats2024": {
+        "gamesPlayed": 16,
+        "injuryHistory": [],
+        "fantasyRank": 0,
+        "positionStats": {
+          "gamesPlayed": 16,
+          "fantasyRank": 0,
+          "passingYards": 3500,
+          "passingTouchdowns": 25,
+          "rushingYards": 400
+        }
+      },
+      "analysis": {
+        "summary": "",
+        "strengths": [],
+        "concerns": [],
+        "keyFactors": [],
+        "upside": "High ceiling potential",
+        "floor": "Solid weekly production"
+      },
+      "aiGenerated": {
+        "lastUpdated": "2025-08-28T03:23:29.862Z",
+        "newsAnalysis": "Analysis converted from markdown: ...",
+        "trendingFactors": [],
+        "sentimentScore": 0
+      }
+    },
+    {
+      "id": "4,100-yards**-and-**41-touchdowns**-while-adding-another-**915-yards**-on-the-ground.-his-dual-threat-capability-provides-an-unparalleled-fantasy-floor.-the-ravens'-offensive-scheme-under-todd-monken,-now-in-its-third-year,-is-fully-optimized-around-jackson's-talents,-and-the-addition-of-running-back-**derrick-henry**-only-serves-to-amplify-the-threat-of-their-play-action-passing-game.-with-continuity-in-the-coaching-staff-and-a-proven-track-record-of-elite-production,-jackson-is-arguably-the-safest-pick-at-the-top-of-the-quarterback-board.-his-combination-of-high-volume-passing-and-elite-rushing-volume-makes-him-a-consistent-weekly-threat-for-30-plus-fantasy-points.-**top-5-likelihood:-75%**-**josh-allen-buf",
+      "name": "4,100 yards** and **41 touchdowns** while adding another **915 yards** on the ground. His dual-threat capability provides an unparalleled fantasy floor. The Ravens' offensive scheme under Todd Monken, now in its third year, is fully optimized around Jackson's talents, and the addition of running back **Derrick Henry** only serves to amplify the threat of their play-action passing game. With continuity in the coaching staff and a proven track record of elite production, Jackson is arguably the safest pick at the top of the quarterback board. His combination of high-volume passing and elite rushing volume makes him a consistent weekly threat for 30-plus fantasy points.\n\n**Top 5 Likelihood: 75%**\n\n**Josh Allen",
+      "team": "BUF",
+      "position": "QB",
+      "tier": "Elite",
+      "projections": {
+        "top5Likelihood": 75,
+        "fantasyPoints": 388,
+        "weeklyFloor": 19,
+        "weeklyCeiling": 48
+      },
+      "stats2024": {
+        "gamesPlayed": 16,
+        "injuryHistory": [],
+        "fantasyRank": 0,
+        "positionStats": {
+          "gamesPlayed": 16,
+          "fantasyRank": 0,
+          "passingYards": 4100,
+          "passingTouchdowns": 41,
+          "rushingYards": 915
+        }
+      },
+      "analysis": {
+        "summary": "",
+        "strengths": [
+          "threat capability provides an unparalleled fantasy floor. The Ravens' offensive scheme under Todd Monken, now in its third year, is fully optimized around Jackson's talents, and the addition of running back **Derrick Henry** only serves to amplify the threat of their play-action passing game. With continuity in the coaching staff and a proven track record of elite production, Jackson is arguably the safest pick at the top of the quarterback board. His combination of high-volume passing and elite rushing volume makes him a consistent weekly threat for 30-plus fantasy points."
+        ],
+        "concerns": [],
+        "keyFactors": [],
+        "upside": "High ceiling potential",
+        "floor": "floor."
+      },
+      "aiGenerated": {
+        "lastUpdated": "2025-08-28T03:23:29.863Z",
+        "newsAnalysis": "Analysis converted from markdown: ...",
+        "trendingFactors": [],
+        "sentimentScore": 0.2
+      }
+    },
+    {
+      "id": "12-rushing-touchdowns**,-which-provides-a-fantasy-output-that-few-other-quarterbacks-can-match.-while-his-passing-yardage-was-slightly-lower-than-in-previous-peak-seasons,-his-overall-fantasy-production-remained-firmly-in-the-top-tier.-the-bills'-offense,-under-the-continued-guidance-of-oc-**joe-brady**,-is-built-around-allen's-unique-skill-set.-however,-the-2025-season-presents-a-significant-challenge-in-the-form-of-a-difficult-playoff-schedule,-which-projects-to-be-one-of-the-toughest-in-the-league-for-quarterbacks.-elite-talents-can-often-transcend-difficult-matchups,-but-managers-drafting-allen-must-be-aware-that-his-path-to-a-fantasy-championship-may-be-more-arduous-than-his-peers.-despite-this,-his-goal-line-rushing-role-gives-him-a-ceiling-that-is-nearly-unmatched.-**top-5-likelihood:-70%**-**joe-burrow-cin",
+      "name": "12 rushing touchdowns**, which provides a fantasy output that few other quarterbacks can match. While his passing yardage was slightly lower than in previous peak seasons, his overall fantasy production remained firmly in the top tier. The Bills' offense, under the continued guidance of OC **Joe Brady**, is built around Allen's unique skill set. However, the 2025 season presents a significant challenge in the form of a difficult playoff schedule, which projects to be one of the toughest in the league for quarterbacks. Elite talents can often transcend difficult matchups, but managers drafting Allen must be aware that his path to a fantasy championship may be more arduous than his peers. Despite this, his goal-line rushing role gives him a ceiling that is nearly unmatched.\n\n**Top 5 Likelihood: 70%**\n\n**Joe Burrow",
+      "team": "CIN",
+      "position": "QB",
+      "tier": "High-Upside",
+      "projections": {
+        "top5Likelihood": 70,
+        "fantasyPoints": 375,
+        "weeklyFloor": 19,
+        "weeklyCeiling": 46
+      },
+      "stats2024": {
+        "gamesPlayed": 16,
+        "injuryHistory": [],
+        "fantasyRank": 0,
+        "positionStats": {
+          "gamesPlayed": 16,
+          "fantasyRank": 0,
+          "passingYards": 4918,
+          "passingTouchdowns": 25,
+          "rushingYards": 400
+        }
+      },
+      "analysis": {
+        "summary": "",
+        "strengths": [],
+        "concerns": [],
+        "keyFactors": [
+          "line rushing role gives him a ceiling that is nearly unmatched.",
+          "passing excellence in fantasy football. He led the league in passing yards (**4,918**) and touchdowns ("
+        ],
+        "upside": "High ceiling potential",
+        "floor": "Solid weekly production"
+      },
+      "aiGenerated": {
+        "lastUpdated": "2025-08-28T03:23:29.863Z",
+        "newsAnalysis": "Analysis converted from markdown: ...",
+        "trendingFactors": [
+          "line rushing role gives him a ceiling that is nearly unmatched.",
+          "passing excellence in fantasy football. He led the league in passing yards (**4,918**) and touchdowns ("
+        ],
+        "sentimentScore": -0.1
+      }
+    },
+    {
+      "id": "43**)-in-2024,-showcasing-his-elite-accuracy-and-connection-with-his-receiving-corps.-the-bengals'-offense,-now-coordinated-by-the-internally-promoted-**dan-pitcher**,-is-expected-to-maintain-its-pass-first,-west-coast-identity,-ensuring-burrow-remains-a-high-volume-passer.-the-primary-concern-for-burrow's-2025-outlook-is-his-difficult-strength-of-schedule,-which-is-ranked-as-the-**third-hardest**-for-quarterbacks.-this-includes-challenging-late-season-games-in-potentially-cold-weather,-which-can-suppress-passing-production.-furthermore,-his-limited-rushing-upside-caps-his-weekly-ceiling-compared-to-players-like-jackson-and-allen.-he-is-a-high-floor-fantasy-qb1,-but-reaching-the-top-5-will-require-him-to-overcome-a-demanding-slate-of-opponents.-**top-5-likelihood:-55%**-----##-high-upside-and-breakout-candidates-----**jayden-daniels-was",
+      "name": "43**) in 2024, showcasing his elite accuracy and connection with his receiving corps. The Bengals' offense, now coordinated by the internally promoted **Dan Pitcher**, is expected to maintain its pass-first, West Coast identity, ensuring Burrow remains a high-volume passer. The primary concern for Burrow's 2025 outlook is his difficult strength of schedule, which is ranked as the **third-hardest** for quarterbacks. This includes challenging late-season games in potentially cold weather, which can suppress passing production. Furthermore, his limited rushing upside caps his weekly ceiling compared to players like Jackson and Allen. He is a high-floor fantasy QB1, but reaching the top 5 will require him to overcome a demanding slate of opponents.\n\n**Top 5 Likelihood: 55%**\n\n---\n## High-Upside and Breakout Candidates\n---\n\n**Jayden Daniels",
+      "team": "WAS",
+      "position": "QB",
+      "tier": "Elite",
+      "projections": {
+        "top5Likelihood": 55,
+        "fantasyPoints": 338,
+        "weeklyFloor": 16,
+        "weeklyCeiling": 42
+      },
+      "stats2024": {
+        "gamesPlayed": 16,
+        "injuryHistory": [],
+        "fantasyRank": 0,
+        "positionStats": {
+          "gamesPlayed": 16,
+          "fantasyRank": 0,
+          "passingYards": 3500,
+          "passingTouchdowns": 43,
+          "rushingYards": 891
+        }
+      },
+      "analysis": {
+        "summary": "",
+        "strengths": [
+          "first, West Coast identity, ensuring Burrow remains a high-volume passer. The primary concern for Burrow's 2025 outlook is his difficult strength of schedule, which is ranked as the **third-hardest** for quarterbacks. This includes challenging late-season games in potentially cold weather, which can suppress passing production. Furthermore, his limited rushing upside caps his weekly ceiling compared to players like Jackson and Allen. He is a high-floor fantasy QB1, but reaching the top 5 will require him to overcome a demanding slate of opponents.",
+          "threat quarterback. He set a rookie record for rushing yards by a quarterback with 891, while also throwing for over 3,500 yards and 25 touchdowns. This rushing production provides a massive fantasy floor, making him less dependent on passing volume to post elite scores. The Commanders' offense, led by Kliff Kingsbury, is a perfect fit for his skill set, emphasizing spread concepts and RPOs that leverage his mobility. Projections for 2025 are incredibly bullish, with many analysts forecasting a top-5 finish. His combination of rushing volume and an improving offensive environment makes him one of the most exciting quarterbacks to target in drafts, possessing a ceiling that could rival the established elite tier."
+        ],
+        "concerns": [],
+        "keyFactors": [
+          "--",
+          "Upside and Breakout Candidates",
+          "--"
+        ],
+        "upside": "upside caps his weekly ceiling compared to players like Jackson and Allen.",
+        "floor": "floor fantasy QB1, but reaching the top 5 will require him to overcome a demanding slate of opponents."
+      },
+      "aiGenerated": {
+        "lastUpdated": "2025-08-28T03:23:29.863Z",
+        "newsAnalysis": "Analysis converted from markdown: ...",
+        "trendingFactors": [
+          "--",
+          "Upside and Breakout Candidates",
+          "--"
+        ],
+        "sentimentScore": 0
+      }
+    },
+    {
+      "id": "top-5-likelihood:-60%**-**kyler-murray-ari",
+      "name": "Top 5 Likelihood: 60%**\n\n**Kyler Murray",
+      "team": "ARI",
+      "position": "QB",
+      "tier": "High-Upside",
+      "projections": {
+        "top5Likelihood": 60,
+        "fantasyPoints": 350,
+        "weeklyFloor": 17,
+        "weeklyCeiling": 43
+      },
+      "stats2024": {
+        "gamesPlayed": 16,
+        "injuryHistory": [
+          "health mentioned in analysis"
+        ],
+        "fantasyRank": 0,
+        "positionStats": {
+          "gamesPlayed": 16,
+          "fantasyRank": 0,
+          "passingYards": 3500,
+          "passingTouchdowns": 25,
+          "rushingYards": 570
+        }
+      },
+      "analysis": {
+        "summary": "",
+        "strengths": [
+          "toughest schedule in 2024, this dramatic shift provides a massive tailwind for his production. The data suggests this favorable schedule could boost his fantasy points per game by nearly 1.5 points compared to last season. Murray's rushing ability has always provided a solid fantasy floor, and in 2024 he still managed over 570 yards on the ground. With a full season of health and a slate of favorable matchups, including a particularly soft playoff schedule, Murray has a clear path to re-enter the elite fantasy conversation. He represents one of the best values at the position, with legitimate top-5 upside."
+        ],
+        "concerns": [],
+        "keyFactors": [],
+        "upside": "upside.",
+        "floor": "floor, and in 2024 he still managed over 570 yards on the ground."
+      },
+      "aiGenerated": {
+        "lastUpdated": "2025-08-28T03:23:29.864Z",
+        "newsAnalysis": "Analysis converted from markdown: ...",
+        "trendingFactors": [],
+        "sentimentScore": 0.1
+      }
+    },
+    {
+      "id": "top-5-likelihood:-50%**-**c.j.-stroud-hou",
+      "name": "Top 5 Likelihood: 50%**\n\n**C.J. Stroud",
+      "team": "HOU",
+      "position": "QB",
+      "tier": "High-Upside",
+      "projections": {
+        "top5Likelihood": 50,
+        "fantasyPoints": 325,
+        "weeklyFloor": 16,
+        "weeklyCeiling": 40
+      },
+      "stats2024": {
+        "gamesPlayed": 16,
+        "injuryHistory": [],
+        "fantasyRank": 0,
+        "positionStats": {
+          "gamesPlayed": 16,
+          "fantasyRank": 0,
+          "passingYards": 3500,
+          "passingTouchdowns": 25,
+          "rushingYards": 400
+        }
+      },
+      "analysis": {
+        "summary": "",
+        "strengths": [
+          "easiest in the league. His early-season slate is particularly advantageous, which could allow him to build momentum after a somewhat down 2024 campaign. The Texans' offense, now coordinated by Nick Caley, is expected to maintain a balanced attack with motion-heavy schemes that play to Stroud's strengths. With an upgraded receiving corps and a system designed for efficiency, Stroud is in a prime position to rebound. While he doesn't possess the elite rushing upside of some of his peers, his passing talent is undeniable, and the favorable schedule provides a significant opportunity for him to post high-end QB1 numbers throughout the season."
+        ],
+        "concerns": [],
+        "keyFactors": [],
+        "upside": "upside of some of his peers, his passing talent is undeniable, and the favorable schedule provides a significant opportunity for him to post high-end QB1 numbers throughout the season.",
+        "floor": "Solid weekly production"
+      },
+      "aiGenerated": {
+        "lastUpdated": "2025-08-28T03:23:29.864Z",
+        "newsAnalysis": "Analysis converted from markdown: ...",
+        "trendingFactors": [],
+        "sentimentScore": 0.1
+      }
+    },
+    {
+      "id": "top-5-likelihood:-40%**-----##-volatile-veterans-and-potential-busts-----**dak-prescott-dal",
+      "name": "Top 5 Likelihood: 40%**\n\n---\n## Volatile Veterans and Potential Busts\n---\n\n**Dak Prescott",
+      "team": "DAL",
+      "position": "QB",
+      "tier": "Volatile",
+      "projections": {
+        "top5Likelihood": 40,
+        "fantasyPoints": 300,
+        "weeklyFloor": 14,
+        "weeklyCeiling": 37
+      },
+      "stats2024": {
+        "gamesPlayed": 16,
+        "injuryHistory": [],
+        "fantasyRank": 0,
+        "positionStats": {
+          "gamesPlayed": 16,
+          "fantasyRank": 0,
+          "passingYards": 3500,
+          "passingTouchdowns": 40,
+          "rushingYards": 400
+        }
+      },
+      "analysis": {
+        "summary": "",
+        "strengths": [],
+        "concerns": [
+          "hardest in 2025. His early-season schedule is particularly brutal, projecting a nearly 2-point-per-game decrease in fantasy output over the first five weeks. The Cowboys' offense is also in a state of transition, with Brian Schottenheimer taking over as head coach and play-caller. While the scheme is expected to remain pass-heavy, the loss of key personnel and the difficult schedule create significant headwinds for Prescott's fantasy value. He is a talented quarterback, but the situational factors make a top-5 finish highly improbable and introduce considerable bust potential."
+        ],
+        "keyFactors": [
+          "--",
+          "--"
+        ],
+        "upside": "High ceiling potential",
+        "floor": "Solid weekly production"
+      },
+      "aiGenerated": {
+        "lastUpdated": "2025-08-28T03:23:29.864Z",
+        "newsAnalysis": "Analysis converted from markdown: ...",
+        "trendingFactors": [
+          "--",
+          "--"
+        ],
+        "sentimentScore": -0.2
+      }
+    },
+    {
+      "id": "top-5-likelihood:-15%**-**caleb-williams-chi",
+      "name": "Top 5 Likelihood: 15%**\n\n**Caleb Williams",
+      "team": "CHI",
+      "position": "QB",
+      "tier": "Sleeper",
+      "projections": {
+        "top5Likelihood": 15,
+        "fantasyPoints": 238,
+        "weeklyFloor": 10,
+        "weeklyCeiling": 30
+      },
+      "stats2024": {
+        "gamesPlayed": 16,
+        "injuryHistory": [
+          "sack mentioned in analysis"
+        ],
+        "fantasyRank": 0,
+        "positionStats": {
+          "gamesPlayed": 16,
+          "fantasyRank": 0,
+          "passingYards": 3500,
+          "passingTouchdowns": 20,
+          "rushingYards": 400
+        }
+      },
+      "analysis": {
+        "summary": "",
+        "strengths": [],
+        "concerns": [
+          "action designs and ability to protect the quarterback, which should unlock Williams' passing efficiency. His rushing ability provides a solid floor, but he faces a difficult schedule, ranked among the toughest in the league. While the improved coaching and protection give him breakout potential, the combination of a tough schedule and the natural learning curve for a second-year quarterback makes a top-5 finish a difficult proposition."
+        ],
+        "keyFactors": [],
+        "upside": "High ceiling potential",
+        "floor": "floor, but he faces a difficult schedule, ranked among the toughest in the league."
+      },
+      "aiGenerated": {
+        "lastUpdated": "2025-08-28T03:23:29.864Z",
+        "newsAnalysis": "Analysis converted from markdown: ...",
+        "trendingFactors": [],
+        "sentimentScore": -0.30000000000000004
+      }
+    }
+  ],
+  "positionAnalysis": {
+    "trendingThemes": [
+      "Elite Tier Quarterbacks",
+      "High-Upside and Breakout Candidates",
+      "Volatile Veterans and Potential Busts"
+    ],
+    "keyFactors": [
+      "Opportunity",
+      "Health",
+      "Schedule Strength",
+      "Team Context"
+    ],
+    "draftStrategy": "Focus on opportunity and situation over pure talent."
+  }
+}
