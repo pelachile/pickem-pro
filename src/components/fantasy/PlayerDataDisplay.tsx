@@ -474,33 +474,38 @@ export const PlayerDataDisplay: React.FC<PlayerDataDisplayProps> = ({ position, 
 
   // Filter and sort players based on search query and sort option
   const filteredAndSortedPlayers = useMemo(() => {
-    if (!data) return [];
+    if (!data || !data.content || !data.content.players || !Array.isArray(data.content.players)) {
+      return [];
+    }
     
-    let filtered = data.content.players;
+    let filtered = [...data.content.players];
 
     // Apply search filter
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter(player => 
-        player.name.toLowerCase().includes(query) ||
+        player && player.name && player.team && player.tier && player.position &&
+        (player.name.toLowerCase().includes(query) ||
         player.team.toLowerCase().includes(query) ||
         player.tier.toLowerCase().includes(query) ||
-        player.position.toLowerCase().includes(query)
+        player.position.toLowerCase().includes(query))
       );
     }
 
     // Apply sorting
     const sorted = [...filtered].sort((a, b) => {
+      if (!a || !b) return 0;
+      
       switch (sortBy) {
         case 'name':
-          return a.name.localeCompare(b.name);
+          return (a.name || '').localeCompare(b.name || '');
         case 'team':
-          return a.team.localeCompare(b.team);
+          return (a.team || '').localeCompare(b.team || '');
         case 'tier':
           // Sort by tier priority (Tier 1 first, then 2, etc.)
           const tierOrder = { 'Tier 1': 1, 'Tier 2': 2, 'Tier 3': 3, 'Tier 4': 4, 'Tier 5': 5 };
-          const aTier = tierOrder[a.tier as keyof typeof tierOrder] || 999;
-          const bTier = tierOrder[b.tier as keyof typeof tierOrder] || 999;
+          const aTier = tierOrder[(a.tier || '') as keyof typeof tierOrder] || 999;
+          const bTier = tierOrder[(b.tier || '') as keyof typeof tierOrder] || 999;
           return aTier - bTier;
         default:
           return 0;
