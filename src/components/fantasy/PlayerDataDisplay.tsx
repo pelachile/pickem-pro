@@ -615,7 +615,7 @@ export const PlayerDataDisplay: React.FC<PlayerDataDisplayProps> = ({ position, 
               <span className="text-white/60">
                 {filteredAndSortedPlayers.length === 0 
                   ? 'No players found' 
-                  : `Found ${filteredAndSortedPlayers.length} of ${data.content.players.length} players`
+                  : `Found ${filteredAndSortedPlayers.length} of ${data?.content?.players?.length || 0} players`
                 }
               </span>
               {searchQuery && (
@@ -661,19 +661,21 @@ export const PlayerDataDisplay: React.FC<PlayerDataDisplayProps> = ({ position, 
         ) : (
           filteredAndSortedPlayers.map((player) => {
           // Find matching AI insights for this player
-          const playerAIInsights = aiPlayers.find(aiPlayer => 
-            aiPlayer.name === player.name || 
+          const playerAIInsights = aiPlayers?.find(aiPlayer => 
+            aiPlayer && player &&
+            aiPlayer.name && player.name &&
+            (aiPlayer.name === player.name || 
             aiPlayer.id === player.id ||
             aiPlayer.name.toLowerCase().includes(player.name.toLowerCase()) ||
-            player.name.toLowerCase().includes(aiPlayer.name.toLowerCase())
+            player.name.toLowerCase().includes(aiPlayer.name.toLowerCase()))
           );
           
           return (
             <PlayerCard 
-              key={player.id}
+              key={player?.id || `player-${Math.random()}`}
               player={player}
-              isExpanded={expandedPlayers.has(player.id)}
-              onToggleExpand={() => togglePlayerExpansion(player.id)}
+              isExpanded={player?.id ? expandedPlayers.has(player.id) : false}
+              onToggleExpand={() => player?.id && togglePlayerExpansion(player.id)}
               aiInsights={playerAIInsights}
             />
           );
