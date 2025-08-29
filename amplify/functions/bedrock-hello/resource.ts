@@ -7,6 +7,6 @@ export const bedrockHello = defineFunction({
     BEDROCK_MODEL_ID: 'us.anthropic.claude-3-5-sonnet-20240620-v1:0'
   },
   timeoutSeconds: 30,
-  // Force deployment update
+  // Force deployment update - v2
   resourceGroupName: 'data'
 });
