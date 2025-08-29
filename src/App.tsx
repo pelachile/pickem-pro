@@ -1,5 +1,7 @@
 import { createRouter, RouterProvider } from '@tanstack/react-router';
 import { routeTree } from './routeTree.gen';
+import { AIAnalysisService } from './services/aiAnalysisService';
+import HelloWorldTest from './components/HelloWorldTest';
 
 // Create a new router instance
 const router = createRouter({ routeTree });
@@ -11,9 +13,17 @@ declare module '@tanstack/react-router' {
   }
 }
 
+// Expose AI test function globally for browser console testing
+if (typeof window !== 'undefined') {
+  (window as any).testAmplifyAI = () => AIAnalysisService.testAmplifyAI();
+}
+
 function App() {
   return (
-    <RouterProvider router={router} />
+    <>
+      <HelloWorldTest />
+      <RouterProvider router={router} />
+    </>
   );
 }
 
