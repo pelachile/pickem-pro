@@ -925,3 +925,10 @@ export const listUserProfiles = /* GraphQL */ `query ListUserProfiles(
   APITypes.ListUserProfilesQueryVariables,
   APITypes.ListUserProfilesQuery
 >;
+export const sayHello = /* GraphQL */ `query SayHello($name: String) {
+  sayHello(name: $name) {
+    message
+    __typename
+  }
+}
+` as GeneratedQuery<APITypes.SayHelloQueryVariables, APITypes.SayHelloQuery>;

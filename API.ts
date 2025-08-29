@@ -680,6 +680,11 @@ export type ModelUserProfileConnection = {
   nextToken?: string | null,
 };
 
+export type SayHelloReturnType = {
+  __typename: "SayHelloReturnType",
+  message?: string | null,
+};
+
 export type ModelAIContentCacheConditionInput = {
   and?: Array< ModelAIContentCacheConditionInput | null > | null,
   content?: ModelStringInput | null,
@@ -2320,6 +2325,17 @@ export type ListUserProfilesQuery = {
       website?: string | null,
     } | null >,
     nextToken?: string | null,
+  } | null,
+};
+
+export type SayHelloQueryVariables = {
+  name?: string | null,
+};
+
+export type SayHelloQuery = {
+  sayHello?:  {
+    __typename: "SayHelloReturnType",
+    message?: string | null,
   } | null,
 };
 
