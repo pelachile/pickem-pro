@@ -1,4 +1,4 @@
-import type { APIGatewayProxyHandler } from 'aws-lambda';
+import type { Handler } from 'aws-lambda';
 import { 
   BedrockRuntimeClient, 
   InvokeModelCommand,
@@ -97,13 +97,12 @@ async function invokeClaudeModel(prompt: string, name: string): Promise<{ messag
  * Lambda handler for Hello World Bedrock test
  * Updated: Fix model ID to use inference profile
  */
-export const handler: APIGatewayProxyHandler = async (event) => {
+export const handler: Handler = async (event) => {
   console.log('🚀 BEDROCK HELLO LAMBDA START:', JSON.stringify(event, null, 2));
   
   try {
-    // Parse the request body to get the name argument
-    const body = event.body ? JSON.parse(event.body) : {};
-    const name = body.name || 'World';
+    // For GraphQL resolvers, arguments come directly from the event
+    const name = event.arguments?.name || 'World';
     
     console.log('📝 REQUEST:', { name });
     
@@ -113,28 +112,13 @@ export const handler: APIGatewayProxyHandler = async (event) => {
       name
     );
     
-    return {
-      statusCode: 200,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      },
-      body: JSON.stringify(result)
-    };
+    // For GraphQL resolvers, return the data directly
+    return result;
     
   } catch (error: any) {
     console.error('🚨 LAMBDA ERROR:', error);
     
-    return {
-      statusCode: 500,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      },
-      body: JSON.stringify({
-        error: 'Bedrock Hello failed',
-        message: error.message
-      })
-    };
+    // For GraphQL resolvers, throw the error to be handled by AppSync
+    throw new Error(`Bedrock Hello failed: ${error.message}`);
   }
 };
