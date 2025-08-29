@@ -39,7 +39,7 @@ function initializeBedrockClient(): BedrockRuntimeClient {
  */
 async function invokeClaudeModel(prompt: string, name: string): Promise<{ message: string }> {
   const bedrock = initializeBedrockClient();
-  const modelId = process.env.BEDROCK_MODEL_ID || 'anthropic.claude-3-5-sonnet-20241022-v2:0';
+  const modelId = process.env.BEDROCK_MODEL_ID || 'us.anthropic.claude-3-5-sonnet-20240620-v1:0';
   
   console.log('🤖 INVOKING BEDROCK:', {
     modelId,
@@ -95,6 +95,7 @@ async function invokeClaudeModel(prompt: string, name: string): Promise<{ messag
 
 /**
  * Lambda handler for Hello World Bedrock test
+ * Updated: Fix model ID to use inference profile
  */
 export const handler: APIGatewayProxyHandler = async (event) => {
   console.log('🚀 BEDROCK HELLO LAMBDA START:', JSON.stringify(event, null, 2));
