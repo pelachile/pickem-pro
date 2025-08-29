@@ -3,6 +3,7 @@ import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { LoadingSpinner } from '../ui/LoadingSpinner';
 import { StatusBadge } from '../ui/StatusBadge';
+import { AIAnalysisService } from '../../services/aiAnalysisService';
 import { 
   TrendingUp, 
   TrendingDown, 
@@ -28,7 +29,8 @@ import {
   ChevronRight,
   MapPin,
   Gauge,
-  Minus
+  Minus,
+  TestTube
 } from 'lucide-react';
 
 // Enhanced AI Team Analysis Data Structure
@@ -368,6 +370,35 @@ export function EnhancedAITeamDataDisplay({
   viewMode = 'detailed'
 }: EnhancedAITeamDataDisplayProps) {
   const [selectedImage, setSelectedImage] = useState<number>(0);
+  const [testResult, setTestResult] = useState<string | null>(null);
+  const [testing, setTesting] = useState(false);
+
+  const handleTestBedrock = async () => {
+    setTesting(true);
+    setTestResult(null);
+    
+    try {
+      const result = await AIAnalysisService.testBedrock();
+      console.log('Bedrock test result:', result);
+      
+      if (result.success) {
+        setTestResult(`✅ SUCCESS: ${result.message}`);
+        if (result.details) {
+          console.log('Test details:', result.details);
+        }
+      } else {
+        setTestResult(`❌ FAILED: ${result.message}`);
+        if (result.details) {
+          console.error('Test failure details:', result.details);
+        }
+      }
+    } catch (error) {
+      console.error('Test error:', error);
+      setTestResult(`❌ ERROR: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    } finally {
+      setTesting(false);
+    }
+  };
 
   if (loading || !teamData) {
     return (
@@ -635,20 +666,37 @@ export function EnhancedAITeamDataDisplay({
                       Season {aiAnalysis.season_year}
                     </div>
                   )}
-                  <Button
-                    onClick={onRefreshAI}
-                    disabled={aiLoading}
-                    variant="outline"
-                    size="sm"
-                    className="flex items-center gap-2 bg-purple-500/20 border-purple-500/30 hover:bg-purple-500/30 text-purple-200"
-                  >
-                    {aiLoading ? (
-                      <LoadingSpinner size="sm" color="white" />
-                    ) : (
-                      <Sparkles className="h-4 w-4" />
-                    )}
-                    {aiLoading ? 'Analyzing...' : 'Refresh AI'}
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      onClick={onRefreshAI}
+                      disabled={aiLoading || testing}
+                      variant="outline"
+                      size="sm"
+                      className="flex items-center gap-2 bg-purple-500/20 border-purple-500/30 hover:bg-purple-500/30 text-purple-200"
+                    >
+                      {aiLoading ? (
+                        <LoadingSpinner size="sm" color="white" />
+                      ) : (
+                        <Sparkles className="h-4 w-4" />
+                      )}
+                      {aiLoading ? 'Analyzing...' : 'Refresh AI'}
+                    </Button>
+                    <Button
+                      onClick={handleTestBedrock}
+                      disabled={testing || aiLoading}
+                      variant="outline"
+                      size="sm"
+                      className="flex items-center gap-2 bg-blue-500/20 border-blue-500/30 hover:bg-blue-500/30 text-blue-200"
+                      title="Test AWS Bedrock Connection"
+                    >
+                      {testing ? (
+                        <LoadingSpinner size="sm" color="white" />
+                      ) : (
+                        <TestTube className="h-4 w-4" />
+                      )}
+                      {testing ? 'Testing...' : 'Test'}
+                    </Button>
+                  </div>
                 </div>
               )}
             </div>
@@ -657,6 +705,31 @@ export function EnhancedAITeamDataDisplay({
           </div>
         </div>
       </Card>
+
+      {/* Test Result Display */}
+      {testResult && (
+        <Card className="p-4" glass={true}>
+          <div className="flex items-start gap-3">
+            <div className="p-2 bg-blue-500/20 rounded-lg">
+              <TestTube className="h-5 w-5 text-blue-400" />
+            </div>
+            <div className="flex-1">
+              <h3 className="text-lg font-semibold text-white mb-2">Bedrock Connection Test</h3>
+              <div className="text-sm text-white/80 font-mono bg-black/30 p-3 rounded-lg border border-white/10">
+                {testResult}
+              </div>
+              <Button
+                onClick={() => setTestResult(null)}
+                variant="outline"
+                size="sm"
+                className="mt-3 text-white/60 border-white/20 hover:bg-white/10"
+              >
+                Dismiss
+              </Button>
+            </div>
+          </div>
+        </Card>
+      )}
 
       {/* AI Analysis Content */}
       {aiAnalysis && viewMode !== 'compact' && (

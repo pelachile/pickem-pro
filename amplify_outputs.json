@@ -1,9 +1,9 @@
 {
   "auth": {
-    "user_pool_id": "us-east-2_KaGSwNdHt",
+    "user_pool_id": "us-east-2_eoxk394SZ",
     "aws_region": "us-east-2",
-    "user_pool_client_id": "76rvd3uqj8d8tj1sqifknl1i30",
-    "identity_pool_id": "us-east-2:347f407a-6f79-4c69-bb5c-78b48ebc299f",
+    "user_pool_client_id": "2h8dlng8129d937v2jkijaqv20",
+    "identity_pool_id": "us-east-2:0268bb1a-5188-4044-bc62-157b90671b4d",
     "mfa_methods": [],
     "standard_required_attributes": [
       "email"
@@ -26,7 +26,7 @@
     "unauthenticated_identities_enabled": true
   },
   "data": {
-    "url": "https://udmgxtsejfai3ax3ayayzftbuu.appsync-api.us-east-2.amazonaws.com/graphql",
+    "url": "https://wnww3rmaubadvanj5p64dzstma.appsync-api.us-east-2.amazonaws.com/graphql",
     "aws_region": "us-east-2",
     "default_authorization_type": "AMAZON_COGNITO_USER_POOLS",
     "authorization_types": [
@@ -1611,7 +1611,38 @@
           ]
         }
       },
-      "nonModels": {}
+      "nonModels": {
+        "SayHelloReturnType": {
+          "name": "SayHelloReturnType",
+          "fields": {
+            "message": {
+              "name": "message",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            }
+          }
+        }
+      },
+      "queries": {
+        "sayHello": {
+          "name": "sayHello",
+          "isArray": false,
+          "type": {
+            "nonModel": "SayHelloReturnType"
+          },
+          "isRequired": false,
+          "arguments": {
+            "name": {
+              "name": "name",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false
+            }
+          }
+        }
+      }
     }
   },
   "version": "1.4"

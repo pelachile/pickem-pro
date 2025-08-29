@@ -1,4 +1,5 @@
 import { type ClientSchema, a, defineData } from '@aws-amplify/backend';
+import { bedrockHello } from '../functions/bedrock-hello/resource';
 
 /*== HYBRID DATA ARCHITECTURE ============================================
 Static Data (CDN/JSON): Teams, schedules, venue info - rarely changes
@@ -246,6 +247,20 @@ const schema = a.schema({
     .secondaryIndexes((index) => [
       index('expires_at').queryField('byExpiration'), // For cleanup jobs
     ]),
+
+  // Simple Hello World test - using custom Lambda resolver
+  sayHello: a
+    .query()
+    .arguments({
+      name: a.string(),
+    })
+    .returns(
+      a.customType({
+        message: a.string(),
+      })
+    )
+    .handler(a.handler.function(bedrockHello))
+    .authorization((allow) => [allow.authenticated()]),
 });
 
 export type Schema = ClientSchema<typeof schema>;
