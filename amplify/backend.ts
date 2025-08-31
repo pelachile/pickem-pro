@@ -5,6 +5,7 @@ import { data } from './data/resource';
 import { espnSync } from './functions/espn-sync/resource';
 import { aiAnalysis } from './functions/ai-analysis/resource';
 import { bedrockHello } from './functions/bedrock-hello/resource';
+import { bedrockTeamAnalysis } from './functions/bedrock-team-analysis/resource';
 
 /**
  * Backend configuration for Pick'em Pro
@@ -13,6 +14,7 @@ import { bedrockHello } from './functions/bedrock-hello/resource';
  * - espnSync: Scheduled Lambda for ESPN API integration
  * - aiAnalysis: AI-powered analysis with AWS Bedrock integration
  * - bedrockHello: Hello World test with Bedrock Claude integration
+ * - bedrockTeamAnalysis: Weekly AI team analysis with ESPN integration
  */
 const backend = defineBackend({
   auth,
@@ -20,6 +22,7 @@ const backend = defineBackend({
   espnSync,
   aiAnalysis,
   bedrockHello,
+  bedrockTeamAnalysis,
 });
 
 
@@ -146,5 +149,79 @@ backend.aiAnalysis.resources.lambda.addToRolePolicy(
 );
 
 
-// Note: Lambda invoke permissions for authenticated users are configured manually in AWS Console
-// The authenticatedUserIamRole has been granted lambda:InvokeFunction permissions
+// Grant comprehensive permissions to the bedrock-team-analysis Lambda function
+backend.bedrockTeamAnalysis.resources.lambda.addToRolePolicy(
+  new PolicyStatement({
+    effect: Effect.ALLOW,
+    actions: [
+      'bedrock:InvokeModel',
+      'bedrock:InvokeModelWithResponseStream',
+      'bedrock:GetModel',
+      'bedrock:ListFoundationModels',
+    ],
+    resources: [
+      'arn:aws:bedrock:us-east-2::foundation-model/anthropic.claude-3-5-sonnet-20241022-v2:0',
+      'arn:aws:bedrock:us-east-2::foundation-model/anthropic.claude-3-5-sonnet-20240620-v1:0',
+      'arn:aws:bedrock:us-east-2::foundation-model/anthropic.claude-3-haiku-20240307-v1:0',
+      'arn:aws:bedrock:us-east-2::foundation-model/anthropic.claude-3-5-haiku-20241022-v1:0',
+      'arn:aws:bedrock:us-east-2:020760382742:inference-profile/us.anthropic.claude-3-5-sonnet-20240620-v1:0',
+      'arn:aws:bedrock:us-east-2:020760382742:inference-profile/us.anthropic.claude-3-5-haiku-20241022-v1:0',
+      'arn:aws:bedrock:us-east-2::foundation-model/*',
+      'arn:aws:bedrock:us-west-2::foundation-model/*',
+      'arn:aws:bedrock:us-west-2:020760382742:inference-profile/us.anthropic.claude-3-5-sonnet-20240620-v1:0',
+      'arn:aws:bedrock:us-west-2:020760382742:inference-profile/us.anthropic.claude-3-5-sonnet-20241022-v2:0',
+      'arn:aws:bedrock:us-west-2:020760382742:inference-profile/us.anthropic.claude-3-5-haiku-20241022-v1:0',
+      // us-east-1 inference profiles
+      'arn:aws:bedrock:us-east-1::foundation-model/*',
+      'arn:aws:bedrock:us-east-1:020760382742:inference-profile/us.anthropic.claude-3-5-sonnet-20240620-v1:0',
+      'arn:aws:bedrock:us-east-1:020760382742:inference-profile/us.anthropic.claude-3-5-sonnet-20241022-v2:0',
+      'arn:aws:bedrock:us-east-1:020760382742:inference-profile/us.anthropic.claude-3-5-haiku-20241022-v1:0',
+    ],
+  })
+);
+
+// Grant S3 permissions for analysis caching
+backend.bedrockTeamAnalysis.resources.lambda.addToRolePolicy(
+  new PolicyStatement({
+    effect: Effect.ALLOW,
+    actions: [
+      's3:GetObject',
+      's3:PutObject',
+      's3:DeleteObject',
+      's3:ListBucket',
+      's3:GetBucketLocation',
+      's3:CreateBucket',
+    ],
+    resources: [
+      'arn:aws:s3:::amplify-pickemapp-cory-sa-amplifydataamplifycodege-xlbjhi6tuxfw',
+      'arn:aws:s3:::amplify-pickemapp-cory-sa-amplifydataamplifycodege-xlbjhi6tuxfw/*',
+    ],
+  })
+);
+
+// Grant CloudWatch permissions for logging
+backend.bedrockTeamAnalysis.resources.lambda.addToRolePolicy(
+  new PolicyStatement({
+    effect: Effect.ALLOW,
+    actions: [
+      'logs:CreateLogGroup',
+      'logs:CreateLogStream',
+      'logs:PutLogEvents',
+    ],
+    resources: ['*'],
+  })
+);
+
+// Grant Lambda invoke permissions to authenticated users
+backend.auth.resources.authenticatedUserIamRole.addToPrincipalPolicy(
+  new PolicyStatement({
+    effect: Effect.ALLOW,
+    actions: ['lambda:InvokeFunction'],
+    resources: [
+      backend.bedrockHello.resources.lambda.functionArn,
+      backend.bedrockTeamAnalysis.resources.lambda.functionArn,
+    ],
+  })
+);
+
+// Note: Lambda invoke permissions for authenticated users are now configured via CDK

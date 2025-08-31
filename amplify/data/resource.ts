@@ -1,5 +1,6 @@
 import { type ClientSchema, a, defineData } from '@aws-amplify/backend';
 import { bedrockHello } from '../functions/bedrock-hello/resource';
+import { bedrockTeamAnalysis } from '../functions/bedrock-team-analysis/resource';
 
 /*== HYBRID DATA ARCHITECTURE ============================================
 Static Data (CDN/JSON): Teams, schedules, venue info - rarely changes
@@ -260,6 +261,28 @@ const schema = a.schema({
       })
     )
     .handler(a.handler.function(bedrockHello))
+    .authorization((allow) => [allow.authenticated()]),
+
+  // Bedrock Team Analysis - triggers comprehensive AI analysis
+  runTeamAnalysis: a
+    .query()
+    .arguments({
+      // Optional parameters for analysis
+      triggerImmediate: a.boolean(),
+    })
+    .returns(
+      a.customType({
+        statusCode: a.integer(),
+        message: a.string(),
+        version: a.string(),
+        teamsProcessed: a.integer(),
+        executionTime: a.integer(),
+        timestamp: a.string(),
+        // Add teams data to the response
+        teamsData: a.json(),
+      })
+    )
+    .handler(a.handler.function(bedrockTeamAnalysis))
     .authorization((allow) => [allow.authenticated()]),
 });
 
