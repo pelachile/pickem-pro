@@ -8,5 +8,5 @@ export const bedrockHello = defineFunction({
   },
   timeoutSeconds: 30,
   // Force deployment update - v2
-  resourceGroupName: 'data'
+  resourceGroupName: 'bedrockHello'
 });

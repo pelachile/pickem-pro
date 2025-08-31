@@ -1623,6 +1623,60 @@
               "attributes": []
             }
           }
+        },
+        "RunTeamAnalysisReturnType": {
+          "name": "RunTeamAnalysisReturnType",
+          "fields": {
+            "statusCode": {
+              "name": "statusCode",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": false,
+              "attributes": []
+            },
+            "message": {
+              "name": "message",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "version": {
+              "name": "version",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "teamsProcessed": {
+              "name": "teamsProcessed",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": false,
+              "attributes": []
+            },
+            "executionTime": {
+              "name": "executionTime",
+              "isArray": false,
+              "type": "Int",
+              "isRequired": false,
+              "attributes": []
+            },
+            "timestamp": {
+              "name": "timestamp",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "teamsData": {
+              "name": "teamsData",
+              "isArray": false,
+              "type": "AWSJSON",
+              "isRequired": false,
+              "attributes": []
+            }
+          }
         }
       },
       "queries": {
@@ -1638,6 +1692,22 @@
               "name": "name",
               "isArray": false,
               "type": "String",
+              "isRequired": false
+            }
+          }
+        },
+        "runTeamAnalysis": {
+          "name": "runTeamAnalysis",
+          "isArray": false,
+          "type": {
+            "nonModel": "RunTeamAnalysisReturnType"
+          },
+          "isRequired": false,
+          "arguments": {
+            "triggerImmediate": {
+              "name": "triggerImmediate",
+              "isArray": false,
+              "type": "Boolean",
               "isRequired": false
             }
           }
