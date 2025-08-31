@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Link, useLocation } from '@tanstack/react-router';
-import { ChevronDown, ChevronRight, Shield, Users, Search, X } from 'lucide-react';
+import { ChevronDown, ChevronRight, Shield, Users, Search, X, Brain, AlertTriangle, TrendingUp, TrendingDown } from 'lucide-react';
 
 // Team data organized by conference and division
 const teamsStructure = {
@@ -69,6 +69,11 @@ export function TeamsNavigation({ isExpanded, onToggleExpanded }: TeamsNavigatio
   const [expandedDivisions, setExpandedDivisions] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearch, setShowSearch] = useState(false);
+  
+  // Remove AI auto-loading to prevent excessive API calls
+  // AI analysis will be loaded per-team when users visit team pages
+  const aiTeams: any[] = [];
+  const aiLoading = false;
 
   const toggleConference = (conference: string) => {
     setExpandedConferences(prev => {
@@ -171,6 +176,66 @@ export function TeamsNavigation({ isExpanded, onToggleExpanded }: TeamsNavigatio
       'NFC-West': '#ef4444', // Red
     };
     return colorMap[`${conference}-${division}` as keyof typeof colorMap] || '#64748b';
+  };
+
+  // Get AI data for a team
+  const getTeamAIData = (abbreviation: string) => {
+    return aiTeams.find(team => team.abbreviation === abbreviation.toUpperCase());
+  };
+
+  // Get team status indicators
+  const getTeamIndicators = (team: any) => {
+    const aiData = getTeamAIData(team.abbreviation);
+    const indicators = [];
+
+    // AI Analysis Available
+    if (aiData) {
+      indicators.push(
+        <Brain 
+          key="ai" 
+          className="h-3 w-3 text-purple-400" 
+          title="AI Analysis Available"
+        />
+      );
+
+      // Trending Direction
+      if (aiData.trending_direction === 'up') {
+        indicators.push(
+          <TrendingUp 
+            key="trending" 
+            className="h-3 w-3 text-green-400" 
+            title="Trending Up"
+          />
+        );
+      } else if (aiData.trending_direction === 'down') {
+        indicators.push(
+          <TrendingDown 
+            key="trending" 
+            className="h-3 w-3 text-red-400" 
+            title="Trending Down"
+          />
+        );
+      }
+
+      // Key Injuries Alert
+      if (aiData.key_injuries && aiData.key_injuries.length > 0) {
+        const criticalInjuries = aiData.key_injuries.filter((inj: any) => 
+          inj.status.toLowerCase().includes('out') || 
+          inj.status.toLowerCase().includes('doubtful')
+        );
+        if (criticalInjuries.length > 0) {
+          indicators.push(
+            <AlertTriangle 
+              key="injury" 
+              className="h-3 w-3 text-orange-400" 
+              title={`${criticalInjuries.length} Key Injuries`}
+            />
+          );
+        }
+      }
+    }
+
+    return indicators;
   };
 
   if (!isExpanded) return null;
@@ -284,23 +349,39 @@ export function TeamsNavigation({ isExpanded, onToggleExpanded }: TeamsNavigatio
                     {/* Teams */}
                     {expandedDivisions.has(divisionKey) && (
                       <div className="ml-6 space-y-1">
-                        {teams.map((team) => (
-                          <Link
-                            key={team.abbreviation}
-                            to="/team/$teamId"
-                            params={{ teamId: team.abbreviation.toLowerCase() }}
-                            className={`
-                              flex items-center gap-3 p-2 rounded-lg transition-colors text-sm
-                              ${isCurrentPath(`/team/${team.abbreviation.toLowerCase()}`) 
-                                ? 'bg-sky-500/20 text-sky-300' 
-                                : 'text-white/60 hover:text-white hover:bg-white/5'
-                              }
-                            `}
-                          >
-                            <Users className="h-3 w-3" />
-                            <span>{team.name}</span>
-                          </Link>
-                        ))}
+                        {teams.map((team) => {
+                          const indicators = getTeamIndicators(team);
+                          const aiData = getTeamAIData(team.abbreviation);
+                          const isActive = isCurrentPath(`/team/${team.abbreviation.toLowerCase()}`);
+                          
+                          return (
+                            <Link
+                              key={team.abbreviation}
+                              to="/team/$teamId"
+                              params={{ teamId: team.abbreviation.toLowerCase() }}
+                              className={`
+                                flex items-center justify-between p-2 rounded-lg transition-all text-sm group
+                                ${isActive 
+                                  ? 'bg-sky-500/20 text-sky-300 ring-1 ring-sky-500/30' 
+                                  : 'text-white/60 hover:text-white hover:bg-white/5'
+                                }
+                              `}
+                            >
+                              <div className="flex items-center gap-3 min-w-0 flex-1">
+                                <Users className="h-3 w-3 flex-shrink-0" />
+                                <span className="truncate">{team.name}</span>
+                              </div>
+                              
+                              {/* AI and Status Indicators */}
+                              <div className="flex items-center gap-1 flex-shrink-0 ml-2">
+                                {indicators}
+                                {!aiLoading && aiData && (
+                                  <div className="w-1.5 h-1.5 bg-purple-400 rounded-full" title="Fresh AI Data" />
+                                )}
+                              </div>
+                            </Link>
+                          );
+                        })}
                       </div>
                     )}
                   </div>
@@ -311,6 +392,7 @@ export function TeamsNavigation({ isExpanded, onToggleExpanded }: TeamsNavigatio
         </div>
         ))
       )}
+
 
       {/* Quick Links */}
       <div className="border-t border-white/10 pt-2 mt-4">

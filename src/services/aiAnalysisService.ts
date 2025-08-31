@@ -72,87 +72,46 @@ export interface LeagueInsights {
 
 export class AIAnalysisService {
   /**
-   * Trigger AI analysis for teams, players, or league insights
-   * Note: This would normally trigger the Lambda function, but for now we'll simulate the response
+   * Trigger AI analysis for teams using the new GraphQL resolver
    */
   static async triggerAnalysis(params: AIAnalysisRequest = {}): Promise<AIAnalysisResponse> {
     try {
-      // Import AWS Lambda client dynamically to avoid bundle size issues
-      const { LambdaClient, InvokeCommand } = await import('@aws-sdk/client-lambda');
-      const { fetchAuthSession } = await import('aws-amplify/auth');
+      console.log('Triggering AI analysis via GraphQL with params:', params);
       
-      console.log('Triggering AI analysis with params:', params);
-      
-      // Get auth session for AWS credentials
-      const session = await fetchAuthSession();
-      if (!session.credentials) {
-        throw new Error('No valid AWS credentials found');
-      }
-      
-      // Create Lambda client with current credentials
-      const lambdaClient = new LambdaClient({
-        region: 'us-east-2', // Match the region where our Lambda is deployed
-        credentials: session.credentials
+      // Use the new GraphQL resolver instead of direct Lambda invocation
+      const result = await client.queries.runTeamAnalysis({
+        triggerImmediate: params.type === 'full' || params.type === 'teams'
       });
       
-      // Prepare the payload for the Lambda function
-      const payload = {
-        action: 'triggerAnalysis',
-        params: {
-          week: params.week || Math.ceil((Date.now() - new Date('2024-09-01').getTime()) / (7 * 24 * 60 * 60 * 1000)),
-          type: params.type || 'full'
-        }
-      };
-      
-      // Invoke the Lambda function
-      const command = new InvokeCommand({
-        FunctionName: 'ai-analysis', // This should match the function name in resource.ts
-        Payload: new TextEncoder().encode(JSON.stringify(payload)),
-        InvocationType: 'RequestResponse' // Synchronous invocation
-      });
-      
-      console.log('Invoking Lambda function with payload:', payload);
-      const response = await lambdaClient.send(command);
-      
-      // Parse the response
-      if (response.Payload) {
-        const responseStr = new TextDecoder().decode(response.Payload);
-        const lambdaResult = JSON.parse(responseStr);
+      if (result.data) {
+        console.log('GraphQL team analysis response:', result.data);
         
-        console.log('Lambda response:', lambdaResult);
-        
-        // Check if Lambda execution was successful
-        if (response.StatusCode === 200 && !lambdaResult.errorType) {
-          return {
-            message: `AI Analysis ${params.type || 'full'} triggered successfully`,
-            results: lambdaResult.body || {
-              week: payload.params.week,
-              season: new Date().getFullYear(),
-              analysis_type: payload.params.type,
-              teams_processed: params.type === 'teams' || params.type === 'full' ? 32 : 0,
-              players_processed: params.type === 'players' || params.type === 'full' ? 250 : 0,
-              execution_time: 2000
-            },
-            timestamp: new Date().toISOString()
-          };
-        } else {
-          // Lambda function returned an error
-          throw new Error(lambdaResult.errorMessage || 'Lambda function execution failed');
-        }
+        return {
+          message: result.data.message || 'Analysis completed',
+          results: {
+            week: params.week || Math.ceil((Date.now() - new Date('2024-09-01').getTime()) / (7 * 24 * 60 * 60 * 1000)),
+            season: new Date().getFullYear(),
+            analysis_type: params.type || 'teams',
+            teams_processed: result.data.teamsProcessed || 0,
+            players_processed: 0, // Not implemented in team analysis
+            execution_time: result.data.executionTime || 0
+          },
+          timestamp: result.data.timestamp || new Date().toISOString()
+        };
       } else {
-        throw new Error('No response payload from Lambda function');
+        throw new Error('No response from GraphQL resolver');
       }
     } catch (error) {
-      console.error('Error triggering AI analysis:', error);
+      console.error('Error triggering AI analysis via GraphQL:', error);
       
       // Provide more detailed error information
       if (error instanceof Error) {
-        if (error.message.includes('credentials')) {
+        if (error.message.includes('credentials') || error.message.includes('Unauthorized')) {
           throw new Error('Authentication failed - please ensure you are logged in');
         } else if (error.message.includes('AccessDenied')) {
-          throw new Error('Permission denied - check Lambda function permissions');
-        } else if (error.message.includes('Function not found')) {
-          throw new Error('AI analysis function not found - check deployment');
+          throw new Error('Permission denied - check GraphQL resolver permissions');
+        } else if (error.message.includes('not found')) {
+          throw new Error('GraphQL resolver not found - check deployment');
         }
       }
       
@@ -161,135 +120,133 @@ export class AIAnalysisService {
   }
 
   /**
-   * Test Bedrock connectivity by calling the Lambda function with a simple test payload
+   * Test Bedrock connectivity using the GraphQL resolver
    */
   static async testBedrock(): Promise<{ success: boolean; message: string; details?: any }> {
     try {
-      // Import AWS Lambda client dynamically
-      const { LambdaClient, InvokeCommand } = await import('@aws-sdk/client-lambda');
-      const { fetchAuthSession } = await import('aws-amplify/auth');
+      console.log('Testing Bedrock connectivity via GraphQL...');
       
-      console.log('Testing Bedrock connectivity...');
-      
-      // Get auth session for AWS credentials
-      const session = await fetchAuthSession();
-      if (!session.credentials) {
-        return {
-          success: false,
-          message: 'No valid AWS credentials found - please ensure you are logged in'
-        };
-      }
-      
-      // Create Lambda client with current credentials
-      const lambdaClient = new LambdaClient({
-        region: 'us-east-2',
-        credentials: session.credentials
+      // Test the simpler bedrock hello function first
+      const helloResult = await client.queries.sayHello({
+        name: 'Frontend Test'
       });
       
-      // Prepare a simple test payload
-      const payload = {
-        action: 'test',
-        params: {
-          testMessage: 'Hello from frontend - testing Bedrock connection'
-        }
-      };
-      
-      // Try to find the correct function name by attempting different variations
-      const possibleNames = [
-        'ai-analysis',
-        'amplify-aianalysis',
-        'amplifyaianalysis',
-        // Add more variations based on Amplify naming conventions
-      ];
-      
-      for (const functionName of possibleNames) {
+      if (helloResult.data?.message) {
+        console.log('Hello test succeeded:', helloResult.data.message);
+        
+        // Now test the team analysis function
         try {
-          console.log(`Trying function name: ${functionName}`);
-          
-          const command = new InvokeCommand({
-            FunctionName: functionName,
-            Payload: new TextEncoder().encode(JSON.stringify(payload)),
-            InvocationType: 'RequestResponse'
+          const analysisResult = await client.queries.runTeamAnalysis({
+            triggerImmediate: false // Test mode, don't actually run analysis
           });
           
-          const response = await lambdaClient.send(command);
-          
-          if (response.Payload) {
-            const responseStr = new TextDecoder().decode(response.Payload);
-            const lambdaResult = JSON.parse(responseStr);
-            
+          if (analysisResult.data) {
             return {
               success: true,
-              message: `Successfully connected to Lambda function: ${functionName}`,
+              message: `Bedrock connectivity successful! Team analysis function responding.`,
               details: {
-                functionName,
-                statusCode: response.StatusCode,
-                response: lambdaResult
+                helloTest: helloResult.data.message,
+                analysisTest: {
+                  statusCode: analysisResult.data.statusCode,
+                  message: analysisResult.data.message,
+                  teamsProcessed: analysisResult.data.teamsProcessed
+                }
               }
             };
           }
-        } catch (fnError: any) {
-          console.log(`Function ${functionName} failed:`, fnError.message);
-          
-          // If it's not a "function not found" error, this might be the right function
-          // but there's another issue
-          if (!fnError.message.includes('Function not found') && !fnError.message.includes('does not exist')) {
-            return {
-              success: false,
-              message: `Found function ${functionName} but execution failed: ${fnError.message}`,
-              details: {
-                functionName,
-                error: fnError.message
-              }
-            };
-          }
+        } catch (analysisError) {
+          // Hello worked but analysis failed - partial success
+          return {
+            success: true,
+            message: `Bedrock basic connectivity works, but team analysis needs attention: ${analysisError instanceof Error ? analysisError.message : 'Unknown error'}`,
+            details: {
+              helloTest: helloResult.data.message,
+              analysisError: analysisError instanceof Error ? analysisError.message : 'Unknown error'
+            }
+          };
         }
       }
       
-      // If we get here, none of the function names worked
       return {
         success: false,
-        message: 'Could not find Lambda function with any of the expected names',
+        message: 'Bedrock hello test failed - no response from GraphQL resolver',
         details: {
-          attemptedNames: possibleNames,
-          suggestion: 'Check the actual function name in AWS Console or Amplify deployment'
+          helloResult: helloResult
         }
       };
       
     } catch (error) {
-      console.error('Error testing Bedrock connectivity:', error);
+      console.error('Error testing Bedrock connectivity via GraphQL:', error);
       return {
         success: false,
         message: `Bedrock test failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        details: error
+        details: {
+          error: error instanceof Error ? {
+            name: error.name,
+            message: error.message,
+            stack: error.stack
+          } : error
+        }
       };
     }
   }
 
   /**
-   * Get AI-enhanced team analysis data
+   * Get AI-enhanced team analysis data from GraphQL or trigger new analysis
    */
   static async getTeamAnalysis(abbreviation?: string, seasonYear?: number): Promise<TeamAnalysis[]> {
     try {
-      const result = await client.models.NFLTeam.list({
+      console.log(`Reading team analysis for ${abbreviation || 'all teams'}...`);
+      
+      // Call runTeamAnalysis with triggerImmediate: false to read from cache
+      const result = await client.queries.runTeamAnalysis({
+        triggerImmediate: false
+      });
+      
+      if (result.data?.teamsData) {
+        console.log('✅ Got teams data from GraphQL response');
+        const teamsData = JSON.parse(result.data.teamsData as string);
+        
+        // Filter by abbreviation if specified
+        if (abbreviation) {
+          const filtered = teamsData.filter((team: any) => 
+            team.abbreviation?.toLowerCase() === abbreviation.toLowerCase()
+          );
+          console.log(`Filtered to ${filtered.length} teams for ${abbreviation}`);
+          return filtered;
+        }
+        
+        return teamsData;
+      }
+
+      // Fallback to DynamoDB if no teams data returned
+      console.log('No teams data in GraphQL response, trying DynamoDB...');
+      const dbResult = await client.models.NFLTeam.list({
         filter: {
           ...(abbreviation && { abbreviation: { eq: abbreviation } }),
           ...(seasonYear && { season_year: { eq: seasonYear } })
         }
       });
 
-      return result.data.map(team => ({
-        id: team.id,
-        abbreviation: team.abbreviation,
-        season_year: team.season_year,
-        season_outlook: team.season_outlook || undefined,
-        strengths: team.strengths || undefined,
-        weaknesses: team.weaknesses || undefined,
-        key_injuries: team.key_injuries || undefined,
-        weekly_highlights: team.weekly_highlights || undefined,
-        game_preview: team.game_preview || undefined,
-        ai_last_updated: team.ai_last_updated || undefined
-      }));
+      if (dbResult.data.length > 0) {
+        console.log(`Found ${dbResult.data.length} teams in database`);
+        return dbResult.data.map(team => ({
+          id: team.id,
+          abbreviation: team.abbreviation,
+          season_year: team.season_year,
+          season_outlook: team.season_outlook || undefined,
+          strengths: team.strengths || undefined,
+          weaknesses: team.weaknesses || undefined,
+          key_injuries: team.key_injuries || undefined,
+          weekly_highlights: team.weekly_highlights || undefined,
+          game_preview: team.game_preview || undefined,
+          ai_last_updated: team.ai_last_updated || undefined
+        }));
+      }
+      
+      // No data found anywhere
+      console.log('No team analysis found.');
+      return [];
     } catch (error) {
       console.error('Error fetching team analysis:', error);
       throw new Error(`Failed to fetch team analysis: ${error instanceof Error ? error.message : 'Unknown error'}`);

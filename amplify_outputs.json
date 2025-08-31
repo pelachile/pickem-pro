@@ -1677,6 +1677,39 @@
               "attributes": []
             }
           }
+        },
+        "GetTeamFromCacheReturnType": {
+          "name": "GetTeamFromCacheReturnType",
+          "fields": {
+            "success": {
+              "name": "success",
+              "isArray": false,
+              "type": "Boolean",
+              "isRequired": false,
+              "attributes": []
+            },
+            "teamData": {
+              "name": "teamData",
+              "isArray": false,
+              "type": "AWSJSON",
+              "isRequired": false,
+              "attributes": []
+            },
+            "version": {
+              "name": "version",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "generatedAt": {
+              "name": "generatedAt",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            }
+          }
         }
       },
       "queries": {
@@ -1708,6 +1741,22 @@
               "name": "triggerImmediate",
               "isArray": false,
               "type": "Boolean",
+              "isRequired": false
+            }
+          }
+        },
+        "getTeamFromCache": {
+          "name": "getTeamFromCache",
+          "isArray": false,
+          "type": {
+            "nonModel": "GetTeamFromCacheReturnType"
+          },
+          "isRequired": false,
+          "arguments": {
+            "teamAbbreviation": {
+              "name": "teamAbbreviation",
+              "isArray": false,
+              "type": "String",
               "isRequired": false
             }
           }

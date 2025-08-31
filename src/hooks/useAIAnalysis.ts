@@ -39,13 +39,8 @@ export function useAITeamAnalysis(abbreviation?: string, seasonYear?: number) {
     setState(prev => ({ ...prev, loading: true, error: null }));
     
     try {
-      // Trigger new AI analysis
-      await AIAnalysisService.triggerAnalysis({ ...params, type: 'teams' });
-      
-      // Fetch updated data after a brief delay
-      setTimeout(() => {
-        fetchTeams();
-      }, 2000);
+      // Just re-fetch from cache (no API calls)
+      await fetchTeams();
     } catch (error) {
       setState(prev => ({ 
         ...prev, 
@@ -55,9 +50,11 @@ export function useAITeamAnalysis(abbreviation?: string, seasonYear?: number) {
     }
   }, [fetchTeams]);
 
-  useEffect(() => {
-    fetchTeams();
-  }, [fetchTeams]);
+  // Disable auto-fetch on component mount to prevent excessive API calls
+  // Users must explicitly click "Refresh Analysis" to trigger new analysis
+  // useEffect(() => {
+  //   fetchTeams();
+  // }, [fetchTeams]);
 
   return {
     teams,

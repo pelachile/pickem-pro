@@ -6,7 +6,8 @@ import {
 } from '@aws-sdk/client-bedrock-runtime';
 import {
   S3Client,
-  PutObjectCommand
+  PutObjectCommand,
+  GetObjectCommand
 } from '@aws-sdk/client-s3';
 
 // Types for ESPN API responses
@@ -479,6 +480,123 @@ Provide ONLY the JSON response with no additional text or formatting.
 }
 
 /**
+ * Read all teams from S3 cache
+ */
+async function readAllTeamsFromS3Cache(): Promise<{ teams: any[]; version: string }> {
+  const { s3 } = initializeClients();
+  const bucketName = process.env.S3_BUCKET_NAME || 'amplify-pickemapp-cory-sa-amplifydataamplifycodege-xlbjhi6tuxfw';
+  
+  try {
+    // Get current version from manifest
+    let currentVersion: string;
+    try {
+      const manifestResult = await s3.send(new GetObjectCommand({
+        Bucket: bucketName,
+        Key: 'current/manifest.json'
+      }));
+      const manifestBody = await manifestResult.Body?.transformToString();
+      const manifest = JSON.parse(manifestBody || '{}');
+      currentVersion = manifest.version;
+      console.log(`📦 Current version from manifest: ${currentVersion}`);
+    } catch (manifestError) {
+      // Fallback to hardcoded version
+      console.warn('No manifest found, using latest known version');
+      currentVersion = '1756662473353'; // Latest version from S3 screenshot
+    }
+    
+    // Read main analysis file which contains all teams
+    const analysisResult = await s3.send(new GetObjectCommand({
+      Bucket: bucketName,
+      Key: `v${currentVersion}/analysis.json`
+    }));
+    
+    const analysisBody = await analysisResult.Body?.transformToString();
+    const analysisData = JSON.parse(analysisBody || '{}');
+    
+    console.log(`✅ Read analysis.json with ${analysisData.teams?.length || 0} teams`);
+    
+    return {
+      teams: analysisData.teams || [],
+      version: currentVersion
+    };
+  } catch (error) {
+    console.error('❌ Error reading from S3 cache:', error);
+    throw error;
+  }
+}
+
+/**
+ * Handle getTeamFromCache GraphQL request
+ */
+async function handleGetTeamFromCache(event: any): Promise<any> {
+  console.log(`🔍 handleGetTeamFromCache called with event:`, JSON.stringify(event, null, 2));
+  
+  const { s3 } = initializeClients();
+  const bucketName = process.env.S3_BUCKET_NAME || 'amplify-pickemapp-cory-sa-amplifydataamplifycodege-xlbjhi6tuxfw';
+  const teamAbbreviation = event?.arguments?.teamAbbreviation?.toLowerCase();
+  
+  console.log(`📝 Extracted teamAbbreviation: "${teamAbbreviation}"`);
+  console.log(`🪣 Using bucket: ${bucketName}`);
+  
+  if (!teamAbbreviation) {
+    console.log(`❌ No team abbreviation provided`);
+    return {
+      success: false,
+      teamData: null,
+      version: null,
+      generatedAt: null
+    };
+  }
+  
+  try {
+    console.log(`🔍 Reading team ${teamAbbreviation} from S3 cache...`);
+    
+    // First get current version
+    let currentVersion: string;
+    try {
+      const manifestResult = await s3.send(new GetObjectCommand({
+        Bucket: bucketName,
+        Key: 'current/manifest.json'
+      }));
+      const manifestBody = await manifestResult.Body?.transformToString();
+      const manifest = JSON.parse(manifestBody || '{}');
+      currentVersion = manifest.version;
+      console.log(`📦 Current version: ${currentVersion}`);
+    } catch (manifestError) {
+      // Fallback to hardcoded version if manifest not found
+      console.warn('No manifest found, using hardcoded version');
+      currentVersion = '1756662473353'; // Latest version from S3 screenshot
+    }
+    
+    // Read team data from S3
+    const teamResult = await s3.send(new GetObjectCommand({
+      Bucket: bucketName,
+      Key: `v${currentVersion}/teams/${teamAbbreviation}.json`
+    }));
+    
+    const teamBody = await teamResult.Body?.transformToString();
+    const teamData = JSON.parse(teamBody || '{}');
+    
+    console.log(`✅ Found team ${teamAbbreviation} in S3 cache`);
+    
+    return {
+      success: true,
+      teamData,
+      version: currentVersion,
+      generatedAt: teamData.aiGeneratedAt || new Date().toISOString()
+    };
+  } catch (error) {
+    console.error(`❌ Error reading team ${teamAbbreviation} from S3:`, error);
+    return {
+      success: false,
+      teamData: null,
+      version: null,
+      generatedAt: null
+    };
+  }
+}
+
+/**
  * Save analysis results to S3
  */
 async function saveToS3(results: AnalysisResults): Promise<void> {
@@ -542,9 +660,39 @@ async function saveToS3(results: AnalysisResults): Promise<void> {
  * Main Lambda handler - processes all teams and players
  */
 export const handler: Handler = async (event) => {
-  console.log('🚀 Starting weekly AI analysis');
   console.log('📋 Event received:', JSON.stringify(event, null, 2));
+  console.log(`🔍 Checking fieldName: "${event?.info?.fieldName}"`);
   
+  // Handle different GraphQL operations
+  if (event?.info?.fieldName === 'getTeamFromCache') {
+    console.log('✅ Routing to handleGetTeamFromCache');
+    return await handleGetTeamFromCache(event);
+  }
+  
+  // Check if this is a request for cached data (not triggering new analysis)
+  if (event?.arguments?.triggerImmediate === false || event?.arguments?.triggerImmediate === undefined) {
+    console.log('📚 Request for cached data - reading from S3');
+    try {
+      const cacheResult = await readAllTeamsFromS3Cache();
+      if (cacheResult.teams.length > 0) {
+        console.log(`✅ Found ${cacheResult.teams.length} teams in S3 cache`);
+        return {
+          statusCode: 200,
+          message: `Loaded ${cacheResult.teams.length} teams from S3 cache`,
+          version: cacheResult.version,
+          teamsProcessed: cacheResult.teams.length,
+          executionTime: 0,
+          timestamp: new Date().toISOString(),
+          teamsData: cacheResult.teams
+        };
+      }
+    } catch (cacheError) {
+      console.warn('Failed to read from S3 cache:', cacheError);
+    }
+  }
+  
+  // Default: Full AI analysis
+  console.log('🚀 Starting weekly AI analysis (default route)');
   const startTime = Date.now();
   const version = startTime.toString();
   

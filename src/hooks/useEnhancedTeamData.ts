@@ -160,7 +160,7 @@ export function useEnhancedTeamData({
               losses: foundTeam.seasonStats.losses,
               ties: foundTeam.seasonStats.ties || 0,
             } : undefined,
-            aiAnalysis: aiTeams.find(ai => ai.abbreviation === foundTeam.abbreviation) || undefined
+            aiAnalysis: aiTeams.find(ai => ai.abbreviation === foundTeam.abbreviation.toUpperCase()) || undefined
           };
 
           setTeamData(enhancedData);
@@ -211,7 +211,7 @@ export function useEnhancedTeamData({
               losses: 9,
               ties: 0,
             },
-            aiAnalysis: aiTeams.find(ai => ai.abbreviation === staticTeamData.abbreviation) || undefined
+            aiAnalysis: aiTeams.find(ai => ai.abbreviation === staticTeamData.abbreviation.toUpperCase()) || undefined
           };
 
           setTeamData(enhancedData);

@@ -1,9 +1,13 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { useState, useEffect } from 'react';
 import { EnhancedAITeamDataDisplay } from '../../components/teams/EnhancedAITeamDataDisplay';
+import TeamHeroSection from '../../components/teams/TeamHeroSection';
+import TeamStatsGrid from '../../components/teams/TeamStatsGrid';
+import TeamScheduleSection from '../../components/teams/TeamScheduleSection';
 import { useEnhancedTeamData } from '../../hooks/useEnhancedTeamData';
 import { Card } from '../../components/ui/Card';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, Calendar, Users, TrendingUp, Activity, Brain } from 'lucide-react';
+import { Button } from '../../components/ui/Button';
 import ContentWrapper from '../../components/layout/ContentWrapper';
 
 export const Route = createFileRoute('/_authenticated/team/$teamId')({
@@ -53,20 +57,56 @@ function TeamPage() {
 
   return (
     <ContentWrapper 
-      title={teamData.basic.displayName} 
-      subtitle={`${teamData.basic.conference} ${teamData.basic.division} • ${teamData.basic.location}`}
+      title="" 
+      subtitle=""
+      showSearchBar={true}
     >
-      <EnhancedAITeamDataDisplay
-        teamData={teamData}
-        loading={loading}
-        onRefreshAI={refreshAI}
-        aiLoading={aiLoading}
-        viewMode="detailed"
-        showTeamStats={true}
-        enableImageGallery={true}
-        showSchedule={true}
-        showNews={true}
-      />
+      <div className="space-y-6">
+        {/* Enhanced Team Hero Section */}
+        <TeamHeroSection 
+          team={teamData.basic}
+          record={teamData.record}
+          aiData={{
+            trending_direction: teamData.aiAnalysis?.trending_direction,
+            power_ranking: teamData.aiAnalysis?.power_ranking,
+            playoff_odds: teamData.aiAnalysis?.playoff_odds,
+            aiGeneratedAt: teamData.aiAnalysis?.aiGeneratedAt
+          }}
+          heroImage={teamData.visuals.bannerImage || teamData.visuals.stadiumImage}
+        />
+
+
+        {/* Team Performance Stats Grid */}
+        <TeamStatsGrid 
+          teamData={{
+            record: teamData.record,
+            aiAnalysis: teamData.aiAnalysis
+          }}
+          showAdvancedMetrics={true}
+        />
+
+        {/* Recent Games and Schedule */}
+        {teamData.aiAnalysis && (
+          <TeamScheduleSection
+            teamName={teamData.basic.displayName}
+            recentGames={teamData.aiAnalysis.recentGames}
+            upcomingGames={teamData.aiAnalysis.upcomingGames}
+          />
+        )}
+
+        {/* Comprehensive AI Analysis Display */}
+        <EnhancedAITeamDataDisplay
+          teamData={teamData}
+          loading={loading}
+          onRefreshAI={refreshAI}
+          aiLoading={aiLoading}
+          viewMode="detailed"
+          showTeamStats={false} // We're showing stats above
+          enableImageGallery={true}
+          showSchedule={true}
+          showNews={true}
+        />
+      </div>
     </ContentWrapper>
   );
 }

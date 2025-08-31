@@ -284,6 +284,23 @@ const schema = a.schema({
     )
     .handler(a.handler.function(bedrockTeamAnalysis))
     .authorization((allow) => [allow.authenticated()]),
+
+  // Get team analysis from S3 cache - read-only, no triggering
+  getTeamFromCache: a
+    .query()
+    .arguments({
+      teamAbbreviation: a.string(),
+    })
+    .returns(
+      a.customType({
+        success: a.boolean(),
+        teamData: a.json(),
+        version: a.string(),
+        generatedAt: a.string(),
+      })
+    )
+    .handler(a.handler.function(bedrockTeamAnalysis))
+    .authorization((allow) => [allow.authenticated(), allow.guest()]),
 });
 
 export type Schema = ClientSchema<typeof schema>;
