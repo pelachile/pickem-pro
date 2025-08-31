@@ -457,7 +457,17 @@ Provide ONLY the JSON response with no additional text or formatting.
           date: game.date
         };
       }),
-      upcomingGames: [], // TODO: Add upcoming games from schedule
+      upcomingGames: espnData.schedule.map(game => {
+        const comp = game.competitions[0];
+        const teamComp = comp.competitors.find(c => c.team.id === espnData.team.id);
+        const opponentComp = comp.competitors.find(c => c.team.id !== espnData.team.id);
+        
+        return {
+          opponent: opponentComp?.team.shortDisplayName || 'Unknown',
+          date: game.date,
+          homeAway: teamComp?.homeAway === 'home' ? 'home' : 'away'
+        };
+      }),
       aiGeneratedAt: new Date().toISOString()
     };
     
@@ -544,149 +554,163 @@ export const handler: Handler = async (event) => {
   try {
     console.log('🔧 DEBUG: Inside try block');
     
-    // PHASE 4 TEST: Full ESPN + Bedrock integration
-    console.log('🎯 FULL INTEGRATION TEST - ESPN + Bedrock team analysis');
+    // FULL NFL ANALYSIS: All 32 teams with real ESPN data + Bedrock AI
+    console.log('🏈 FULL NFL ANALYSIS - Processing all 32 teams with ESPN + Bedrock');
     
-    const teams: TeamAnalysis[] = [];
-    
-    try {
-      const testTeamId = '1'; // Atlanta Falcons
-      console.log(`🏈 Testing full integration with team ${testTeamId}...`);
-      
-      // Step 1: ESPN API
-      console.log(`📡 STEP 1: Fetching ESPN data for team ${testTeamId}...`);
-      const espnData = await fetchESPNTeamData(testTeamId);
-      console.log(`✅ STEP 1 SUCCESS: ESPN data fetched for team: ${espnData.team?.displayName || 'Unknown'}`);
-      console.log(`📊 STEP 1 DATA: ${espnData.recentGames?.length || 0} recent games, ${espnData.schedule?.length || 0} upcoming, ${espnData.injuries?.length || 0} injuries, ${espnData.teamStats?.length || 0} stat categories, ${espnData.topPlayers?.length || 0} players`);
-      
-      // Verify we have essential data
-      if (!espnData.team || !espnData.team.displayName) {
-        throw new Error('ESPN API returned invalid team data - missing team info');
-      }
-      
-      // Step 2: Bedrock AI Analysis  
-      console.log(`🤖 STEP 2: Generating Bedrock AI analysis for ${espnData.team.displayName}...`);
-      const analysis = await generateTeamAnalysis(espnData);
-      console.log(`✅ STEP 2 SUCCESS: Generated AI insights for ${analysis.displayName}`);
-      console.log(`📝 STEP 2 ANALYSIS: Season outlook (first 100 chars): ${analysis.seasonOutlook.substring(0, 100)}...`);
-      console.log(`💪 STEP 2 ANALYSIS: Strengths: ${analysis.strengths.length}, Weaknesses: ${analysis.weaknesses.length}`);
-      console.log(`🏥 STEP 2 ANALYSIS: Key injuries: ${analysis.keyInjuries.length}`);
-      
-      // Verify we have valid analysis
-      if (!analysis || !analysis.displayName) {
-        throw new Error('Bedrock analysis returned invalid data - missing analysis results');
-      }
-      
-      teams.push(analysis);
-      console.log(`🎉 FULL INTEGRATION SUCCESS! Real NFL team analysis complete.`);
-      console.log(`📊 Final teams array length: ${teams.length}`);
-      console.log(`👥 Team names: ${teams.map(t => t.displayName).join(', ')}`);
-      console.log(`✅ SUCCESS: Real teams data will be returned to GraphQL`);
-      
-    } catch (error) {
-      console.error(`❌ CRITICAL: Full integration test FAILED:`, error);
-      console.error(`❌ CRITICAL: Error details:`, error instanceof Error ? error.stack : error);
-      
-      // Log additional debugging info
-      if (error instanceof Error) {
-        console.error(`❌ CRITICAL: Error name: ${error.name}`);
-        console.error(`❌ CRITICAL: Error message: ${error.message}`);
-      }
-      
-      // CRITICAL: Add the error team so we can see what went wrong
-      teams.push({
-        id: 'espn-error',
-        abbreviation: 'ERR',
-        displayName: `ESPN/Bedrock Error: ${error instanceof Error ? error.message : 'Unknown'}`,
-        seasonOutlook: `Integration failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        strengths: ['Error debugging enabled'],
-        weaknesses: ['ESPN or Bedrock failure'],
-        keyInjuries: [],
-        weeklyHighlights: 'Check CloudWatch logs for full error details',
-        gamePreview: 'Fix ESPN API or Bedrock permissions',
-        fantasyInsights: error instanceof Error ? (error.stack?.substring(0, 200) || 'No stack trace') : 'No error details',
-        record: { wins: 0, losses: 1, ties: 0 },
-        recentGames: [],
-        upcomingGames: [],
-        aiGeneratedAt: new Date().toISOString()
-      });
-      
-      // Create an error team to surface the issue through GraphQL
-      const errorTeam: TeamAnalysis = {
-        id: 'bedrock-error',
-        abbreviation: 'ERR',
-        displayName: 'Bedrock Error',
-        seasonOutlook: `Bedrock failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        strengths: ['Error captured'],
-        weaknesses: [error instanceof Error ? error.name || 'Unknown error type' : 'Unknown'],
-        keyInjuries: [],
-        weeklyHighlights: 'Debugging Bedrock connectivity',
-        gamePreview: 'Fix permissions needed',
-        fantasyInsights: error instanceof Error ? error.stack?.substring(0, 200) || 'No stack trace' : 'No error details',
-        record: { wins: 0, losses: 1, ties: 0 },
-        recentGames: [],
-        upcomingGames: [],
-        aiGeneratedAt: new Date().toISOString()
-      };
-      
-      teams.push(errorTeam);
-      console.log(`📋 Error team created to surface issue via GraphQL`);
-    }
-    
-    // Skip S3 save for now
-    console.log('⏭️ Skipping S3 save in test mode');
-    
-    /*
-    // NFL team IDs (ESPN API team IDs) - DISABLED FOR TESTING
-    const NFL_TEAM_IDS = [
-      '1', '2', '3', '4', '5', '6', '7', '8', '9', '10',
-      '11', '12', '13', '14', '15', '16', '17', '18', '19', '20',
-      '21', '22', '23', '24', '25', '26', '27', '28', '29', '30',
-      '33', '34' // 32 teams total
-    ];
-    
+    // Complete ESPN team ID mapping (all 32 NFL teams)
+    const NFL_TEAM_IDS_MAPPING = {
+      // AFC Teams
+      '1': 'ATL',   // Atlanta Falcons (actually NFC, but ESPN uses ID 1)
+      '2': 'BUF',   // Buffalo Bills
+      '3': 'CHI',   // Chicago Bears (NFC)
+      '4': 'CIN',   // Cincinnati Bengals
+      '5': 'CLE',   // Cleveland Browns
+      '6': 'DAL',   // Dallas Cowboys (NFC)
+      '7': 'DEN',   // Denver Broncos
+      '8': 'DET',   // Detroit Lions (NFC)
+      '9': 'GB',    // Green Bay Packers (NFC)
+      '10': 'TEN',  // Tennessee Titans
+      '11': 'IND',  // Indianapolis Colts
+      '12': 'KC',   // Kansas City Chiefs
+      '13': 'LV',   // Las Vegas Raiders
+      '14': 'LAR',  // Los Angeles Rams (NFC)
+      '15': 'MIA',  // Miami Dolphins
+      '16': 'MIN',  // Minnesota Vikings (NFC)
+      '17': 'NE',   // New England Patriots
+      '18': 'NO',   // New Orleans Saints (NFC)
+      '19': 'NYG',  // New York Giants (NFC)
+      '20': 'NYJ',  // New York Jets
+      '21': 'PHI',  // Philadelphia Eagles (NFC)
+      '22': 'ARI',  // Arizona Cardinals (NFC)
+      '23': 'PIT',  // Pittsburgh Steelers
+      '24': 'LAC',  // Los Angeles Chargers
+      '25': 'SF',   // San Francisco 49ers (NFC)
+      '26': 'SEA',  // Seattle Seahawks (NFC)
+      '27': 'TB',   // Tampa Bay Buccaneers (NFC)
+      '28': 'WSH',  // Washington Commanders (NFC)
+      '29': 'CAR',  // Carolina Panthers (NFC) 
+      '30': 'JAX',  // Jacksonville Jaguars
+      '33': 'BAL',  // Baltimore Ravens
+      '34': 'HOU',  // Houston Texans
+    };
+
+    const NFL_TEAM_IDS = Object.keys(NFL_TEAM_IDS_MAPPING);
     console.log(`📊 Processing ${NFL_TEAM_IDS.length} NFL teams...`);
     
-    // Process all teams
     const teams: TeamAnalysis[] = [];
     let processedCount = 0;
+    let successCount = 0;
+    let errorCount = 0;
     
-    // TEMPORARY: Process only first 2 teams for debugging
-    const testTeamIds = NFL_TEAM_IDS.slice(0, 2);
-    console.log(`🔍 DEBUG MODE: Processing only ${testTeamIds.length} teams: ${testTeamIds.join(', ')}`);
-    
-    for (const teamId of testTeamIds) {
+    // Process all 32 teams with proper rate limiting and error handling
+    for (const teamId of NFL_TEAM_IDS) {
       try {
-        console.log(`🏈 Processing team ${teamId}... (${processedCount + 1}/${testTeamIds.length})`);
+        const teamAbbr = NFL_TEAM_IDS_MAPPING[teamId as keyof typeof NFL_TEAM_IDS_MAPPING];
+        console.log(`🏈 Processing team ${teamAbbr} (ESPN ID: ${teamId})... (${processedCount + 1}/${NFL_TEAM_IDS.length})`);
         
-        // Test ESPN API call first
-        console.log(`📡 Fetching ESPN data for team ${teamId}...`);
+        // Step 1: ESPN API call with comprehensive data
+        console.log(`📡 Fetching ESPN data for ${teamAbbr}...`);
         const espnData = await fetchESPNTeamData(teamId);
-        console.log(`✅ ESPN comprehensive data fetched for ${espnData.team?.displayName || 'Unknown Team'} - ${espnData.teamStats?.length || 0} stat categories, ${espnData.topPlayers?.length || 0} players`);
+        console.log(`✅ ESPN data fetched for ${espnData.team?.displayName || 'Unknown Team'}`);
         
-        // Test Bedrock analysis
-        console.log(`🤖 Generating AI analysis for team ${teamId}...`);
+        // Verify we have essential data
+        if (!espnData.team || !espnData.team.displayName) {
+          throw new Error(`ESPN API returned invalid data for team ${teamAbbr}`);
+        }
+        
+        // Step 2: Bedrock AI analysis
+        console.log(`🤖 Generating AI analysis for ${espnData.team.displayName}...`);
         const analysis = await generateTeamAnalysis(espnData);
-        console.log(`✅ AI analysis generated for ${analysis.displayName}`);
+        console.log(`✅ AI analysis completed for ${analysis.displayName}`);
+        
+        // Verify analysis quality
+        if (!analysis || !analysis.displayName || !analysis.seasonOutlook) {
+          throw new Error(`Invalid AI analysis generated for ${teamAbbr}`);
+        }
         
         teams.push(analysis);
+        successCount++;
+        console.log(`🎉 SUCCESS: ${teamAbbr} analysis complete (${analysis.strengths?.length || 0} strengths, ${analysis.weaknesses?.length || 0} weaknesses, ${analysis.keyInjuries?.length || 0} injuries)`);
+        
         processedCount++;
         
-        // Rate limiting - small delay between API calls
-        if (processedCount < testTeamIds.length) {
-          console.log(`⏱️ Rate limiting: waiting 2 seconds...`);
-          await new Promise(resolve => setTimeout(resolve, 2000)); // 2 second delay for debugging
+        // Rate limiting between API calls (2 second delay)
+        if (processedCount < NFL_TEAM_IDS.length) {
+          console.log(`⏱️ Rate limiting: waiting 2 seconds before next team...`);
+          await new Promise(resolve => setTimeout(resolve, 2000));
         }
       } catch (error) {
-        console.error(`❌ Failed to process team ${teamId}:`, error);
-        console.error(`❌ Error details:`, error instanceof Error ? error.stack : error);
-        // Continue with other teams even if one fails
+        errorCount++;
+        const teamAbbr = NFL_TEAM_IDS_MAPPING[teamId as keyof typeof NFL_TEAM_IDS_MAPPING];
+        console.error(`❌ Failed to process team ${teamAbbr} (${teamId}):`, error);
+        
+        // Create error entry for this team so we can track failures
+        teams.push({
+          id: `error-${teamId}`,
+          abbreviation: teamAbbr,
+          displayName: `${teamAbbr} Analysis Error`,
+          seasonOutlook: `Failed to analyze: ${error instanceof Error ? error.message : 'Unknown error'}`,
+          strengths: ['Error processing'],
+          weaknesses: ['Data unavailable'],
+          keyInjuries: [],
+          weeklyHighlights: 'Analysis failed - check logs',
+          gamePreview: 'Retry analysis needed',
+          fantasyInsights: error instanceof Error ? error.message : 'Processing error',
+          record: { wins: 0, losses: 0, ties: 0 },
+          recentGames: [],
+          upcomingGames: [],
+          aiGeneratedAt: new Date().toISOString()
+        });
+        
+        processedCount++;
+        console.log(`📋 Error entry created for ${teamAbbr}, continuing with next team...`);
+        
+        // Continue processing other teams even if one fails
+        if (processedCount < NFL_TEAM_IDS.length) {
+          console.log(`⏱️ Rate limiting after error: waiting 2 seconds...`);
+          await new Promise(resolve => setTimeout(resolve, 2000));
+        }
       }
     }
     
-    */
+    console.log('🏁 Processing complete! Now preparing results for S3 caching...');
     
-    console.log(`✅ TEST MODE: Teams successfully created: ${teams.length}`);
+    // Create comprehensive results for S3 storage  
+    const analysisResults: AnalysisResults = {
+      version: Date.now().toString(),
+      generatedAt: new Date().toISOString(),
+      teams: teams,
+      players: {
+        quarterbacks: [],
+        runningBacks: [],
+        wideReceivers: [],
+        tightEnds: [],
+        kickers: []
+      },
+      leagueInsights: {
+        trendingUp: teams.filter(t => t.seasonOutlook?.includes('trending up') || t.strengths.length > t.weaknesses.length).map(t => t.abbreviation).slice(0, 5),
+        trendingDown: teams.filter(t => t.seasonOutlook?.includes('struggle') || t.weaknesses.length > t.strengths.length).map(t => t.abbreviation).slice(0, 5),
+        injuryWatch: teams.flatMap(t => t.keyInjuries.filter(i => i.impact.includes('high') || i.impact.includes('significant')).map(i => `${t.abbreviation}: ${i.player}`)).slice(0, 10),
+        sleepers: [], // TODO: Add sleeper team detection
+        keyMatchups: teams.flatMap(t => t.upcomingGames.slice(0, 1).map(g => `${t.abbreviation} vs ${g.opponent}`)).slice(0, 8),
+        playoffPicture: `Analysis generated for ${teams.length} teams - playoff picture analysis pending`
+      }
+    };
+    
+    // Save to S3 for caching
+    try {
+      console.log('💾 Saving analysis results to S3...');
+      await saveToS3(analysisResults);
+      console.log('✅ Successfully saved analysis to S3 cache!');
+    } catch (s3Error) {
+      console.error('❌ Failed to save to S3, but analysis was successful:', s3Error);
+      // Don't throw - analysis succeeded even if S3 save failed
+    }
+    
+    console.log(`✅ NFL ANALYSIS COMPLETE!`);
+    console.log(`📊 Teams successfully processed: ${teams.length}`);
+    console.log(`🎉 Success rate: ${successCount}/${NFL_TEAM_IDS.length} (${Math.round(successCount/NFL_TEAM_IDS.length*100)}%)`);
+    console.log(`❌ Errors encountered: ${errorCount}`);
     console.log(`📋 Team names: ${teams.map(t => t.displayName).join(', ')}`);
     
     // TODO: Process top fantasy players by position
@@ -701,8 +725,10 @@ export const handler: Handler = async (event) => {
     console.log('🏁 Reaching final return statement');
     const executionTime = Date.now() - startTime;
     
-    console.log(`✅ Test analysis complete!`);
-    console.log(`📊 Teams created: ${teams.length}`);
+    console.log(`✅ Full NFL analysis complete!`);
+    console.log(`📊 Teams analyzed: ${teams.length}`);
+    console.log(`🏈 Successful analyses: ${successCount}`);
+    console.log(`⚠️ Failed analyses: ${errorCount}`);
     console.log(`👥 FINAL TEAMS COUNT: ${teams.length}`);
     console.log(`👥 FINAL TEAMS DATA:`, JSON.stringify(teams, null, 2));
     console.log(`⏱️  FINAL EXECUTION TIME: ${executionTime}ms`);
@@ -710,7 +736,7 @@ export const handler: Handler = async (event) => {
     
     const finalResponse = {
       statusCode: 200,
-      message: 'Full integration AI analysis completed successfully',
+      message: `NFL team analysis completed: ${successCount} successful, ${errorCount} errors`,
       version,
       teamsProcessed: teams.length,
       executionTime,
