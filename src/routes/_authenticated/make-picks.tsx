@@ -25,7 +25,7 @@ function MakePicksContent() {
     const { data: nflData, isLoading: gamesLoading, getGamesByWeek } = useEnrichedNflData();
     const { isLoading: teamsLoading } = useTeams();
     
-    // Get the most recent week with games available (for off-season display)
+    // Get the current NFL week games for display
     const gamesData = useMemo(() => {
         if (!nflData) {
             return {
@@ -36,10 +36,16 @@ function MakePicksContent() {
                 weekDescription: 'Loading...',
             };
         }
-        // Get the latest week available in the cache
-        const availableWeeks = nflData.meta.weeks_available;
-        const latestWeek = Math.max(...availableWeeks);
-        const weekGames = getGamesByWeek(latestWeek);
+        // Use the current NFL week, but fallback to latest available if current week not available
+        const targetWeek = currentWeek;
+        let weekGames = getGamesByWeek(targetWeek);
+        
+        // If current week data isn't available, fall back to latest available
+        if (weekGames.length === 0 && nflData.meta.weeks_available.length > 0) {
+            const latestWeek = Math.max(...nflData.meta.weeks_available);
+            weekGames = getGamesByWeek(latestWeek);
+            console.log(`No data for current week ${targetWeek}, showing latest available week ${latestWeek}`);
+        }
         
         // Group games by date
         const gamesByDate = weekGames.reduce((acc, game) => {
@@ -55,15 +61,22 @@ function MakePicksContent() {
             new Date(a).getTime() - new Date(b).getTime()
         );
         
+        const displayWeek = weekGames.length > 0 ? 
+            (weekGames[0].week || targetWeek) : targetWeek;
+        
+        const isShowingFallback = weekGames.length > 0 && displayWeek !== targetWeek;
+        
         return {
             games: weekGames,
             gamesByDate,
             sortedDates,
             dateCount: sortedDates.length,
-            week: latestWeek,
-            weekDescription: `Preseason Week ${latestWeek} - Final Results`,
+            week: displayWeek,
+            weekDescription: isShowingFallback ? 
+                `2025 Preseason Week ${displayWeek} (Latest Available)` : 
+                getNFLWeekDescription(currentNFLWeek),
         };
-    }, [nflData, getGamesByWeek]);
+    }, [nflData, getGamesByWeek, currentWeek, currentNFLWeek]);
     
     const gamesError = null;
     
@@ -199,7 +212,7 @@ function MakePicksContent() {
 
     return (
         <ContentWrapper 
-            title="Recent Games" 
+            title="Make Your Picks" 
             subtitle={gamesData?.weekDescription || 'Loading...'}
         >
             {showSuccessMessage && (
@@ -259,8 +272,8 @@ function MakePicksContent() {
                                 const deadline = deadlines.find(d => d.game_id === gameId);
                                 
                                 const isGameCompleted = game.status === 'STATUS_FINAL' || game.status === 'final' || game.status === 'live';
-                                const shouldShowPicks = false; // No picks for historical games
-                                const shouldShowStats = true; // Always show stats for completed games
+                                const shouldShowPicks = !isGameCompleted && !isExpired; // Show picks for upcoming games
+                                const shouldShowStats = isGameCompleted; // Show stats only for completed games
                                 
                                 return (
                                     <GameCard
@@ -290,31 +303,69 @@ function MakePicksContent() {
                 })}
             </div>
 
-            {Object.keys(userPicks).length > 0 && (
-                <div className="mt-8 bg-white/5 backdrop-blur-lg border border-white/10 rounded-xl p-6">
-                    <h3 className="text-lg font-semibold text-white mb-4">Your Picks Summary</h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                        {Object.entries(userPicks).map(([gameId, teamId]) => {
-                            const game = gamesData?.games.find(g => g.id.toString() === gameId);
-                            
-                            const pickedTeam = game?.homeTeam.id === teamId ? game.homeTeam : game?.awayTeam;
-                            const isExpired = expiredGameIds.includes(gameId);
-                            
-                            if (!game || !pickedTeam) return null;
-                            
-                            return (
-                                <div key={gameId} className={`flex items-center justify-between p-3 bg-white/5 rounded-lg border border-white/5 ${isExpired ? 'opacity-60' : ''}`}>
-                                    <span className="text-white/60 text-sm">
-                                        {game.awayTeam.abbreviation} @ {game.homeTeam.abbreviation}
-                                        {isExpired && <span className="ml-2 text-red-400 text-xs">(Expired)</span>}
-                                    </span>
-                                    <span className="text-sky-400 font-medium">{pickedTeam.abbreviation}</span>
-                                </div>
-                            );
-                        })}
+            {/* Picks Summary and Submit Section */}
+            <div className="mt-8">
+                {Object.keys(userPicks).length > 0 ? (
+                    <div className="bg-white/5 backdrop-blur-lg border border-white/10 rounded-xl p-6">
+                        <h3 className="text-lg font-semibold text-white mb-4">Your Picks Summary</h3>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                            {Object.entries(userPicks).map(([gameId, teamId]) => {
+                                const game = gamesData?.games.find(g => g.id.toString() === gameId);
+                                
+                                const pickedTeam = game?.homeTeam.id === teamId ? game.homeTeam : game?.awayTeam;
+                                const isExpired = expiredGameIds.includes(gameId);
+                                
+                                if (!game || !pickedTeam) return null;
+                                
+                                return (
+                                    <div key={gameId} className={`flex items-center justify-between p-3 bg-white/5 rounded-lg border border-white/5 ${isExpired ? 'opacity-60' : ''}`}>
+                                        <span className="text-white/60 text-sm">
+                                            {game.awayTeam.abbreviation} @ {game.homeTeam.abbreviation}
+                                            {isExpired && <span className="ml-2 text-red-400 text-xs">(Expired)</span>}
+                                        </span>
+                                        <span className="text-sky-400 font-medium">{pickedTeam.abbreviation}</span>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                        
+                        {/* Submit Button */}
+                        <div className="mt-6 flex justify-center">
+                            <button
+                                onClick={handleSubmitPicks}
+                                disabled={submitPicksMutation.isPending}
+                                className="px-8 py-3 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 disabled:from-gray-500 disabled:to-gray-600 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-70"
+                            >
+                                {submitPicksMutation.isPending ? (
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+                                        <span>Submitting...</span>
+                                    </div>
+                                ) : (
+                                    <div className="flex items-center gap-2">
+                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                                        </svg>
+                                        <span>Submit My Picks ({Object.keys(userPicks).length} games)</span>
+                                    </div>
+                                )}
+                            </button>
+                        </div>
                     </div>
-                </div>
-            )}
+                ) : (
+                    gamesData?.games.length > 0 && (
+                        <div className="bg-white/5 backdrop-blur-lg border border-white/10 rounded-xl p-6 text-center">
+                            <div className="text-white/60 mb-4">
+                                <svg className="w-12 h-12 mx-auto mb-3 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                                </svg>
+                                <p className="text-lg">Make your picks for Week 1!</p>
+                                <p className="text-sm mt-1">Click on teams above to select your winners</p>
+                            </div>
+                        </div>
+                    )
+                )}
+            </div>
         </ContentWrapper>
     );
 }
